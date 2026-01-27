@@ -44,7 +44,10 @@ defmodule FF.AccountsFixtures do
   """
   def api_key_fixture(user, account, type \\ :private) do
     account_user = Accounts.get_account_user(user, account)
-    {:ok, {api_key, token}} = Accounts.create_api_key(account_user, %{name: "Test Key", type: type})
+
+    {:ok, {api_key, token}} =
+      Accounts.create_api_key(account_user, %{name: "Test Key", type: type})
+
     {token, api_key}
   end
 
@@ -78,17 +81,6 @@ defmodule FF.AccountsFixtures do
       Accounts.login_user_by_magic_link(token)
 
     user
-  end
-
-  @doc """
-  Creates an admin user.
-  """
-  def admin_user_fixture(attrs \\ %{}) do
-    user = user_fixture(attrs)
-
-    user
-    |> Ecto.Changeset.change(is_admin: true)
-    |> FF.Repo.update!()
   end
 
   def user_scope_fixture do
