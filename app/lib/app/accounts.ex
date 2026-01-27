@@ -526,4 +526,98 @@ defmodule FF.Accounts do
     |> Ecto.Changeset.change(status: :revoked)
     |> Repo.update()
   end
+
+  @doc "Get an API key by ID with preloaded associations"
+  def get_api_key!(id) do
+    ApiKey
+    |> Repo.get!(id)
+    |> Repo.preload(account_user: [:user, :account])
+  end
+
+  @doc "Returns an ApiKey changeset for tracking changes"
+  def change_api_key(%ApiKey{} = api_key, attrs \\ %{}) do
+    ApiKey.changeset(api_key, attrs)
+  end
+
+  @doc """
+  Lists all API keys with optional filtering and pagination.
+
+  ## Options
+
+    * `:search` - Search term to filter by name or owner email
+    * `:status` - Filter by status (:active, :revoked)
+    * `:type` - Filter by type (:public, :private)
+    * `:page` - Page number (default: 1)
+    * `:per_page` - Items per page (default: 20)
+
+  """
+  def list_all_api_keys(opts \\ []) do
+    search = Keyword.get(opts, :search)
+    status = Keyword.get(opts, :status)
+    type = Keyword.get(opts, :type)
+    page = Keyword.get(opts, :page, 1)
+    per_page = Keyword.get(opts, :per_page, 20)
+
+    query =
+      from(k in ApiKey,
+        join: au in assoc(k, :account_user),
+        join: u in assoc(au, :user),
+        join: a in assoc(au, :account),
+        order_by: [desc: k.inserted_at],
+        preload: [account_user: {au, user: u, account: a}]
+      )
+
+    query =
+      if search && search != "" do
+        search_term = "%#{search}%"
+
+        from [k, au, u, a] in query,
+          where: ilike(k.name, ^search_term) or ilike(u.email, ^search_term)
+      else
+        query
+      end
+
+    query =
+      if status && status != "" do
+        status_atom = if is_binary(status), do: String.to_existing_atom(status), else: status
+        from k in query, where: k.status == ^status_atom
+      else
+        query
+      end
+
+    query =
+      if type && type != "" do
+        type_atom = if is_binary(type), do: String.to_existing_atom(type), else: type
+        from k in query, where: k.type == ^type_atom
+      else
+        query
+      end
+
+    total = Repo.aggregate(query, :count)
+
+    api_keys =
+      query
+      |> limit(^per_page)
+      |> offset(^((page - 1) * per_page))
+      |> Repo.all()
+
+    %{
+      api_keys: api_keys,
+      total: total,
+      page: page,
+      per_page: per_page,
+      total_pages: ceil(total / per_page)
+    }
+  end
+
+  @doc "List all account_users for API key creation dropdown"
+  def list_all_account_users do
+    from(au in AccountUser,
+      join: u in assoc(au, :user),
+      join: a in assoc(au, :account),
+      order_by: [asc: u.email, asc: a.name],
+      preload: [user: u, account: a]
+    )
+    |> Repo.all()
+  end
 end

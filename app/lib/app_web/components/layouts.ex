@@ -192,6 +192,12 @@ defmodule FFWeb.Layouts do
                 Accounts
               </.link>
             </li>
+            <li>
+              <.link navigate={~p"/admin/api-keys"} class="flex items-center gap-2">
+                <.icon name="hero-key" class="size-5" />
+                API Keys
+              </.link>
+            </li>
           </ul>
         </nav>
       </aside>

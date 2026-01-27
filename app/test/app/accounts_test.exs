@@ -489,4 +489,120 @@ defmodule FF.AccountsTest do
       assert activated.status == :active
     end
   end
+
+  describe "get_api_key!/1" do
+    test "returns API key with preloaded associations" do
+      user = user_fixture()
+      account = account_fixture(user)
+      {_token, api_key} = api_key_fixture(user, account)
+
+      fetched = Accounts.get_api_key!(api_key.id)
+
+      assert fetched.id == api_key.id
+      assert fetched.account_user.user.email == user.email
+      assert fetched.account_user.account.name == account.name
+    end
+
+    test "raises if API key does not exist" do
+      assert_raise Ecto.NoResultsError, fn ->
+        Accounts.get_api_key!("11111111-1111-1111-1111-111111111111")
+      end
+    end
+  end
+
+  describe "list_all_api_keys/1" do
+    test "returns all API keys with pagination" do
+      user = user_fixture()
+      account = account_fixture(user)
+      account_user = Accounts.get_account_user(user, account)
+
+      for i <- 1..25 do
+        Accounts.create_api_key(account_user, %{name: "Key #{i}", type: :public})
+      end
+
+      result = Accounts.list_all_api_keys()
+
+      assert length(result.api_keys) == 20
+      assert result.total == 25
+      assert result.page == 1
+      assert result.total_pages == 2
+    end
+
+    test "filters by search term (name)" do
+      user = user_fixture()
+      account = account_fixture(user)
+      account_user = Accounts.get_account_user(user, account)
+
+      {:ok, {findable, _}} =
+        Accounts.create_api_key(account_user, %{name: "Findable Key", type: :public})
+
+      {:ok, {_other, _}} =
+        Accounts.create_api_key(account_user, %{name: "Other Key", type: :public})
+
+      result = Accounts.list_all_api_keys(search: "Findable")
+
+      assert length(result.api_keys) == 1
+      assert hd(result.api_keys).name == findable.name
+    end
+
+    test "filters by status" do
+      user = user_fixture()
+      account = account_fixture(user)
+      account_user = Accounts.get_account_user(user, account)
+
+      {:ok, {active_key, _}} =
+        Accounts.create_api_key(account_user, %{name: "Active Key", type: :public})
+
+      {:ok, {revoked_key, _}} =
+        Accounts.create_api_key(account_user, %{name: "Revoked Key", type: :public})
+
+      Accounts.revoke_api_key(revoked_key)
+
+      result = Accounts.list_all_api_keys(status: :revoked)
+
+      assert length(result.api_keys) == 1
+      assert hd(result.api_keys).name == "Revoked Key"
+
+      result = Accounts.list_all_api_keys(status: :active)
+      assert length(result.api_keys) == 1
+      assert hd(result.api_keys).name == active_key.name
+    end
+
+    test "filters by type" do
+      user = user_fixture()
+      account = account_fixture(user)
+      account_user = Accounts.get_account_user(user, account)
+
+      {:ok, {_public_key, _}} =
+        Accounts.create_api_key(account_user, %{name: "Public Key", type: :public})
+
+      {:ok, {private_key, _}} =
+        Accounts.create_api_key(account_user, %{name: "Private Key", type: :private})
+
+      result = Accounts.list_all_api_keys(type: :private)
+
+      assert length(result.api_keys) == 1
+      assert hd(result.api_keys).name == private_key.name
+    end
+  end
+
+  describe "list_all_account_users/0" do
+    test "returns all account users with preloads" do
+      user1 = user_fixture()
+      user2 = user_fixture()
+      _account1 = account_fixture(user1, %{name: "Account A"})
+      _account2 = account_fixture(user2, %{name: "Account B"})
+
+      result = Accounts.list_all_account_users()
+
+      # Should have at least 2 account users
+      assert length(result) >= 2
+
+      # Each should have preloaded user and account
+      Enum.each(result, fn au ->
+        assert au.user.email
+        assert au.account.name
+      end)
+    end
+  end
 end
