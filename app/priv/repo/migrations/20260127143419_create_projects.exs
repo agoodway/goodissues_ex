@@ -6,7 +6,9 @@ defmodule FF.Repo.Migrations.CreateProjects do
       add :id, :binary_id, primary_key: true
       add :name, :string, null: false
       add :description, :text
-      add :account_id, references(:accounts, type: :binary_id, on_delete: :delete_all), null: false
+
+      add :account_id, references(:accounts, type: :binary_id, on_delete: :delete_all),
+        null: false
 
       timestamps(type: :utc_datetime)
     end

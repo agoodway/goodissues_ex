@@ -65,7 +65,12 @@ defmodule FF.Tracking.ProjectTest do
 
   describe "update_changeset/2" do
     test "allows partial updates" do
-      project = %Project{id: Ecto.UUID.generate(), name: "Original", account_id: Ecto.UUID.generate()}
+      project = %Project{
+        id: Ecto.UUID.generate(),
+        name: "Original",
+        account_id: Ecto.UUID.generate()
+      }
+
       changeset = Project.update_changeset(project, %{description: "New description"})
 
       assert changeset.valid?
@@ -74,7 +79,12 @@ defmodule FF.Tracking.ProjectTest do
     end
 
     test "validates name max length" do
-      project = %Project{id: Ecto.UUID.generate(), name: "Original", account_id: Ecto.UUID.generate()}
+      project = %Project{
+        id: Ecto.UUID.generate(),
+        name: "Original",
+        account_id: Ecto.UUID.generate()
+      }
+
       changeset = Project.update_changeset(project, %{name: String.duplicate("a", 256)})
 
       refute changeset.valid?
@@ -82,7 +92,12 @@ defmodule FF.Tracking.ProjectTest do
     end
 
     test "does not allow changing account_id" do
-      project = %Project{id: Ecto.UUID.generate(), name: "Original", account_id: Ecto.UUID.generate()}
+      project = %Project{
+        id: Ecto.UUID.generate(),
+        name: "Original",
+        account_id: Ecto.UUID.generate()
+      }
+
       new_account_id = Ecto.UUID.generate()
       changeset = Project.update_changeset(project, %{account_id: new_account_id})
 

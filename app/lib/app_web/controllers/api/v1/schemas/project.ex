@@ -33,8 +33,16 @@ defmodule FFWeb.Api.V1.Schemas.Project do
         id: %Schema{type: :string, format: :uuid, description: "Project ID"},
         name: %Schema{type: :string, description: "Project name"},
         description: %Schema{type: :string, description: "Project description", nullable: true},
-        inserted_at: %Schema{type: :string, format: :"date-time", description: "Creation timestamp"},
-        updated_at: %Schema{type: :string, format: :"date-time", description: "Last update timestamp"}
+        inserted_at: %Schema{
+          type: :string,
+          format: :"date-time",
+          description: "Creation timestamp"
+        },
+        updated_at: %Schema{
+          type: :string,
+          format: :"date-time",
+          description: "Last update timestamp"
+        }
       },
       required: [:id, :name, :inserted_at, :updated_at],
       example: %{

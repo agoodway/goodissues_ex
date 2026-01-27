@@ -18,9 +18,7 @@ defmodule FFWeb.MCP.Supervisor do
       Hermes.Server.Registry,
 
       # Then the MCP server
-      {FFWeb.MCP.Server,
-       transport: :streamable_http,
-       name: FFWeb.MCP.Server}
+      {FFWeb.MCP.Server, transport: :streamable_http, name: FFWeb.MCP.Server}
     ]
 
     Supervisor.init(children, strategy: :rest_for_one)

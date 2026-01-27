@@ -4,7 +4,6 @@ defmodule FFWeb.Api.V1.ProjectControllerTest do
   import FF.AccountsFixtures
   import FF.TrackingFixtures
 
-
   setup %{conn: conn} do
     {user, account} = user_with_account_fixture()
     {token, _api_key} = api_key_fixture(user, account, :private)

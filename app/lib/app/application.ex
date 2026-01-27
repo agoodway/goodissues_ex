@@ -7,6 +7,7 @@ defmodule FF.Application do
 
   @impl true
   def start(_type, _args) do
+    # MCP Server - only in dev
     children =
       [
         FFWeb.Telemetry,
@@ -16,7 +17,6 @@ defmodule FF.Application do
         # Start a worker by calling: FF.Worker.start_link(arg)
         # {FF.Worker, arg},
       ] ++
-        # MCP Server - only in dev
         if(Application.get_env(:app, :dev_routes), do: [FFWeb.MCP.Supervisor], else: []) ++
         [
           # Start to serve requests, typically the last entry

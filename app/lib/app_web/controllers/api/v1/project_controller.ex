@@ -8,32 +8,39 @@ defmodule FFWeb.Api.V1.ProjectController do
 
   action_fallback FFWeb.FallbackController
 
-  tags ["Projects"]
+  tags(["Projects"])
 
-  operation :index,
+  operation(:index,
     summary: "List projects",
     description: "Returns all projects for the authenticated user's account",
     responses: [
       ok: {"Project list", "application/json", ProjectSchemas.ProjectListResponse},
       unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON}
     ]
+  )
 
   def index(conn, _params) do
     projects = Tracking.list_projects(conn.assigns.current_account)
     render(conn, :index, projects: projects)
   end
 
-  operation :show,
+  operation(:show,
     summary: "Get project",
     description: "Returns a specific project by ID",
     parameters: [
-      id: [in: :path, schema: %OpenApiSpex.Schema{type: :string, format: :uuid}, description: "Project ID", required: true]
+      id: [
+        in: :path,
+        schema: %OpenApiSpex.Schema{type: :string, format: :uuid},
+        description: "Project ID",
+        required: true
+      ]
     ],
     responses: [
       ok: {"Project", "application/json", ProjectSchemas.ProjectResponse},
       not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
       unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON}
     ]
+  )
 
   def show(conn, %{"id" => id}) do
     case Tracking.get_project(conn.assigns.current_account, id) do
@@ -42,7 +49,7 @@ defmodule FFWeb.Api.V1.ProjectController do
     end
   end
 
-  operation :create,
+  operation(:create,
     summary: "Create project",
     description: "Creates a new project in the authenticated user's account",
     request_body: {"Project params", "application/json", ProjectSchemas.ProjectRequest},
@@ -52,20 +59,27 @@ defmodule FFWeb.Api.V1.ProjectController do
       unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON},
       forbidden: {"Forbidden", "application/json", FFWeb.ErrorJSON}
     ]
+  )
 
   def create(conn, params) do
-    with {:ok, %Project{} = project} <- Tracking.create_project(conn.assigns.current_account, params) do
+    with {:ok, %Project{} = project} <-
+           Tracking.create_project(conn.assigns.current_account, params) do
       conn
       |> put_status(:created)
       |> render(:show, project: project)
     end
   end
 
-  operation :update,
+  operation(:update,
     summary: "Update project",
     description: "Updates an existing project",
     parameters: [
-      id: [in: :path, schema: %OpenApiSpex.Schema{type: :string, format: :uuid}, description: "Project ID", required: true]
+      id: [
+        in: :path,
+        schema: %OpenApiSpex.Schema{type: :string, format: :uuid},
+        description: "Project ID",
+        required: true
+      ]
     ],
     request_body: {"Project params", "application/json", ProjectSchemas.ProjectRequest},
     responses: [
@@ -75,6 +89,7 @@ defmodule FFWeb.Api.V1.ProjectController do
       unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON},
       forbidden: {"Forbidden", "application/json", FFWeb.ErrorJSON}
     ]
+  )
 
   def update(conn, %{"id" => id} = params) do
     case Tracking.get_project(conn.assigns.current_account, id) do
@@ -88,11 +103,16 @@ defmodule FFWeb.Api.V1.ProjectController do
     end
   end
 
-  operation :delete,
+  operation(:delete,
     summary: "Delete project",
     description: "Deletes a project",
     parameters: [
-      id: [in: :path, schema: %OpenApiSpex.Schema{type: :string, format: :uuid}, description: "Project ID", required: true]
+      id: [
+        in: :path,
+        schema: %OpenApiSpex.Schema{type: :string, format: :uuid},
+        description: "Project ID",
+        required: true
+      ]
     ],
     responses: [
       no_content: "Project deleted",
@@ -100,6 +120,7 @@ defmodule FFWeb.Api.V1.ProjectController do
       unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON},
       forbidden: {"Forbidden", "application/json", FFWeb.ErrorJSON}
     ]
+  )
 
   def delete(conn, %{"id" => id}) do
     case Tracking.get_project(conn.assigns.current_account, id) do

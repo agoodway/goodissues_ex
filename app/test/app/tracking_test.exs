@@ -77,7 +77,10 @@ defmodule FF.TrackingTest do
       {_user, account} = user_with_account_fixture()
 
       assert {:ok, %Project{} = project} =
-               Tracking.create_project(account, %{name: "My Project", description: "A description"})
+               Tracking.create_project(account, %{
+                 name: "My Project",
+                 description: "A description"
+               })
 
       assert project.name == "My Project"
       assert project.description == "A description"
@@ -104,7 +107,10 @@ defmodule FF.TrackingTest do
       project = project_fixture(account)
 
       assert {:ok, %Project{} = updated} =
-               Tracking.update_project(project, %{name: "Updated Name", description: "New description"})
+               Tracking.update_project(project, %{
+                 name: "Updated Name",
+                 description: "New description"
+               })
 
       assert updated.name == "Updated Name"
       assert updated.description == "New description"
