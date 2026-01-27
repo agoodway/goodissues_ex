@@ -7,18 +7,21 @@ defmodule FF.Application do
 
   @impl true
   def start(_type, _args) do
-    children = [
-      FFWeb.Telemetry,
-      FF.Repo,
-      {DNSCluster, query: Application.get_env(:app, :dns_cluster_query) || :ignore},
-      {Phoenix.PubSub, name: FF.PubSub},
-      # Start a worker by calling: FF.Worker.start_link(arg)
-      # {FF.Worker, arg},
-      # MCP Server
-      FFWeb.MCP.Supervisor,
-      # Start to serve requests, typically the last entry
-      FFWeb.Endpoint
-    ]
+    children =
+      [
+        FFWeb.Telemetry,
+        FF.Repo,
+        {DNSCluster, query: Application.get_env(:app, :dns_cluster_query) || :ignore},
+        {Phoenix.PubSub, name: FF.PubSub}
+        # Start a worker by calling: FF.Worker.start_link(arg)
+        # {FF.Worker, arg},
+      ] ++
+        # MCP Server - only in dev
+        if(Application.get_env(:app, :dev_routes), do: [FFWeb.MCP.Supervisor], else: []) ++
+        [
+          # Start to serve requests, typically the last entry
+          FFWeb.Endpoint
+        ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
