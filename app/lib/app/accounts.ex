@@ -75,10 +75,42 @@ defmodule FF.Accounts do
 
   """
   def register_user(attrs) do
-    %User{}
-    |> User.email_changeset(attrs)
-    |> Repo.insert()
+    Repo.transact(fn ->
+      with {:ok, user} <- %User{} |> User.email_changeset(attrs) |> Repo.insert(),
+           {:ok, _account} <- create_default_account(user) do
+        {:ok, user}
+      end
+    end)
   end
+
+  defp create_default_account(user) do
+    # Generate unique slug from user email prefix
+    slug = user.email |> String.split("@") |> hd() |> generate_unique_slug()
+
+    with {:ok, account} <-
+           %Account{} |> Account.changeset(%{name: "Personal", slug: slug}) |> Repo.insert(),
+         {:ok, _account_user} <- add_user_to_account(account, user, :owner) do
+      {:ok, account}
+    end
+  end
+
+  defp generate_unique_slug(base, attempt \\ 0) do
+    slug =
+      base
+      |> String.downcase()
+      |> String.replace(~r/[^a-z0-9]+/, "-")
+      |> String.trim("-")
+      |> then(&"#{&1}-personal#{suffix(attempt)}")
+
+    if Repo.exists?(from(a in Account, where: a.slug == ^slug)) do
+      generate_unique_slug(base, attempt + 1)
+    else
+      slug
+    end
+  end
+
+  defp suffix(0), do: ""
+  defp suffix(n), do: "-#{n}"
 
   ## Settings
 
@@ -312,6 +344,37 @@ defmodule FF.Accounts do
   @doc "Get an account by slug"
   def get_account_by_slug(slug), do: Repo.get_by(Account, slug: slug)
 
+  @doc """
+  Loads account context for a user by slug in a single query.
+
+  Returns `{:ok, account, account_user, all_user_accounts}` if the user is a member
+  of the account, or `{:error, :not_found}` if account doesn't exist, or
+  `{:error, :not_member}` if user is not a member.
+  """
+  def load_account_context_by_slug(user, slug) do
+    # Single query to get account and user's membership
+    account_query =
+      from(a in Account,
+        left_join: au in AccountUser,
+        on: au.account_id == a.id and au.user_id == ^user.id,
+        where: a.slug == ^slug,
+        select: {a, au}
+      )
+
+    case Repo.one(account_query) do
+      nil ->
+        {:error, :not_found}
+
+      {_account, nil} ->
+        {:error, :not_member}
+
+      {account, account_user} ->
+        # Get all user accounts (this is needed for the account switcher)
+        accounts = get_user_accounts(user)
+        {:ok, account, account_user, accounts}
+    end
+  end
+
   @doc "Create a new account with the given user as owner"
   def create_account(user, attrs) do
     Repo.transaction(fn ->
@@ -322,17 +385,6 @@ defmodule FF.Accounts do
         {:error, changeset} -> Repo.rollback(changeset)
       end
     end)
-  end
-
-  @doc "List all accounts for a user"
-  def list_user_accounts(user) do
-    from(a in Account,
-      join: au in AccountUser,
-      on: au.account_id == a.id,
-      where: au.user_id == ^user.id,
-      select: {a, au.role}
-    )
-    |> Repo.all()
   end
 
   # ============================================
@@ -371,11 +423,9 @@ defmodule FF.Accounts do
       end
 
     query =
-      if status && status != "" do
-        status_atom = if is_binary(status), do: String.to_existing_atom(status), else: status
-        from a in query, where: a.status == ^status_atom
-      else
-        query
+      case parse_account_status(status) do
+        nil -> query
+        status_atom -> from a in query, where: a.status == ^status_atom
       end
 
     total = Repo.aggregate(query, :count)
@@ -466,6 +516,36 @@ defmodule FF.Accounts do
     |> Repo.update()
   end
 
+  @doc """
+  Fetches all accounts a user belongs to with their membership details.
+
+  Returns a list of tuples `{account, role}` sorted by account name.
+  """
+  def get_user_accounts(user) do
+    from(au in AccountUser,
+      where: au.user_id == ^user.id,
+      join: a in assoc(au, :account),
+      order_by: [asc: a.name],
+      preload: [:account],
+      select: au
+    )
+    |> Repo.all()
+    |> Enum.map(fn au -> {au.account, au.role} end)
+  end
+
+  @doc """
+  Fetches a user's membership for a specific account by account ID.
+
+  Returns the AccountUser with preloaded account, or nil if not a member.
+  """
+  def get_account_user_by_id(user, account_id) do
+    from(au in AccountUser,
+      where: au.user_id == ^user.id and au.account_id == ^account_id,
+      preload: [:account]
+    )
+    |> Repo.one()
+  end
+
   # ============================================
   # API Key Functions
   # ============================================
@@ -527,6 +607,51 @@ defmodule FF.Accounts do
     |> Repo.update()
   end
 
+  @doc """
+  Atomically revokes an API key, verifying account membership and role in a single operation.
+
+  Returns `{:ok, api_key}` on success, or `{:error, reason}` on failure where reason
+  can be `:not_found`, `:not_authorized`, or a changeset.
+  """
+  def revoke_account_api_key(%Account{} = account, %AccountUser{} = actor, api_key_id) do
+    Repo.transact(fn ->
+      # Re-verify actor's current role in the account
+      actor_query =
+        from(au in AccountUser,
+          where: au.id == ^actor.id and au.account_id == ^account.id,
+          where: au.role in [:owner, :admin],
+          lock: "FOR UPDATE"
+        )
+
+      unless Repo.exists?(actor_query) do
+        throw({:error, :not_authorized})
+      end
+
+      # Get and lock the API key, verifying it belongs to this account
+      api_key_query =
+        from(k in ApiKey,
+          join: au in AccountUser,
+          on: k.account_user_id == au.id,
+          where: k.id == ^api_key_id and au.account_id == ^account.id,
+          where: k.status == :active,
+          lock: "FOR UPDATE",
+          select: k
+        )
+
+      case Repo.one(api_key_query) do
+        nil ->
+          throw({:error, :not_found})
+
+        api_key ->
+          api_key
+          |> Ecto.Changeset.change(status: :revoked)
+          |> Repo.update()
+      end
+    end)
+  catch
+    {:error, reason} -> {:error, reason}
+  end
+
   @doc "Get an API key by ID with preloaded associations"
   def get_api_key!(id) do
     ApiKey
@@ -578,19 +703,15 @@ defmodule FF.Accounts do
       end
 
     query =
-      if status && status != "" do
-        status_atom = if is_binary(status), do: String.to_existing_atom(status), else: status
-        from k in query, where: k.status == ^status_atom
-      else
-        query
+      case parse_api_key_status(status) do
+        nil -> query
+        status_atom -> from k in query, where: k.status == ^status_atom
       end
 
     query =
-      if type && type != "" do
-        type_atom = if is_binary(type), do: String.to_existing_atom(type), else: type
-        from k in query, where: k.type == ^type_atom
-      else
-        query
+      case parse_api_key_type(type) do
+        nil -> query
+        type_atom -> from k in query, where: k.type == ^type_atom
       end
 
     total = Repo.aggregate(query, :count)
@@ -620,4 +741,120 @@ defmodule FF.Accounts do
     )
     |> Repo.all()
   end
+
+  @doc """
+  Lists API keys for a specific account with pagination and filtering.
+
+  Returns a map with api_keys, total, page, per_page, and total_pages.
+
+  ## Options
+
+    * `:search` - Search term to filter by key name or owner email
+    * `:status` - Filter by status (:active or :revoked)
+    * `:type` - Filter by type (:public or :private)
+    * `:page` - Page number (default: 1)
+    * `:per_page` - Items per page (default: 20)
+  """
+  def list_account_api_keys(%Account{} = account, opts \\ []) do
+    search = Keyword.get(opts, :search)
+    status = Keyword.get(opts, :status)
+    type = Keyword.get(opts, :type)
+    page = Keyword.get(opts, :page, 1)
+    per_page = Keyword.get(opts, :per_page, 20)
+
+    query =
+      from(k in ApiKey,
+        join: au in assoc(k, :account_user),
+        join: u in assoc(au, :user),
+        join: a in assoc(au, :account),
+        where: a.id == ^account.id,
+        order_by: [desc: k.inserted_at],
+        preload: [account_user: {au, user: u, account: a}]
+      )
+
+    query =
+      if search && search != "" do
+        search_term = "%#{search}%"
+
+        from [k, au, u, _a] in query,
+          where: ilike(k.name, ^search_term) or ilike(u.email, ^search_term)
+      else
+        query
+      end
+
+    query =
+      case parse_api_key_status(status) do
+        nil -> query
+        status_atom -> from k in query, where: k.status == ^status_atom
+      end
+
+    query =
+      case parse_api_key_type(type) do
+        nil -> query
+        type_atom -> from k in query, where: k.type == ^type_atom
+      end
+
+    total = Repo.aggregate(query, :count)
+
+    api_keys =
+      query
+      |> limit(^per_page)
+      |> offset(^((page - 1) * per_page))
+      |> Repo.all()
+
+    %{
+      api_keys: api_keys,
+      total: total,
+      page: page,
+      per_page: per_page,
+      total_pages: ceil(total / per_page)
+    }
+  end
+
+  @doc """
+  Gets an API key by ID, but only if it belongs to the given account.
+
+  Returns nil if not found or doesn't belong to the account.
+  """
+  def get_account_api_key(%Account{} = account, id) do
+    from(k in ApiKey,
+      join: au in assoc(k, :account_user),
+      join: u in assoc(au, :user),
+      join: a in assoc(au, :account),
+      where: k.id == ^id and a.id == ^account.id,
+      preload: [account_user: {au, user: u, account: a}]
+    )
+    |> Repo.one()
+  end
+
+  @doc """
+  Gets an API key by ID, but only if it belongs to the given account.
+
+  Raises `Ecto.NoResultsError` if not found.
+  """
+  def get_account_api_key!(%Account{} = account, id) do
+    case get_account_api_key(account, id) do
+      nil -> raise Ecto.NoResultsError, queryable: ApiKey
+      api_key -> api_key
+    end
+  end
+
+  # ============================================
+  # Safe Atom Parsing Helpers
+  # ============================================
+
+  defp parse_account_status("active"), do: :active
+  defp parse_account_status("suspended"), do: :suspended
+  defp parse_account_status(status) when is_atom(status), do: status
+  defp parse_account_status(_), do: nil
+
+  defp parse_api_key_status("active"), do: :active
+  defp parse_api_key_status("revoked"), do: :revoked
+  defp parse_api_key_status(status) when is_atom(status), do: status
+  defp parse_api_key_status(_), do: nil
+
+  defp parse_api_key_type("public"), do: :public
+  defp parse_api_key_type("private"), do: :private
+  defp parse_api_key_type(type) when is_atom(type), do: type
+  defp parse_api_key_type(_), do: nil
 end

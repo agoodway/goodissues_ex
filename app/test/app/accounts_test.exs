@@ -4,7 +4,7 @@ defmodule FF.AccountsTest do
   alias FF.Accounts
 
   import FF.AccountsFixtures
-  alias FF.Accounts.{User, UserToken}
+  alias FF.Accounts.{Scope, User, UserToken}
 
   describe "get_user_by_email/1" do
     test "does not return the user if the email does not exist" do
@@ -84,6 +84,37 @@ defmodule FF.AccountsTest do
       assert is_nil(user.hashed_password)
       assert is_nil(user.confirmed_at)
       assert is_nil(user.password)
+    end
+
+    test "creates default Personal account for new user" do
+      email = unique_user_email()
+      {:ok, user} = Accounts.register_user(valid_user_attributes(email: email))
+
+      accounts = Accounts.get_user_accounts(user)
+      assert length(accounts) == 1
+
+      {account, role} = hd(accounts)
+      assert account.name == "Personal"
+      assert role == :owner
+    end
+
+    test "generates unique slug when collision exists" do
+      email = "testuser123@example.com"
+      slug = "testuser123-personal"
+
+      # Create an account with the expected slug first
+      {:ok, _existing} = Accounts.admin_create_account(%{name: "Personal", slug: slug})
+
+      # Now try to register - should succeed with a suffixed slug
+      {:ok, user} = Accounts.register_user(valid_user_attributes(email: email))
+
+      # Verify the user was created
+      assert user.id
+      assert Accounts.get_user_by_email(email)
+
+      # Verify the account was created with a unique suffixed slug
+      [{account, :owner}] = Accounts.get_user_accounts(user)
+      assert account.slug == "testuser123-personal-1"
     end
   end
 
@@ -398,8 +429,8 @@ defmodule FF.AccountsTest do
   describe "list_accounts/1" do
     test "returns all accounts with pagination" do
       user = user_fixture()
-
-      for i <- 1..25 do
+      # user_fixture creates 1 default "Personal" account, so we add 24 more for 25 total
+      for i <- 1..24 do
         account_fixture(user, %{name: "Account #{i}"})
       end
 
@@ -424,6 +455,7 @@ defmodule FF.AccountsTest do
 
     test "filters by status" do
       user = user_fixture()
+      # user_fixture creates 1 default "Personal" account (active)
       _active_account = account_fixture(user, %{name: "Active"})
       suspended_account = account_fixture(user, %{name: "Suspended"})
       Accounts.suspend_account(suspended_account)
@@ -434,8 +466,8 @@ defmodule FF.AccountsTest do
       assert hd(result.accounts).name == "Suspended"
 
       result = Accounts.list_accounts(status: :active)
-      assert length(result.accounts) == 1
-      assert hd(result.accounts).name == "Active"
+      # 2 active accounts: the default "Personal" account + the "Active" account
+      assert length(result.accounts) == 2
     end
   end
 
@@ -603,6 +635,270 @@ defmodule FF.AccountsTest do
         assert au.user.email
         assert au.account.name
       end)
+    end
+  end
+
+  describe "get_user_accounts/1" do
+    test "returns all accounts user belongs to with roles" do
+      user = user_fixture()
+      # user_fixture creates a default "Personal" account where user is owner
+      account2 = account_fixture(user, %{name: "Work Account"})
+
+      accounts = Accounts.get_user_accounts(user)
+
+      assert length(accounts) == 2
+      # Sorted by name: "Personal" < "Work Account"
+      [{personal_account, personal_role}, {work_account, work_role}] = accounts
+
+      assert personal_account.name == "Personal"
+      assert personal_role == :owner
+      assert work_account.id == account2.id
+      assert work_role == :owner
+    end
+
+    test "returns accounts sorted by name" do
+      user = user_fixture()
+      # user_fixture creates "Personal" account
+      _z_account = account_fixture(user, %{name: "Zebra Corp"})
+      _a_account = account_fixture(user, %{name: "Acme Inc"})
+
+      accounts = Accounts.get_user_accounts(user)
+      names = Enum.map(accounts, fn {acc, _role} -> acc.name end)
+
+      # Should be sorted alphabetically
+      assert names == ["Acme Inc", "Personal", "Zebra Corp"]
+    end
+  end
+
+  describe "get_account_user_by_id/2" do
+    test "returns account_user with preloaded account" do
+      user = user_fixture()
+      account = account_fixture(user, %{name: "Test Account"})
+
+      account_user = Accounts.get_account_user_by_id(user, account.id)
+
+      assert account_user.user_id == user.id
+      assert account_user.account_id == account.id
+      assert account_user.account.name == "Test Account"
+      assert account_user.role == :owner
+    end
+
+    test "returns nil when user is not a member" do
+      user1 = user_fixture()
+      user2 = user_fixture()
+      account = account_fixture(user1, %{name: "User1's Account"})
+
+      account_user = Accounts.get_account_user_by_id(user2, account.id)
+
+      assert is_nil(account_user)
+    end
+
+    test "returns nil for non-existent account" do
+      user = user_fixture()
+
+      account_user = Accounts.get_account_user_by_id(user, Ecto.UUID.generate())
+
+      assert is_nil(account_user)
+    end
+  end
+
+  describe "Scope.for_user/1" do
+    test "creates scope with user" do
+      user = user_fixture()
+
+      scope = Scope.for_user(user)
+
+      assert scope.user.id == user.id
+      assert is_nil(scope.account)
+      assert is_nil(scope.account_user)
+      assert scope.accounts == []
+    end
+
+    test "returns nil for nil user" do
+      assert is_nil(Scope.for_user(nil))
+    end
+  end
+
+  describe "Scope.with_account/4" do
+    test "adds account context to scope" do
+      user = user_fixture()
+      account = account_fixture(user, %{name: "Test Account"})
+      account_user = Accounts.get_account_user(user, account)
+      accounts = Accounts.get_user_accounts(user)
+
+      scope =
+        user
+        |> Scope.for_user()
+        |> Scope.with_account(account, account_user, accounts)
+
+      assert scope.user.id == user.id
+      assert scope.account.id == account.id
+      assert scope.account_user.id == account_user.id
+      assert length(scope.accounts) >= 1
+    end
+  end
+
+  describe "Scope.has_account?/1" do
+    test "returns true when account is set" do
+      user = user_fixture()
+      account = account_fixture(user)
+      account_user = Accounts.get_account_user(user, account)
+      accounts = Accounts.get_user_accounts(user)
+
+      scope =
+        user
+        |> Scope.for_user()
+        |> Scope.with_account(account, account_user, accounts)
+
+      assert Scope.has_account?(scope)
+    end
+
+    test "returns false when account is nil" do
+      user = user_fixture()
+      scope = Scope.for_user(user)
+
+      refute Scope.has_account?(scope)
+    end
+
+    test "returns false for nil scope" do
+      refute Scope.has_account?(nil)
+    end
+  end
+
+  describe "Scope.can_view_account?/1" do
+    test "returns true when user has any membership" do
+      user = user_fixture()
+      account = account_fixture(user)
+      account_user = Accounts.get_account_user(user, account)
+      accounts = Accounts.get_user_accounts(user)
+
+      scope =
+        user
+        |> Scope.for_user()
+        |> Scope.with_account(account, account_user, accounts)
+
+      assert Scope.can_view_account?(scope)
+    end
+
+    test "returns false when account_user is nil" do
+      user = user_fixture()
+      scope = Scope.for_user(user)
+
+      refute Scope.can_view_account?(scope)
+    end
+
+    test "returns false for nil scope" do
+      refute Scope.can_view_account?(nil)
+    end
+  end
+
+  describe "Scope.can_manage_account?/1" do
+    test "returns true for owner" do
+      user = user_fixture()
+      account = account_fixture(user)
+      account_user = Accounts.get_account_user(user, account)
+      accounts = Accounts.get_user_accounts(user)
+
+      scope =
+        user
+        |> Scope.for_user()
+        |> Scope.with_account(account, account_user, accounts)
+
+      assert scope.account_user.role == :owner
+      assert Scope.can_manage_account?(scope)
+    end
+
+    test "returns true for admin" do
+      owner = user_fixture()
+      account = account_fixture(owner)
+      admin = user_fixture()
+      {:ok, _} = Accounts.add_user_to_account(account, admin, :admin)
+
+      account_user = Accounts.get_account_user(admin, account)
+      accounts = Accounts.get_user_accounts(admin)
+
+      scope =
+        admin
+        |> Scope.for_user()
+        |> Scope.with_account(account, account_user, accounts)
+
+      assert scope.account_user.role == :admin
+      assert Scope.can_manage_account?(scope)
+    end
+
+    test "returns false for member" do
+      owner = user_fixture()
+      account = account_fixture(owner)
+      member = user_fixture()
+      {:ok, _} = Accounts.add_user_to_account(account, member, :member)
+
+      account_user = Accounts.get_account_user(member, account)
+      accounts = Accounts.get_user_accounts(member)
+
+      scope =
+        member
+        |> Scope.for_user()
+        |> Scope.with_account(account, account_user, accounts)
+
+      assert scope.account_user.role == :member
+      refute Scope.can_manage_account?(scope)
+    end
+
+    test "returns false when account_user is nil" do
+      user = user_fixture()
+      scope = Scope.for_user(user)
+
+      refute Scope.can_manage_account?(scope)
+    end
+  end
+
+  describe "Scope.is_owner?/1" do
+    test "returns true for owner" do
+      user = user_fixture()
+      account = account_fixture(user)
+      account_user = Accounts.get_account_user(user, account)
+      accounts = Accounts.get_user_accounts(user)
+
+      scope =
+        user
+        |> Scope.for_user()
+        |> Scope.with_account(account, account_user, accounts)
+
+      assert Scope.is_owner?(scope)
+    end
+
+    test "returns false for admin" do
+      owner = user_fixture()
+      account = account_fixture(owner)
+      admin = user_fixture()
+      {:ok, _} = Accounts.add_user_to_account(account, admin, :admin)
+
+      account_user = Accounts.get_account_user(admin, account)
+      accounts = Accounts.get_user_accounts(admin)
+
+      scope =
+        admin
+        |> Scope.for_user()
+        |> Scope.with_account(account, account_user, accounts)
+
+      refute Scope.is_owner?(scope)
+    end
+
+    test "returns false for member" do
+      owner = user_fixture()
+      account = account_fixture(owner)
+      member = user_fixture()
+      {:ok, _} = Accounts.add_user_to_account(account, member, :member)
+
+      account_user = Accounts.get_account_user(member, account)
+      accounts = Accounts.get_user_accounts(member)
+
+      scope =
+        member
+        |> Scope.for_user()
+        |> Scope.with_account(account, account_user, accounts)
+
+      refute Scope.is_owner?(scope)
     end
   end
 end

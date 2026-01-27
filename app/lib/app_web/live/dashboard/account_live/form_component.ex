@@ -1,4 +1,4 @@
-defmodule FFWeb.Admin.AccountLive.FormComponent do
+defmodule FFWeb.Dashboard.AccountLive.FormComponent do
   use FFWeb, :live_component
 
   alias FF.Accounts

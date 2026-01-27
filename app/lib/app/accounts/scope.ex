@@ -12,13 +12,25 @@ defmodule FF.Accounts.Scope do
   broadcasts when a caller subscribes to an interface or performs a particular
   action.
 
-  Feel free to extend the fields on this struct to fit the needs of
-  growing application requirements.
+  ## Fields
+
+    * `:user` - The current user
+    * `:account` - The currently selected account (for dashboard/account-scoped views)
+    * `:account_user` - The user's membership in the current account
+    * `:accounts` - List of all accounts the user belongs to (with roles)
+
   """
 
-  alias FF.Accounts.User
+  alias FF.Accounts.{AccountUser, User}
 
-  defstruct user: nil
+  defstruct user: nil, account: nil, account_user: nil, accounts: []
+
+  @type t :: %__MODULE__{
+          user: User.t() | nil,
+          account: FF.Accounts.Account.t() | nil,
+          account_user: AccountUser.t() | nil,
+          accounts: [{FF.Accounts.Account.t(), atom()}]
+        }
 
   @doc """
   Creates a scope for the given user.
@@ -30,4 +42,45 @@ defmodule FF.Accounts.Scope do
   end
 
   def for_user(nil), do: nil
+
+  @doc """
+  Creates a scope with a selected account.
+
+  The account_user represents the user's membership in the account,
+  and accounts is the list of all accounts the user belongs to.
+  """
+  def with_account(%__MODULE__{} = scope, account, account_user, accounts) do
+    %{scope | account: account, account_user: account_user, accounts: accounts}
+  end
+
+  @doc """
+  Checks if the scope has a selected account.
+  """
+  def has_account?(%__MODULE__{account: nil}), do: false
+  def has_account?(%__MODULE__{account: _account}), do: true
+  def has_account?(_), do: false
+
+  @doc """
+  Checks if the user can view the current account (any membership).
+  """
+  def can_view_account?(%__MODULE__{account_user: nil}), do: false
+  def can_view_account?(%__MODULE__{account_user: %AccountUser{}}), do: true
+  def can_view_account?(_), do: false
+
+  @doc """
+  Checks if the user can manage the current account (owner or admin role).
+  """
+  def can_manage_account?(%__MODULE__{account_user: nil}), do: false
+
+  def can_manage_account?(%__MODULE__{account_user: %AccountUser{role: role}})
+      when role in [:owner, :admin],
+      do: true
+
+  def can_manage_account?(_), do: false
+
+  @doc """
+  Checks if the user is the owner of the current account.
+  """
+  def is_owner?(%__MODULE__{account_user: %AccountUser{role: :owner}}), do: true
+  def is_owner?(_), do: false
 end

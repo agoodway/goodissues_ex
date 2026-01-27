@@ -290,4 +290,75 @@ defmodule FFWeb.UserAuthTest do
       refute conn.status
     end
   end
+
+  describe "on_mount :load_account_from_slug" do
+    test "loads account from URL slug parameter", %{user: user} do
+      user_token = Accounts.generate_user_session_token(user)
+      session = %{"user_token" => user_token}
+      accounts = Accounts.get_user_accounts(user)
+      {account, _role} = hd(accounts)
+
+      # First mount current scope
+      socket = %Phoenix.LiveView.Socket{}
+      {:cont, socket} = UserAuth.on_mount(:mount_current_scope, %{}, session, socket)
+
+      # Then load account from slug
+      {:cont, socket} =
+        UserAuth.on_mount(
+          :load_account_from_slug,
+          %{"account_slug" => account.slug},
+          session,
+          socket
+        )
+
+      assert socket.assigns.current_scope.user.id == user.id
+      assert socket.assigns.current_scope.account.id == account.id
+      assert socket.assigns.current_scope.account_user != nil
+      assert length(socket.assigns.current_scope.accounts) >= 1
+    end
+
+    test "halts with redirect if account not found", %{user: user} do
+      user_token = Accounts.generate_user_session_token(user)
+      session = %{"user_token" => user_token}
+
+      # First mount current scope with flash support
+      socket = %Phoenix.LiveView.Socket{assigns: %{__changed__: %{}, flash: %{}}}
+      {:cont, socket} = UserAuth.on_mount(:mount_current_scope, %{}, session, socket)
+
+      {:halt, socket} =
+        UserAuth.on_mount(
+          :load_account_from_slug,
+          %{"account_slug" => "nonexistent-slug"},
+          session,
+          socket
+        )
+
+      assert {:redirect, redirect_opts} = socket.redirected
+      assert redirect_opts.to == "/dashboard"
+    end
+
+    test "halts with redirect if user is not a member of account", %{user: user} do
+      user_token = Accounts.generate_user_session_token(user)
+      session = %{"user_token" => user_token}
+
+      # Create another user's account
+      other_user = user_fixture()
+      other_account = account_fixture(other_user, %{name: "Other User's Account"})
+
+      # First mount current scope with flash support
+      socket = %Phoenix.LiveView.Socket{assigns: %{__changed__: %{}, flash: %{}}}
+      {:cont, socket} = UserAuth.on_mount(:mount_current_scope, %{}, session, socket)
+
+      {:halt, socket} =
+        UserAuth.on_mount(
+          :load_account_from_slug,
+          %{"account_slug" => other_account.slug},
+          session,
+          socket
+        )
+
+      assert {:redirect, redirect_opts} = socket.redirected
+      assert redirect_opts.to == "/dashboard"
+    end
+  end
 end

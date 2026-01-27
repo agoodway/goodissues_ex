@@ -247,18 +247,35 @@ defmodule FFWeb.UserAuth do
     end
   end
 
-  def on_mount(:ensure_admin, _params, _session, socket) do
-    if socket.assigns.current_scope &&
-         socket.assigns.current_scope.user &&
-         socket.assigns.current_scope.user.is_admin do
-      {:cont, socket}
-    else
-      socket =
-        socket
-        |> Phoenix.LiveView.put_flash(:error, "You must be an administrator to access this page.")
-        |> Phoenix.LiveView.redirect(to: ~p"/")
+  # Loads the account from the URL slug parameter.
+  # Verifies the user is a member of the account.
+  # Redirects to /dashboard if account not found or user is not a member.
+  def on_mount(:load_account_from_slug, params, _session, socket) do
+    account_slug = params["account_slug"]
+    user = socket.assigns.current_scope.user
 
-      {:halt, socket}
+    case Accounts.load_account_context_by_slug(user, account_slug) do
+      {:ok, account, account_user, accounts} ->
+        updated_scope =
+          Scope.with_account(socket.assigns.current_scope, account, account_user, accounts)
+
+        {:cont, Phoenix.Component.assign(socket, :current_scope, updated_scope)}
+
+      {:error, :not_found} ->
+        socket =
+          socket
+          |> Phoenix.LiveView.put_flash(:error, "Account not found.")
+          |> Phoenix.LiveView.redirect(to: ~p"/dashboard")
+
+        {:halt, socket}
+
+      {:error, :not_member} ->
+        socket =
+          socket
+          |> Phoenix.LiveView.put_flash(:error, "You are not a member of this account.")
+          |> Phoenix.LiveView.redirect(to: ~p"/dashboard")
+
+        {:halt, socket}
     end
   end
 

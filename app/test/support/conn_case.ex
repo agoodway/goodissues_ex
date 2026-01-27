@@ -78,15 +78,20 @@ defmodule FFWeb.ConnCase do
   end
 
   @doc """
-  Setup helper that registers and logs in an admin user.
+  Setup helper that registers a user with an account and logs them in.
 
-      setup :register_and_log_in_admin_user
+      setup :register_and_log_in_user_with_account
 
-  It stores an updated connection and a registered admin user in the
-  test context.
+  Creates a user, creates an account with that user as owner, and logs them in
+  with the account selected in the session. Useful for testing dashboard features.
+
+  Note: user_fixture() creates a "Personal" account during registration. This helper
+  creates a separate "Test Account" and selects it via the session. The user will
+  be owner of both accounts.
   """
-  def register_and_log_in_admin_user(%{conn: conn} = context) do
-    user = FF.AccountsFixtures.admin_user_fixture()
+  def register_and_log_in_user_with_account(%{conn: conn} = context) do
+    user = FF.AccountsFixtures.user_fixture()
+    account = FF.AccountsFixtures.account_fixture(user, %{name: "Test Account"})
     scope = FF.Accounts.Scope.for_user(user)
 
     opts =
@@ -94,6 +99,11 @@ defmodule FFWeb.ConnCase do
       |> Map.take([:token_authenticated_at])
       |> Enum.into([])
 
-    %{conn: log_in_user(conn, user, opts), user: user, scope: scope}
+    conn =
+      conn
+      |> log_in_user(user, opts)
+      |> Plug.Conn.put_session(:selected_account_id, account.id)
+
+    %{conn: conn, user: user, account: account, scope: scope}
   end
 end

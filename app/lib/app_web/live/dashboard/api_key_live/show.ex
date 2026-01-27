@@ -1,34 +1,58 @@
-defmodule FFWeb.Admin.ApiKeyLive.Show do
+defmodule FFWeb.Dashboard.ApiKeyLive.Show do
+  @moduledoc """
+  Dashboard view for showing a single API key scoped to the current account.
+
+  Verifies the API key belongs to the current account before displaying.
+  Only users with owner/admin role can revoke keys.
+  """
   use FFWeb, :live_view
 
   alias FF.Accounts
+  alias FF.Accounts.Scope
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, socket}
+    {:ok, assign(socket, :can_manage, Scope.can_manage_account?(socket.assigns.current_scope))}
   end
 
   @impl true
   def handle_params(%{"id" => id}, _url, socket) do
-    api_key = Accounts.get_api_key!(id)
+    account = socket.assigns.current_scope.account
 
-    {:noreply,
-     socket
-     |> assign(:page_title, api_key.name)
-     |> assign(:api_key, api_key)}
+    case Accounts.get_account_api_key(account, id) do
+      nil ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "API key not found.")
+         |> push_navigate(
+           to: ~p"/dashboard/#{socket.assigns.current_scope.account.slug}/api-keys"
+         )}
+
+      api_key ->
+        {:noreply,
+         socket
+         |> assign(:page_title, api_key.name)
+         |> assign(:api_key, api_key)}
+    end
   end
 
   @impl true
   def handle_event("revoke", _params, socket) do
-    case Accounts.revoke_api_key(socket.assigns.api_key) do
-      {:ok, api_key} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, "API key revoked successfully.")
-         |> assign(:api_key, Accounts.get_api_key!(api_key.id))}
+    if Scope.can_manage_account?(socket.assigns.current_scope) do
+      case Accounts.revoke_api_key(socket.assigns.api_key) do
+        {:ok, api_key} ->
+          account = socket.assigns.current_scope.account
 
-      {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Failed to revoke API key.")}
+          {:noreply,
+           socket
+           |> put_flash(:info, "API key revoked successfully.")
+           |> assign(:api_key, Accounts.get_account_api_key!(account, api_key.id))}
+
+        {:error, _changeset} ->
+          {:noreply, put_flash(socket, :error, "Failed to revoke API key.")}
+      end
+    else
+      {:noreply, put_flash(socket, :error, "You don't have permission to revoke API keys.")}
     end
   end
 
@@ -44,7 +68,7 @@ defmodule FFWeb.Admin.ApiKeyLive.Show do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.admin flash={@flash} current_scope={@current_scope} page_title={@page_title}>
+    <FFWeb.Layouts.dashboard flash={@flash} current_scope={@current_scope} page_title={@page_title}>
       <.header>
         {@api_key.name}
         <:subtitle>
@@ -64,7 +88,7 @@ defmodule FFWeb.Admin.ApiKeyLive.Show do
           </span>
         </:subtitle>
         <:actions>
-          <%= if @api_key.status == :active do %>
+          <%= if @can_manage && @api_key.status == :active do %>
             <button
               phx-click="revoke"
               data-confirm="Are you sure you want to revoke this API key? This cannot be undone."
@@ -143,12 +167,17 @@ defmodule FFWeb.Admin.ApiKeyLive.Show do
         </div>
       </div>
 
+      <div :if={!@can_manage} class="alert alert-info mt-6">
+        <.icon name="hero-information-circle" class="size-5" />
+        <span>You have read-only access. Contact an admin to revoke this API key.</span>
+      </div>
+
       <div class="mt-6">
-        <.link navigate={~p"/admin/api-keys"} class="btn btn-ghost">
+        <.link navigate={~p"/dashboard/#{@current_scope.account.slug}/api-keys"} class="btn btn-ghost">
           <.icon name="hero-arrow-left" class="size-4 mr-1" /> Back to API Keys
         </.link>
       </div>
-    </FFWeb.Layouts.admin>
+    </FFWeb.Layouts.dashboard>
     """
   end
 end

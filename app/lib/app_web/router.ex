@@ -44,20 +44,27 @@ defmodule FFWeb.Router do
   end
 
   # ============================================
-  # Admin Routes
+  # Dashboard Routes (account-scoped by slug in URL)
   # ============================================
-  scope "/admin", FFWeb.Admin, as: :admin do
+
+  # Redirect /dashboard to user's first account
+  scope "/dashboard", FFWeb do
+    pipe_through [:browser, :require_authenticated_user]
+
+    get "/", DashboardController, :index
+  end
+
+  # Account-scoped dashboard routes
+  scope "/dashboard/:account_slug", FFWeb.Dashboard, as: :dashboard do
     pipe_through [:browser]
 
-    live_session :admin,
+    live_session :dashboard,
       on_mount: [
         {FFWeb.UserAuth, :ensure_authenticated},
-        {FFWeb.UserAuth, :ensure_admin}
+        {FFWeb.UserAuth, :load_account_from_slug}
       ] do
-      live "/accounts", AccountLive.Index, :index
-      live "/accounts/new", AccountLive.Index, :new
-      live "/accounts/:id/edit", AccountLive.Index, :edit
-      live "/accounts/:id", AccountLive.Show, :show
+      live "/", AccountLive.Index, :index
+      live "/settings", AccountLive.Index, :edit
 
       live "/api-keys", ApiKeyLive.Index, :index
       live "/api-keys/new", ApiKeyLive.New, :new
