@@ -7,6 +7,7 @@ defmodule FF.TrackingFixtures do
   alias FF.Tracking
 
   def unique_project_name, do: "project#{System.unique_integer()}"
+  def unique_issue_title, do: "issue#{System.unique_integer()}"
 
   def valid_project_attributes(attrs \\ %{}) do
     Enum.into(attrs, %{
@@ -27,5 +28,30 @@ defmodule FF.TrackingFixtures do
       |> then(&Tracking.create_project(account, &1))
 
     project
+  end
+
+  def valid_issue_attributes(attrs \\ %{}) do
+    Enum.into(attrs, %{
+      title: unique_issue_title(),
+      description: "A test issue description",
+      type: :bug,
+      status: :new,
+      priority: :medium
+    })
+  end
+
+  @doc """
+  Creates an issue fixture.
+
+  Requires an account, user, and project to be passed.
+  """
+  def issue_fixture(account, user, project, attrs \\ %{}) do
+    {:ok, issue} =
+      attrs
+      |> valid_issue_attributes()
+      |> Map.put(:project_id, project.id)
+      |> then(&Tracking.create_issue(account, user, &1))
+
+    issue
   end
 end

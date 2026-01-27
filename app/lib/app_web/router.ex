@@ -91,6 +91,10 @@ defmodule FFWeb.Router do
     # Projects
     get "/projects", ProjectController, :index
     get "/projects/:id", ProjectController, :show
+
+    # Issues
+    get "/issues", IssueController, :index
+    get "/issues/:id", IssueController, :show
   end
 
   # ============================================
@@ -103,6 +107,11 @@ defmodule FFWeb.Router do
     post "/projects", ProjectController, :create
     patch "/projects/:id", ProjectController, :update
     delete "/projects/:id", ProjectController, :delete
+
+    # Issues
+    post "/issues", IssueController, :create
+    patch "/issues/:id", IssueController, :update
+    delete "/issues/:id", IssueController, :delete
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
