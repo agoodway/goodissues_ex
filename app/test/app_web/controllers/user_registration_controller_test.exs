@@ -33,7 +33,7 @@ defmodule FFWeb.UserRegistrationControllerTest do
       assert redirected_to(conn) == ~p"/users/log-in"
 
       assert conn.assigns.flash["info"] =~
-               ~r/An email was sent to .*, please access it to confirm your account/
+               ~r/If .* is not already registered, you will receive an email with instructions shortly/
     end
 
     test "render errors for invalid data", %{conn: conn} do
