@@ -57,7 +57,7 @@
 - [x] 8.6 Test edge cases (revoked keys, no results)
 
 ## 9. Documentation
-- [ ] 9.1 Document admin access requirements for API key management
-- [ ] 9.2 Document API key lifecycle management workflows
-- [ ] 9.3 Document token security considerations (display once, cannot be retrieved)
-- [ ] 9.4 Update admin UI navigation documentation
+- [x] 9.1 Document admin access requirements for API key management
+- [x] 9.2 Document API key lifecycle management workflows
+- [x] 9.3 Document token security considerations (display once, cannot be retrieved)
+- [x] 9.4 Update admin UI navigation documentation
