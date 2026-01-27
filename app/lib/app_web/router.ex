@@ -59,9 +59,9 @@ defmodule FFWeb.Router do
   scope "/api/v1", FFWeb.Api.V1, as: :api_v1 do
     pipe_through :api_authenticated
 
-    # Add your read-only routes here
-    # get "/resources", ResourceController, :index
-    # get "/resources/:id", ResourceController, :show
+    # Projects
+    get "/projects", ProjectController, :index
+    get "/projects/:id", ProjectController, :show
   end
 
   # ============================================
@@ -70,10 +70,10 @@ defmodule FFWeb.Router do
   scope "/api/v1", FFWeb.Api.V1, as: :api_v1 do
     pipe_through :api_write
 
-    # Add your write routes here
-    # post "/resources", ResourceController, :create
-    # patch "/resources/:id", ResourceController, :update
-    # delete "/resources/:id", ResourceController, :delete
+    # Projects
+    post "/projects", ProjectController, :create
+    patch "/projects/:id", ProjectController, :update
+    delete "/projects/:id", ProjectController, :delete
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

@@ -9,6 +9,45 @@ defmodule FF.AccountsFixtures do
   alias FF.Accounts
   alias FF.Accounts.Scope
 
+  def unique_account_name, do: "account#{System.unique_integer()}"
+
+  def valid_account_attributes(attrs \\ %{}) do
+    Enum.into(attrs, %{
+      name: unique_account_name()
+    })
+  end
+
+  @doc """
+  Creates an account with the given user as owner.
+  """
+  def account_fixture(user, attrs \\ %{}) do
+    {:ok, account} =
+      attrs
+      |> valid_account_attributes()
+      |> then(&Accounts.create_account(user, &1))
+
+    account
+  end
+
+  @doc """
+  Creates a user with an account and returns both.
+  """
+  def user_with_account_fixture(attrs \\ %{}) do
+    user = user_fixture(attrs[:user] || %{})
+    account = account_fixture(user, attrs[:account] || %{})
+    {user, account}
+  end
+
+  @doc """
+  Creates a private API key for the given user's membership in an account.
+  Returns {token, api_key}.
+  """
+  def api_key_fixture(user, account, type \\ :private) do
+    account_user = Accounts.get_account_user(user, account)
+    {:ok, {api_key, token}} = Accounts.create_api_key(account_user, %{name: "Test Key", type: type})
+    {token, api_key}
+  end
+
   def unique_user_email, do: "user#{System.unique_integer()}@example.com"
   def valid_user_password, do: "hello world!"
 
