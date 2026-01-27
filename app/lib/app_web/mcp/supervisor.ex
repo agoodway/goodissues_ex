@@ -19,7 +19,7 @@ defmodule FFWeb.MCP.Supervisor do
 
       # Then the MCP server
       {FFWeb.MCP.Server,
-       transport: Hermes.Transport.StreamableHTTP,
+       transport: :streamable_http,
        name: FFWeb.MCP.Server}
     ]
 
