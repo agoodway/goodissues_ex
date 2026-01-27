@@ -44,6 +44,24 @@ defmodule FFWeb.Router do
   end
 
   # ============================================
+  # Admin Routes
+  # ============================================
+  scope "/admin", FFWeb.Admin, as: :admin do
+    pipe_through [:browser]
+
+    live_session :admin,
+      on_mount: [
+        {FFWeb.UserAuth, :ensure_authenticated},
+        {FFWeb.UserAuth, :ensure_admin}
+      ] do
+      live "/accounts", AccountLive.Index, :index
+      live "/accounts/new", AccountLive.Index, :new
+      live "/accounts/:id/edit", AccountLive.Index, :edit
+      live "/accounts/:id", AccountLive.Show, :show
+    end
+  end
+
+  # ============================================
   # OpenAPI Documentation (no auth required)
   # ============================================
   scope "/api/v1" do

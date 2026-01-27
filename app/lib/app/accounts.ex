@@ -302,6 +302,13 @@ defmodule FF.Accounts do
   @doc "Get an account by ID"
   def get_account(id), do: Repo.get(Account, id)
 
+  @doc "Get an account by ID with preloaded associations"
+  def get_account!(id) do
+    Account
+    |> Repo.get!(id)
+    |> Repo.preload(account_users: :user)
+  end
+
   @doc "Get an account by slug"
   def get_account_by_slug(slug), do: Repo.get_by(Account, slug: slug)
 
@@ -326,6 +333,95 @@ defmodule FF.Accounts do
       select: {a, au.role}
     )
     |> Repo.all()
+  end
+
+  # ============================================
+  # Admin Account Functions
+  # ============================================
+
+  @doc """
+  Lists all accounts with optional filtering and pagination.
+
+  ## Options
+
+    * `:search` - Search term to filter by name or slug
+    * `:status` - Filter by status (:active, :suspended)
+    * `:page` - Page number (default: 1)
+    * `:per_page` - Items per page (default: 20)
+
+  """
+  def list_accounts(opts \\ []) do
+    search = Keyword.get(opts, :search)
+    status = Keyword.get(opts, :status)
+    page = Keyword.get(opts, :page, 1)
+    per_page = Keyword.get(opts, :per_page, 20)
+
+    query =
+      from(a in Account,
+        order_by: [desc: a.inserted_at],
+        preload: [account_users: :user]
+      )
+
+    query =
+      if search && search != "" do
+        search_term = "%#{search}%"
+        from a in query, where: ilike(a.name, ^search_term) or ilike(a.slug, ^search_term)
+      else
+        query
+      end
+
+    query =
+      if status && status != "" do
+        status_atom = if is_binary(status), do: String.to_existing_atom(status), else: status
+        from a in query, where: a.status == ^status_atom
+      else
+        query
+      end
+
+    total = Repo.aggregate(query, :count)
+
+    accounts =
+      query
+      |> limit(^per_page)
+      |> offset(^((page - 1) * per_page))
+      |> Repo.all()
+
+    %{
+      accounts: accounts,
+      total: total,
+      page: page,
+      per_page: per_page,
+      total_pages: ceil(total / per_page)
+    }
+  end
+
+  @doc "Returns an Account changeset for tracking changes"
+  def change_account(%Account{} = account, attrs \\ %{}) do
+    Account.changeset(account, attrs)
+  end
+
+  @doc "Creates an account (admin function, no owner assignment)"
+  def admin_create_account(attrs) do
+    %Account{}
+    |> Account.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc "Updates an account"
+  def update_account(%Account{} = account, attrs) do
+    account
+    |> Account.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc "Suspends an account"
+  def suspend_account(%Account{} = account) do
+    update_account(account, %{status: :suspended})
+  end
+
+  @doc "Activates a suspended account"
+  def activate_account(%Account{} = account) do
+    update_account(account, %{status: :active})
   end
 
   # ============================================

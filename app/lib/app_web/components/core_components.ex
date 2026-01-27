@@ -469,6 +469,60 @@ defmodule FFWeb.CoreComponents do
   end
 
   @doc """
+  Renders a modal dialog.
+
+  ## Examples
+
+      <.modal id="confirm-modal">
+        Are you sure you want to delete this?
+        <:actions>
+          <.button phx-click="delete">Delete</.button>
+        </:actions>
+      </.modal>
+
+  """
+  attr :id, :string, required: true
+  attr :show, :boolean, default: false
+  attr :on_cancel, JS, default: %JS{}
+  slot :inner_block, required: true
+
+  def modal(assigns) do
+    ~H"""
+    <dialog
+      id={@id}
+      class="modal"
+      phx-mounted={@show && show_modal(@id)}
+      phx-remove={hide_modal(@id)}
+    >
+      <div class="modal-box">
+        <form method="dialog">
+          <button
+            phx-click={JS.exec(@on_cancel, "phx-remove", to: "##{@id}")}
+            type="button"
+            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+            aria-label={gettext("close")}
+          >
+            <.icon name="hero-x-mark" class="size-5" />
+          </button>
+        </form>
+        {render_slot(@inner_block)}
+      </div>
+      <form method="dialog" class="modal-backdrop">
+        <button phx-click={JS.exec(@on_cancel, "phx-remove", to: "##{@id}")}>close</button>
+      </form>
+    </dialog>
+    """
+  end
+
+  defp show_modal(id) do
+    JS.dispatch("modal:open", to: "##{id}")
+  end
+
+  defp hide_modal(id) do
+    JS.dispatch("modal:close", to: "##{id}")
+  end
+
+  @doc """
   Translates an error message using gettext.
   """
   def translate_error({msg, opts}) do

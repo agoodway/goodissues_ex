@@ -151,4 +151,82 @@ defmodule FFWeb.Layouts do
     </div>
     """
   end
+
+  @doc """
+  Renders the admin layout.
+
+  This layout is used for admin pages and includes a sidebar navigation.
+
+  ## Examples
+
+      <Layouts.admin flash={@flash} current_scope={@current_scope}>
+        <h1>Admin Content</h1>
+      </Layouts.admin>
+
+  """
+  attr :flash, :map, required: true, doc: "the map of flash messages"
+
+  attr :current_scope, :map,
+    default: nil,
+    doc: "the current [scope](https://hexdocs.pm/phoenix/scopes.html)"
+
+  attr :page_title, :string, default: nil, doc: "the page title"
+
+  slot :inner_block, required: true
+
+  def admin(assigns) do
+    ~H"""
+    <div class="flex min-h-screen">
+      <aside class="w-64 bg-base-200 border-r border-base-300">
+        <div class="p-4">
+          <a href={~p"/admin/accounts"} class="flex items-center gap-2 text-lg font-semibold">
+            <.icon name="hero-cog-6-tooth" class="size-6" />
+            Admin
+          </a>
+        </div>
+        <nav class="menu p-4">
+          <ul>
+            <li>
+              <.link navigate={~p"/admin/accounts"} class="flex items-center gap-2">
+                <.icon name="hero-building-office" class="size-5" />
+                Accounts
+              </.link>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+      <div class="flex-1 flex flex-col">
+        <header class="navbar px-4 sm:px-6 lg:px-8 bg-base-100 border-b border-base-300">
+          <div class="flex-1">
+            <span :if={@page_title} class="text-lg font-semibold">{@page_title}</span>
+          </div>
+          <div class="flex-none">
+            <ul class="flex flex-column px-1 space-x-4 items-center">
+              <li>
+                <.theme_toggle />
+              </li>
+              <li :if={@current_scope}>
+                <span class="text-sm">{@current_scope.user.email}</span>
+              </li>
+              <li>
+                <a href={~p"/"} class="btn btn-ghost btn-sm">
+                  Exit Admin
+                </a>
+              </li>
+            </ul>
+          </div>
+        </header>
+
+        <main class="flex-1 p-4 sm:p-6 lg:p-8">
+          <div class="mx-auto max-w-6xl">
+            {render_slot(@inner_block)}
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <.flash_group flash={@flash} />
+    """
+  end
 end

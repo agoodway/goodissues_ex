@@ -76,4 +76,24 @@ defmodule FFWeb.ConnCase do
   defp maybe_set_token_authenticated_at(token, authenticated_at) do
     FF.AccountsFixtures.override_token_authenticated_at(token, authenticated_at)
   end
+
+  @doc """
+  Setup helper that registers and logs in an admin user.
+
+      setup :register_and_log_in_admin_user
+
+  It stores an updated connection and a registered admin user in the
+  test context.
+  """
+  def register_and_log_in_admin_user(%{conn: conn} = context) do
+    user = FF.AccountsFixtures.admin_user_fixture()
+    scope = FF.Accounts.Scope.for_user(user)
+
+    opts =
+      context
+      |> Map.take([:token_authenticated_at])
+      |> Enum.into([])
+
+    %{conn: log_in_user(conn, user, opts), user: user, scope: scope}
+  end
 end

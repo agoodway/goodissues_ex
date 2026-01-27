@@ -394,4 +394,99 @@ defmodule FF.AccountsTest do
       refute inspect(%User{password: "123456"}) =~ "password: \"123456\""
     end
   end
+
+  describe "list_accounts/1" do
+    test "returns all accounts with pagination" do
+      user = user_fixture()
+
+      for i <- 1..25 do
+        account_fixture(user, %{name: "Account #{i}"})
+      end
+
+      result = Accounts.list_accounts()
+
+      assert length(result.accounts) == 20
+      assert result.total == 25
+      assert result.page == 1
+      assert result.total_pages == 2
+    end
+
+    test "filters by search term" do
+      user = user_fixture()
+      account_fixture(user, %{name: "Findable Account"})
+      account_fixture(user, %{name: "Other Account"})
+
+      result = Accounts.list_accounts(search: "Findable")
+
+      assert length(result.accounts) == 1
+      assert hd(result.accounts).name == "Findable Account"
+    end
+
+    test "filters by status" do
+      user = user_fixture()
+      _active_account = account_fixture(user, %{name: "Active"})
+      suspended_account = account_fixture(user, %{name: "Suspended"})
+      Accounts.suspend_account(suspended_account)
+
+      result = Accounts.list_accounts(status: :suspended)
+
+      assert length(result.accounts) == 1
+      assert hd(result.accounts).name == "Suspended"
+
+      result = Accounts.list_accounts(status: :active)
+      assert length(result.accounts) == 1
+      assert hd(result.accounts).name == "Active"
+    end
+  end
+
+  describe "admin_create_account/1" do
+    test "creates account without owner" do
+      {:ok, account} = Accounts.admin_create_account(%{name: "Admin Created"})
+
+      assert account.name == "Admin Created"
+      assert account.slug == "admin-created"
+      assert account.status == :active
+    end
+
+    test "returns error changeset with invalid data" do
+      {:error, changeset} = Accounts.admin_create_account(%{name: nil})
+      assert %{name: ["can't be blank"]} = errors_on(changeset)
+    end
+  end
+
+  describe "update_account/2" do
+    test "updates account with valid data" do
+      user = user_fixture()
+      account = account_fixture(user)
+
+      {:ok, updated} = Accounts.update_account(account, %{name: "Updated Name"})
+
+      assert updated.name == "Updated Name"
+    end
+  end
+
+  describe "suspend_account/1" do
+    test "suspends an active account" do
+      user = user_fixture()
+      account = account_fixture(user)
+      assert account.status == :active
+
+      {:ok, suspended} = Accounts.suspend_account(account)
+
+      assert suspended.status == :suspended
+    end
+  end
+
+  describe "activate_account/1" do
+    test "activates a suspended account" do
+      user = user_fixture()
+      account = account_fixture(user)
+      {:ok, suspended} = Accounts.suspend_account(account)
+      assert suspended.status == :suspended
+
+      {:ok, activated} = Accounts.activate_account(suspended)
+
+      assert activated.status == :active
+    end
+  end
 end

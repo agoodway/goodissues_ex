@@ -10,6 +10,7 @@ defmodule FF.Accounts.User do
     field :hashed_password, :string, redact: true
     field :confirmed_at, :utc_datetime
     field :authenticated_at, :utc_datetime, virtual: true
+    field :is_admin, :boolean, default: false
 
     has_many :account_users, FF.Accounts.AccountUser
     has_many :accounts, through: [:account_users, :account]

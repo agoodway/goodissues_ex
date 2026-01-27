@@ -80,6 +80,17 @@ defmodule FF.AccountsFixtures do
     user
   end
 
+  @doc """
+  Creates an admin user.
+  """
+  def admin_user_fixture(attrs \\ %{}) do
+    user = user_fixture(attrs)
+
+    user
+    |> Ecto.Changeset.change(is_admin: true)
+    |> FF.Repo.update!()
+  end
+
   def user_scope_fixture do
     user = user_fixture()
     user_scope_fixture(user)
