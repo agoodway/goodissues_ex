@@ -8,7 +8,7 @@
 - [x] 2.2 Add account context functions for listing, filtering, searching
 - [x] 2.3 Add account context functions for CRUD operations
 - [x] 2.4 Add account deactivation/reactivation functions
-- [ ] 2.5 Add account audit trail logging (deferred - not in core requirements)
+- [x] 2.5 ~~Add account audit trail logging~~ → moved to `add-account-audit-trail`
 
 ## 3. Admin LiveViews - Index
 - [x] 3.1 Create `FFWeb.Admin.AccountLive.Index` LiveView
@@ -19,7 +19,7 @@
 ## 4. Admin LiveViews - Show
 - [x] 4.1 Create `FFWeb.Admin.AccountLive.Show` LiveView
 - [x] 4.2 Display account details
-- [ ] 4.3 Show account activity/audit trail (deferred - not in core requirements)
+- [x] 4.3 ~~Show account activity/audit trail~~ → moved to `add-account-audit-trail`
 - [x] 4.4 Add deactivate/activate actions
 
 ## 5. Admin LiveViews - Create/Edit
@@ -43,6 +43,6 @@
 - [x] 7.5 Write integration tests for admin authentication
 
 ## 8. Documentation
-- [ ] 8.1 Document admin access requirements (not requested)
-- [ ] 8.2 Document account management workflows (not requested)
-- [ ] 8.3 Update OpenAPI spec if admin API endpoints are added (N/A - no admin API)
+- [x] 8.1 ~~Document admin access requirements~~ (not requested)
+- [x] 8.2 ~~Document account management workflows~~ (not requested)
+- [x] 8.3 ~~Update OpenAPI spec~~ (N/A - no admin API)
