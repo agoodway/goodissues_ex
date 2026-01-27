@@ -10,4 +10,4 @@
 
 ## 3. Validation
 - [x] 3.1 Run existing test suite to ensure no regressions
-- [ ] 3.2 Manual verification of registration flow
+- [x] 3.2 Manual verification of registration flow
