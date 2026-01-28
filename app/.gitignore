@@ -49,3 +49,4 @@ npm-debug.log
 *.swp
 *.swo
 .vscode/
+.playwright-mcp/
