@@ -17,77 +17,76 @@
   themes: false;
 }
 
-/* daisyUI theme plugin. You can update this file by fetching the latest version with:
-  curl -sLO https://github.com/saadeghi/daisyui/releases/latest/download/daisyui-theme.js
-  We ship with two themes, a light one inspired on Phoenix colors and a dark one inspired
-  on Elixir colors. Build your own at: https://daisyui.com/theme-generator/ */
+/* Linear-inspired theme - clean, minimal, sophisticated
+   Dark theme with subtle grays and muted accent colors */
 @plugin "../vendor/daisyui-theme" {
   name: "dark";
   default: false;
   prefersdark: true;
   color-scheme: "dark";
-  --color-base-100: oklch(30.33% 0.016 252.42);
-  --color-base-200: oklch(25.26% 0.014 253.1);
-  --color-base-300: oklch(20.15% 0.012 254.09);
-  --color-base-content: oklch(97.807% 0.029 256.847);
-  --color-primary: oklch(58% 0.233 277.117);
-  --color-primary-content: oklch(96% 0.018 272.314);
-  --color-secondary: oklch(58% 0.233 277.117);
-  --color-secondary-content: oklch(96% 0.018 272.314);
-  --color-accent: oklch(60% 0.25 292.717);
-  --color-accent-content: oklch(96% 0.016 293.756);
-  --color-neutral: oklch(37% 0.044 257.287);
-  --color-neutral-content: oklch(98% 0.003 247.858);
-  --color-info: oklch(58% 0.158 241.966);
-  --color-info-content: oklch(97% 0.013 236.62);
-  --color-success: oklch(60% 0.118 184.704);
-  --color-success-content: oklch(98% 0.014 180.72);
-  --color-warning: oklch(66% 0.179 58.318);
-  --color-warning-content: oklch(98% 0.022 95.277);
-  --color-error: oklch(58% 0.253 17.585);
-  --color-error-content: oklch(96% 0.015 12.422);
-  --radius-selector: 0.25rem;
-  --radius-field: 0.25rem;
+  --color-base-100: oklch(18% 0.005 260);
+  --color-base-200: oklch(15% 0.004 260);
+  --color-base-300: oklch(12% 0.003 260);
+  --color-base-content: oklch(85% 0.005 260);
+  --color-primary: oklch(70% 0.15 250);
+  --color-primary-content: oklch(98% 0.01 250);
+  --color-secondary: oklch(55% 0.08 260);
+  --color-secondary-content: oklch(95% 0.01 260);
+  --color-accent: oklch(75% 0.12 160);
+  --color-accent-content: oklch(15% 0.02 160);
+  --color-neutral: oklch(25% 0.01 260);
+  --color-neutral-content: oklch(75% 0.005 260);
+  --color-info: oklch(65% 0.12 240);
+  --color-info-content: oklch(95% 0.01 240);
+  --color-success: oklch(65% 0.15 160);
+  --color-success-content: oklch(15% 0.02 160);
+  --color-warning: oklch(75% 0.15 85);
+  --color-warning-content: oklch(15% 0.02 85);
+  --color-error: oklch(65% 0.2 25);
+  --color-error-content: oklch(95% 0.02 25);
+  --radius-selector: 0.375rem;
+  --radius-field: 0.375rem;
   --radius-box: 0.5rem;
-  --size-selector: 0.21875rem;
-  --size-field: 0.21875rem;
-  --border: 1.5px;
-  --depth: 1;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
   --noise: 0;
 }
 
+/* Linear-inspired light theme - warm, clean, minimal */
 @plugin "../vendor/daisyui-theme" {
   name: "light";
   default: true;
   prefersdark: false;
   color-scheme: "light";
-  --color-base-100: oklch(98% 0 0);
-  --color-base-200: oklch(96% 0.001 286.375);
-  --color-base-300: oklch(92% 0.004 286.32);
-  --color-base-content: oklch(21% 0.006 285.885);
-  --color-primary: oklch(70% 0.213 47.604);
-  --color-primary-content: oklch(98% 0.016 73.684);
-  --color-secondary: oklch(55% 0.027 264.364);
-  --color-secondary-content: oklch(98% 0.002 247.839);
-  --color-accent: oklch(0% 0 0);
-  --color-accent-content: oklch(100% 0 0);
-  --color-neutral: oklch(44% 0.017 285.786);
-  --color-neutral-content: oklch(98% 0 0);
-  --color-info: oklch(62% 0.214 259.815);
-  --color-info-content: oklch(97% 0.014 254.604);
-  --color-success: oklch(70% 0.14 182.503);
-  --color-success-content: oklch(98% 0.014 180.72);
-  --color-warning: oklch(66% 0.179 58.318);
-  --color-warning-content: oklch(98% 0.022 95.277);
-  --color-error: oklch(58% 0.253 17.585);
-  --color-error-content: oklch(96% 0.015 12.422);
-  --radius-selector: 0.25rem;
-  --radius-field: 0.25rem;
+  --color-base-100: oklch(99% 0.002 90);
+  --color-base-200: oklch(97% 0.004 90);
+  --color-base-300: oklch(93% 0.006 90);
+  --color-base-content: oklch(25% 0.01 260);
+  --color-primary: oklch(55% 0.18 250);
+  --color-primary-content: oklch(98% 0.01 250);
+  --color-secondary: oklch(45% 0.06 260);
+  --color-secondary-content: oklch(98% 0.01 260);
+  --color-accent: oklch(55% 0.15 160);
+  --color-accent-content: oklch(98% 0.01 160);
+  --color-neutral: oklch(35% 0.015 260);
+  --color-neutral-content: oklch(98% 0.005 260);
+  --color-info: oklch(55% 0.15 240);
+  --color-info-content: oklch(98% 0.01 240);
+  --color-success: oklch(55% 0.18 160);
+  --color-success-content: oklch(98% 0.01 160);
+  --color-warning: oklch(70% 0.18 85);
+  --color-warning-content: oklch(20% 0.02 85);
+  --color-error: oklch(55% 0.22 25);
+  --color-error-content: oklch(98% 0.02 25);
+  --radius-selector: 0.375rem;
+  --radius-field: 0.375rem;
   --radius-box: 0.5rem;
-  --size-selector: 0.21875rem;
-  --size-field: 0.21875rem;
-  --border: 1.5px;
-  --depth: 1;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
   --noise: 0;
 }
 
@@ -102,4 +101,319 @@
 /* Make LiveView wrapper divs transparent for layout */
 [data-phx-session], [data-phx-teleported-src] { display: contents }
 
-/* This file is for your main application CSS */
+/* ============================================
+   Linear-Inspired Design System
+   ============================================ */
+
+/* Import Inter font for clean, modern typography */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+/* Base typography */
+html {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Sidebar styling - Linear dark sidebar */
+.sidebar {
+  background: oklch(13% 0.004 260);
+  border-right: 1px solid oklch(20% 0.005 260);
+}
+
+[data-theme="light"] .sidebar {
+  background: oklch(97% 0.003 90);
+  border-right: 1px solid oklch(90% 0.006 90);
+}
+
+/* Navigation items */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: oklch(65% 0.01 260);
+  transition: all 0.15s ease;
+}
+
+.nav-item:hover {
+  background: oklch(20% 0.005 260);
+  color: oklch(90% 0.01 260);
+}
+
+[data-theme="light"] .nav-item {
+  color: oklch(45% 0.01 260);
+}
+
+[data-theme="light"] .nav-item:hover {
+  background: oklch(93% 0.005 90);
+  color: oklch(25% 0.01 260);
+}
+
+.nav-item.active {
+  background: oklch(22% 0.008 260);
+  color: oklch(95% 0.01 260);
+}
+
+[data-theme="light"] .nav-item.active {
+  background: oklch(90% 0.008 90);
+  color: oklch(20% 0.01 260);
+}
+
+/* Section headers in sidebar */
+.nav-section-header {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: oklch(50% 0.01 260);
+  padding: 0.75rem 0.75rem 0.375rem;
+}
+
+/* List items - Linear style */
+.list-item {
+  display: flex;
+  align-items: center;
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid oklch(20% 0.005 260);
+  font-size: 0.875rem;
+  transition: background 0.1s ease;
+}
+
+.list-item:hover {
+  background: oklch(16% 0.004 260);
+}
+
+[data-theme="light"] .list-item {
+  border-bottom-color: oklch(93% 0.006 90);
+}
+
+[data-theme="light"] .list-item:hover {
+  background: oklch(96% 0.004 90);
+}
+
+/* Status badges - muted, minimal */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.status-badge-active {
+  background: oklch(35% 0.08 160 / 0.3);
+  color: oklch(70% 0.12 160);
+}
+
+.status-badge-pending {
+  background: oklch(45% 0.08 85 / 0.3);
+  color: oklch(75% 0.12 85);
+}
+
+.status-badge-revoked {
+  background: oklch(35% 0.06 25 / 0.3);
+  color: oklch(65% 0.12 25);
+}
+
+[data-theme="light"] .status-badge-active {
+  background: oklch(90% 0.08 160);
+  color: oklch(45% 0.15 160);
+}
+
+[data-theme="light"] .status-badge-pending {
+  background: oklch(92% 0.08 85);
+  color: oklch(50% 0.15 85);
+}
+
+[data-theme="light"] .status-badge-revoked {
+  background: oklch(92% 0.06 25);
+  color: oklch(50% 0.15 25);
+}
+
+/* Project/tag badges */
+.tag-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: oklch(22% 0.01 260);
+  color: oklch(70% 0.01 260);
+}
+
+[data-theme="light"] .tag-badge {
+  background: oklch(93% 0.006 90);
+  color: oklch(40% 0.01 260);
+}
+
+/* Muted text */
+.text-muted {
+  color: oklch(50% 0.01 260);
+}
+
+[data-theme="light"] .text-muted {
+  color: oklch(55% 0.01 260);
+}
+
+/* Compact table styling */
+.table-compact th {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: oklch(50% 0.01 260);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid oklch(22% 0.005 260);
+}
+
+.table-compact td {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  border-bottom: 1px solid oklch(18% 0.004 260);
+}
+
+[data-theme="light"] .table-compact th {
+  color: oklch(50% 0.01 260);
+  border-bottom-color: oklch(90% 0.006 90);
+}
+
+[data-theme="light"] .table-compact td {
+  border-bottom-color: oklch(94% 0.005 90);
+}
+
+/* Clean buttons */
+.btn-subtle {
+  background: transparent;
+  border: 1px solid oklch(28% 0.01 260);
+  color: oklch(70% 0.01 260);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  transition: all 0.15s ease;
+}
+
+.btn-subtle:hover {
+  background: oklch(22% 0.008 260);
+  border-color: oklch(35% 0.01 260);
+  color: oklch(85% 0.01 260);
+}
+
+[data-theme="light"] .btn-subtle {
+  border-color: oklch(85% 0.01 260);
+  color: oklch(40% 0.01 260);
+}
+
+[data-theme="light"] .btn-subtle:hover {
+  background: oklch(95% 0.005 90);
+  border-color: oklch(80% 0.01 260);
+  color: oklch(25% 0.01 260);
+}
+
+/* Search/filter inputs */
+.input-search {
+  background: oklch(15% 0.004 260);
+  border: 1px solid oklch(22% 0.005 260);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: oklch(85% 0.01 260);
+  transition: border-color 0.15s ease;
+}
+
+.input-search::placeholder {
+  color: oklch(45% 0.01 260);
+}
+
+.input-search:focus {
+  outline: none;
+  border-color: oklch(45% 0.08 250);
+}
+
+[data-theme="light"] .input-search {
+  background: oklch(98% 0.002 90);
+  border-color: oklch(88% 0.006 90);
+  color: oklch(25% 0.01 260);
+}
+
+[data-theme="light"] .input-search::placeholder {
+  color: oklch(60% 0.01 260);
+}
+
+[data-theme="light"] .input-search:focus {
+  border-color: oklch(55% 0.12 250);
+}
+
+/* Dropdown/select styling */
+.select-minimal {
+  background: oklch(15% 0.004 260);
+  border: 1px solid oklch(22% 0.005 260);
+  border-radius: 0.375rem;
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  color: oklch(70% 0.01 260);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M3 4.5L6 7.5L9 4.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+}
+
+[data-theme="light"] .select-minimal {
+  background-color: oklch(98% 0.002 90);
+  border-color: oklch(88% 0.006 90);
+  color: oklch(40% 0.01 260);
+}
+
+/* Group headers */
+.group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: oklch(55% 0.01 260);
+  background: oklch(14% 0.003 260);
+  border-bottom: 1px solid oklch(18% 0.004 260);
+}
+
+[data-theme="light"] .group-header {
+  color: oklch(50% 0.01 260);
+  background: oklch(96% 0.004 90);
+  border-bottom-color: oklch(92% 0.005 90);
+}
+
+/* Icon colors */
+.icon-muted {
+  color: oklch(50% 0.01 260);
+}
+
+[data-theme="light"] .icon-muted {
+  color: oklch(55% 0.01 260);
+}
+
+/* Smooth transitions */
+* {
+  transition-property: background-color, border-color, color;
+  transition-duration: 0.15s;
+  transition-timing-function: ease;
+}
+
+/* Remove transition from interactive elements that need instant feedback */
+button, a, input, select, textarea {
+  transition-property: none;
+}
+
+button:hover, a:hover {
+  transition-property: background-color, border-color, color, transform;
+  transition-duration: 0.1s;
+}

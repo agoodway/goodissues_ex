@@ -146,146 +146,179 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Index do
   def render(assigns) do
     ~H"""
     <FFWeb.Layouts.dashboard flash={@flash} current_scope={@current_scope} page_title={@page_title}>
-      <.header>
-        API Keys
-        <:subtitle>Manage API keys for {@current_scope.account.name}</:subtitle>
-        <:actions>
-          <.link
-            :if={@can_manage}
-            navigate={~p"/dashboard/#{@current_scope.account.slug}/api-keys/new"}
-            class="btn btn-primary"
-          >
-            <.icon name="hero-plus" class="size-4 mr-1" /> New API Key
-          </.link>
-        </:actions>
-      </.header>
-
-      <div class="flex flex-col sm:flex-row gap-4 mb-6">
-        <form phx-change="search" phx-submit="search" class="flex-1">
-          <.input
-            type="text"
-            name="search"
-            value={@search}
-            placeholder="Search by name or owner email..."
-            phx-debounce="300"
-          />
-        </form>
-
-        <form phx-change="filter_status" class="w-full sm:w-40">
-          <.input
-            type="select"
-            name="status"
-            value={@status_filter}
-            options={[{"All Statuses", ""}, {"Active", "active"}, {"Revoked", "revoked"}]}
-          />
-        </form>
-
-        <form phx-change="filter_type" class="w-full sm:w-40">
-          <.input
-            type="select"
-            name="type"
-            value={@type_filter}
-            options={[{"All Types", ""}, {"Public", "public"}, {"Private", "private"}]}
-          />
-        </form>
-      </div>
-
-      <div class="overflow-x-auto">
-        <.table id="api-keys" rows={@api_keys} row_id={fn api_key -> "api-key-#{api_key.id}" end}>
-          <:col :let={api_key} label="Name">{api_key.name}</:col>
-          <:col :let={api_key} label="Type">
-            <span class={[
-              "badge badge-sm",
-              api_key.type == :private && "badge-warning",
-              api_key.type == :public && "badge-info"
-            ]}>
-              {api_key.type}
-            </span>
-          </:col>
-          <:col :let={api_key} label="Owner">{api_key.account_user.user.email}</:col>
-          <:col :let={api_key} label="Status">
-            <span class={[
-              "badge badge-sm",
-              api_key.status == :active && "badge-success",
-              api_key.status == :revoked && "badge-error"
-            ]}>
-              {api_key.status}
-            </span>
-          </:col>
-          <:col :let={api_key} label="Last Used">{format_datetime(api_key.last_used_at)}</:col>
-          <:col :let={api_key} label="Expires">{format_datetime(api_key.expires_at)}</:col>
-          <:action :let={api_key}>
+      <div class="h-full flex flex-col">
+        <%!-- Page header with filters --%>
+        <div class="px-6 py-4 border-b border-base-300/50">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <.icon name="hero-key" class="size-5 text-muted" />
+              <h1 class="text-lg font-semibold">API Keys</h1>
+              <span class="text-sm text-muted">{@total}</span>
+            </div>
             <.link
-              navigate={~p"/dashboard/#{@current_scope.account.slug}/api-keys/#{api_key.id}"}
-              class="btn btn-ghost btn-xs"
+              :if={@can_manage}
+              navigate={~p"/dashboard/#{@current_scope.account.slug}/api-keys/new"}
+              class="btn-subtle flex items-center gap-1.5"
             >
-              View
+              <.icon name="hero-plus" class="size-4" />
+              <span>New Key</span>
             </.link>
-          </:action>
-          <:action :let={api_key}>
-            <%= if @can_manage && api_key.status == :active do %>
-              <button
-                phx-click="revoke"
-                phx-value-id={api_key.id}
-                data-confirm="Are you sure you want to revoke this API key? This cannot be undone."
-                class="btn btn-ghost btn-xs text-error"
-              >
-                Revoke
-              </button>
-            <% end %>
-          </:action>
-        </.table>
-      </div>
+          </div>
 
-      <div :if={@total == 0} class="text-center py-12 text-base-content/70">
-        No API keys found.
-      </div>
+          <%!-- Filters row --%>
+          <div class="flex items-center gap-3">
+            <form phx-change="search" phx-submit="search" class="flex-1 max-w-xs">
+              <div class="relative">
+                <.icon name="hero-funnel" class="size-4 absolute left-2.5 top-1/2 -translate-y-1/2 icon-muted" />
+                <input
+                  type="text"
+                  name="search"
+                  value={@search}
+                  placeholder="Filter..."
+                  phx-debounce="300"
+                  class="input-search w-full pl-8 py-1.5 text-sm"
+                />
+              </div>
+            </form>
 
-      <div :if={@total_pages > 1} class="flex justify-center mt-6">
-        <div class="join">
-          <.link
-            :if={@page > 1}
-            patch={
-              pagination_path(
-                @current_scope.account.slug,
-                @search,
-                @status_filter,
-                @type_filter,
-                @page - 1
-              )
-            }
-            class="join-item btn"
-          >
-            Previous
-          </.link>
-          <span class="join-item btn btn-disabled">
-            Page {@page} of {@total_pages}
-          </span>
-          <.link
-            :if={@page < @total_pages}
-            patch={
-              pagination_path(
-                @current_scope.account.slug,
-                @search,
-                @status_filter,
-                @type_filter,
-                @page + 1
-              )
-            }
-            class="join-item btn"
-          >
-            Next
-          </.link>
+            <form phx-change="filter_status">
+              <select name="status" class="select-minimal">
+                <option value="" selected={@status_filter == ""}>All Statuses</option>
+                <option value="active" selected={@status_filter == "active"}>Active</option>
+                <option value="revoked" selected={@status_filter == "revoked"}>Revoked</option>
+              </select>
+            </form>
+
+            <form phx-change="filter_type">
+              <select name="type" class="select-minimal">
+                <option value="" selected={@type_filter == ""}>All Types</option>
+                <option value="public" selected={@type_filter == "public"}>Public</option>
+                <option value="private" selected={@type_filter == "private"}>Private</option>
+              </select>
+            </form>
+          </div>
         </div>
-      </div>
 
-      <div :if={@total > 0} class="text-sm text-base-content/70 mt-4 text-center">
-        Showing {@page * 20 - 19} - {min(@page * 20, @total)} of {@total} API keys
-      </div>
+        <%!-- List content --%>
+        <div class="flex-1 overflow-auto">
+          <%!-- Group header --%>
+          <div :if={@total > 0} class="group-header">
+            <div class="flex items-center gap-2">
+              <.icon name="hero-key" class="size-4" />
+              <span>Active Keys</span>
+              <span class="text-xs opacity-60">{length(Enum.filter(@api_keys, & &1.status == :active))}</span>
+            </div>
+          </div>
 
-      <div :if={!@can_manage} class="alert alert-info mt-6">
-        <.icon name="hero-information-circle" class="size-5" />
-        <span>You have read-only access. Contact an admin to create or revoke API keys.</span>
+          <%!-- API Keys list --%>
+          <div id="api-keys-list">
+            <%= for api_key <- @api_keys do %>
+              <.link
+                navigate={~p"/dashboard/#{@current_scope.account.slug}/api-keys/#{api_key.id}"}
+                class="list-item group cursor-pointer"
+                id={"api-key-#{api_key.id}"}
+              >
+                <%!-- Status indicator --%>
+                <div class="w-6 flex justify-center">
+                  <div class={[
+                    "size-4 rounded-full flex items-center justify-center",
+                    api_key.status == :active && "text-success",
+                    api_key.status == :revoked && "text-error opacity-50"
+                  ]}>
+                    <.icon name={if api_key.status == :active, do: "hero-check-circle", else: "hero-x-circle"} class="size-4" />
+                  </div>
+                </div>
+
+                <%!-- Key name --%>
+                <div class="flex-1 min-w-0 ml-2">
+                  <span class={[
+                    "font-medium",
+                    api_key.status == :revoked && "line-through opacity-50"
+                  ]}>
+                    {api_key.name}
+                  </span>
+                </div>
+
+                <%!-- Owner --%>
+                <div class="hidden sm:block text-sm text-muted w-48 truncate">
+                  {api_key.account_user.user.email}
+                </div>
+
+                <%!-- Type badge --%>
+                <div class="w-20">
+                  <span class={[
+                    "tag-badge text-xs",
+                    api_key.type == :private && "!bg-warning/20 !text-warning"
+                  ]}>
+                    {api_key.type}
+                  </span>
+                </div>
+
+                <%!-- Date --%>
+                <div class="hidden lg:block text-sm text-muted w-28">
+                  {format_datetime(api_key.inserted_at)}
+                </div>
+
+                <%!-- Actions --%>
+                <div class="w-20 flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <%= if @can_manage && api_key.status == :active do %>
+                    <button
+                      phx-click="revoke"
+                      phx-value-id={api_key.id}
+                      data-confirm="Are you sure you want to revoke this API key? This cannot be undone."
+                      class="p-1.5 rounded hover:bg-error/20 text-error/70 hover:text-error"
+                      onclick="event.preventDefault(); event.stopPropagation();"
+                    >
+                      <.icon name="hero-trash" class="size-4" />
+                    </button>
+                  <% end %>
+                </div>
+              </.link>
+            <% end %>
+          </div>
+
+          <%!-- Empty state --%>
+          <div :if={@total == 0} class="flex flex-col items-center justify-center py-16 text-muted">
+            <.icon name="hero-key" class="size-12 opacity-30 mb-4" />
+            <p class="text-sm">No API keys found</p>
+            <.link
+              :if={@can_manage}
+              navigate={~p"/dashboard/#{@current_scope.account.slug}/api-keys/new"}
+              class="btn-subtle mt-4"
+            >
+              Create your first key
+            </.link>
+          </div>
+        </div>
+
+        <%!-- Footer with pagination --%>
+        <div :if={@total > 0} class="px-6 py-3 border-t border-base-300/50 flex items-center justify-between text-sm text-muted">
+          <span>Showing {@page * 20 - 19} - {min(@page * 20, @total)} of {@total}</span>
+
+          <div :if={@total_pages > 1} class="flex items-center gap-2">
+            <.link
+              :if={@page > 1}
+              patch={pagination_path(@current_scope.account.slug, @search, @status_filter, @type_filter, @page - 1)}
+              class="btn-subtle py-1 px-2"
+            >
+              <.icon name="hero-chevron-left" class="size-4" />
+            </.link>
+            <span>Page {@page} of {@total_pages}</span>
+            <.link
+              :if={@page < @total_pages}
+              patch={pagination_path(@current_scope.account.slug, @search, @status_filter, @type_filter, @page + 1)}
+              class="btn-subtle py-1 px-2"
+            >
+              <.icon name="hero-chevron-right" class="size-4" />
+            </.link>
+          </div>
+        </div>
+
+        <%!-- Info banner for read-only users --%>
+        <div :if={!@can_manage} class="mx-6 mb-4 px-4 py-3 rounded-lg bg-info/10 border border-info/20 flex items-center gap-3 text-sm">
+          <.icon name="hero-information-circle" class="size-5 text-info" />
+          <span class="text-info">You have read-only access. Contact an admin to create or revoke API keys.</span>
+        </div>
       </div>
     </FFWeb.Layouts.dashboard>
     """

@@ -122,31 +122,32 @@ defmodule FFWeb.Layouts do
   """
   def theme_toggle(assigns) do
     ~H"""
-    <div class="card relative flex flex-row items-center border-2 border-base-300 bg-base-300 rounded-full">
-      <div class="absolute w-1/3 h-full rounded-full border-1 border-base-200 bg-base-100 brightness-200 left-0 [[data-theme=light]_&]:left-1/3 [[data-theme=dark]_&]:left-2/3 transition-[left]" />
-
+    <div class="flex items-center gap-0.5 p-0.5 rounded-lg bg-base-300/50">
       <button
-        class="flex p-2 cursor-pointer w-1/3"
+        class="p-1.5 rounded-md hover:bg-base-200 text-muted hover:text-base-content transition-colors [[data-theme=system]_&]:bg-base-200 [[data-theme=system]_&]:text-base-content"
         phx-click={JS.dispatch("phx:set-theme")}
         data-phx-theme="system"
+        title="System theme"
       >
-        <.icon name="hero-computer-desktop-micro" class="size-4 opacity-75 hover:opacity-100" />
+        <.icon name="hero-computer-desktop-micro" class="size-4" />
       </button>
 
       <button
-        class="flex p-2 cursor-pointer w-1/3"
+        class="p-1.5 rounded-md hover:bg-base-200 text-muted hover:text-base-content transition-colors [[data-theme=light]_&]:bg-base-200 [[data-theme=light]_&]:text-base-content"
         phx-click={JS.dispatch("phx:set-theme")}
         data-phx-theme="light"
+        title="Light theme"
       >
-        <.icon name="hero-sun-micro" class="size-4 opacity-75 hover:opacity-100" />
+        <.icon name="hero-sun-micro" class="size-4" />
       </button>
 
       <button
-        class="flex p-2 cursor-pointer w-1/3"
+        class="p-1.5 rounded-md hover:bg-base-200 text-muted hover:text-base-content transition-colors [[data-theme=dark]_&]:bg-base-200 [[data-theme=dark]_&]:text-base-content"
         phx-click={JS.dispatch("phx:set-theme")}
         data-phx-theme="dark"
+        title="Dark theme"
       >
-        <.icon name="hero-moon-micro" class="size-4 opacity-75 hover:opacity-100" />
+        <.icon name="hero-moon-micro" class="size-4" />
       </button>
     </div>
     """
@@ -176,69 +177,121 @@ defmodule FFWeb.Layouts do
 
   def dashboard(assigns) do
     ~H"""
-    <div class="flex min-h-screen">
-      <aside class="w-64 bg-base-200 border-r border-base-300">
-        <div class="p-4">
-          <a
-            href={~p"/dashboard/#{@current_scope.account.slug}"}
-            class="flex items-center gap-2 text-lg font-semibold"
-          >
-            <.icon name="hero-squares-2x2" class="size-6" /> Dashboard
-          </a>
+    <div class="flex min-h-screen bg-base-100">
+      <%!-- Linear-style sidebar --%>
+      <aside class="sidebar w-56 flex flex-col">
+        <%!-- Logo/Brand area --%>
+        <div class="p-3 flex items-center gap-2">
+          <div class="size-7 rounded-lg bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center">
+            <.icon name="hero-bolt" class="size-4 text-primary-content" />
+          </div>
+          <span class="font-semibold text-sm text-base-content">Fruitfly</span>
         </div>
 
-        <div :if={@current_scope && @current_scope.account} class="px-4 pb-4">
+        <%!-- Search --%>
+        <div class="px-3 pb-2">
+          <div class="relative">
+            <.icon name="hero-magnifying-glass" class="size-4 absolute left-2.5 top-1/2 -translate-y-1/2 icon-muted" />
+            <input
+              type="text"
+              placeholder="Search..."
+              class="input-search w-full pl-8 py-1.5 text-sm"
+            />
+          </div>
+        </div>
+
+        <%!-- Main navigation --%>
+        <nav class="flex-1 px-2 py-2 space-y-0.5">
+          <.link
+            navigate={~p"/dashboard/#{@current_scope.account.slug}"}
+            class="nav-item"
+          >
+            <.icon name="hero-home" class="size-4" />
+            <span>Home</span>
+          </.link>
+
+          <.link
+            navigate={~p"/dashboard/#{@current_scope.account.slug}"}
+            class="nav-item"
+          >
+            <.icon name="hero-inbox" class="size-4" />
+            <span>Inbox</span>
+          </.link>
+
+          <.link
+            navigate={~p"/dashboard/#{@current_scope.account.slug}"}
+            class="nav-item"
+          >
+            <.icon name="hero-clipboard-document-list" class="size-4" />
+            <span>My Issues</span>
+          </.link>
+
+          <%!-- Workspace section --%>
+          <div class="nav-section-header mt-4">Workspace</div>
+
+          <.link
+            navigate={~p"/dashboard/#{@current_scope.account.slug}"}
+            class="nav-item"
+          >
+            <.icon name="hero-folder" class="size-4" />
+            <span>Projects</span>
+          </.link>
+
+          <.link
+            navigate={~p"/dashboard/#{@current_scope.account.slug}"}
+            class="nav-item"
+          >
+            <.icon name="hero-eye" class="size-4" />
+            <span>Views</span>
+          </.link>
+
+          <%!-- Account section --%>
+          <div class="nav-section-header mt-4">Account</div>
+
+          <.link
+            navigate={~p"/dashboard/#{@current_scope.account.slug}"}
+            class="nav-item"
+          >
+            <.icon name="hero-building-office" class="size-4" />
+            <span>Settings</span>
+          </.link>
+
+          <.link
+            navigate={~p"/dashboard/#{@current_scope.account.slug}/api-keys"}
+            class="nav-item active"
+          >
+            <.icon name="hero-key" class="size-4" />
+            <span>API Keys</span>
+          </.link>
+        </nav>
+
+        <%!-- Account switcher at bottom --%>
+        <div :if={@current_scope && @current_scope.account} class="p-2 border-t border-base-300/50">
           <.account_switcher current_scope={@current_scope} />
         </div>
-
-        <nav class="menu p-4">
-          <ul>
-            <li>
-              <.link
-                navigate={~p"/dashboard/#{@current_scope.account.slug}"}
-                class="flex items-center gap-2"
-              >
-                <.icon name="hero-building-office" class="size-5" /> Account
-              </.link>
-            </li>
-            <li>
-              <.link
-                navigate={~p"/dashboard/#{@current_scope.account.slug}/api-keys"}
-                class="flex items-center gap-2"
-              >
-                <.icon name="hero-key" class="size-5" /> API Keys
-              </.link>
-            </li>
-          </ul>
-        </nav>
       </aside>
 
-      <div class="flex-1 flex flex-col">
-        <header class="navbar px-4 sm:px-6 lg:px-8 bg-base-100 border-b border-base-300">
-          <div class="flex-1">
-            <span :if={@page_title} class="text-lg font-semibold">{@page_title}</span>
+      <%!-- Main content area --%>
+      <div class="flex-1 flex flex-col min-w-0">
+        <%!-- Top header bar --%>
+        <header class="h-12 px-4 flex items-center justify-between border-b border-base-300/50 bg-base-100">
+          <div class="flex items-center gap-3">
+            <button class="p-1.5 rounded hover:bg-base-200 text-muted">
+              <.icon name="hero-arrow-left" class="size-4" />
+            </button>
+            <button class="p-1.5 rounded hover:bg-base-200 text-muted">
+              <.icon name="hero-arrow-right" class="size-4" />
+            </button>
           </div>
-          <div class="flex-none">
-            <ul class="flex flex-column px-1 space-x-4 items-center">
-              <li>
-                <.theme_toggle />
-              </li>
-              <li :if={@current_scope}>
-                <span class="text-sm text-base-content/70">{@current_scope.user.email}</span>
-              </li>
-              <li>
-                <a href={~p"/"} class="btn btn-ghost btn-sm">
-                  Exit Dashboard
-                </a>
-              </li>
-            </ul>
+
+          <div class="flex items-center gap-2">
+            <.theme_toggle />
           </div>
         </header>
 
-        <main class="flex-1 p-4 sm:p-6 lg:p-8">
-          <div class="mx-auto max-w-6xl">
-            {render_slot(@inner_block)}
-          </div>
+        <%!-- Page content --%>
+        <main class="flex-1 overflow-auto">
+          {render_slot(@inner_block)}
         </main>
       </div>
     </div>
@@ -261,48 +314,41 @@ defmodule FFWeb.Layouts do
       <div
         tabindex="0"
         role="button"
-        class="btn btn-ghost w-full justify-between text-left h-auto py-2"
+        class="w-full flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-base-300/30 cursor-pointer transition-colors"
       >
-        <div class="flex flex-col items-start overflow-hidden">
-          <span class="font-medium truncate max-w-full">{@current_scope.account.name}</span>
-          <span class={[
-            "badge badge-xs mt-1",
-            @current_scope.account_user.role == :owner && "badge-primary",
-            @current_scope.account_user.role == :admin && "badge-secondary",
-            @current_scope.account_user.role == :member && "badge-ghost"
-          ]}>
-            {@current_scope.account_user.role}
-          </span>
+        <div class="size-6 rounded bg-gradient-to-br from-accent/60 to-accent flex items-center justify-center text-xs font-medium text-accent-content">
+          {String.first(@current_scope.account.name)}
         </div>
-        <.icon name="hero-chevron-down" class="size-4 shrink-0" />
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium truncate">{@current_scope.account.name}</div>
+          <div class="text-xs text-muted">{@current_scope.account_user.role}</div>
+        </div>
+        <.icon name="hero-chevron-up-down" class="size-4 text-muted shrink-0" />
       </div>
       <ul
         tabindex="0"
-        class="dropdown-content menu bg-base-100 rounded-box z-10 w-full p-2 shadow border border-base-300"
+        class="dropdown-content z-20 w-full mt-1 py-1 rounded-lg bg-base-200 border border-base-300 shadow-lg"
       >
         <%= for {account, role} <- @current_scope.accounts do %>
           <%= if account.id == @current_scope.account.id do %>
-            <li class="disabled">
-              <span class="flex justify-between items-center opacity-50">
-                <span class="truncate">{account.name}</span>
-                <.icon name="hero-check" class="size-4" />
-              </span>
+            <li class="px-2 py-1.5 flex items-center gap-2 text-sm opacity-50">
+              <div class="size-5 rounded bg-accent/40 flex items-center justify-center text-xs font-medium">
+                {String.first(account.name)}
+              </div>
+              <span class="flex-1 truncate">{account.name}</span>
+              <.icon name="hero-check" class="size-4" />
             </li>
           <% else %>
             <li>
               <.link
                 navigate={~p"/dashboard/#{account.slug}"}
-                class="flex justify-between items-center"
+                class="px-2 py-1.5 flex items-center gap-2 text-sm hover:bg-base-300/50 rounded"
               >
-                <span class="truncate">{account.name}</span>
-                <span class={[
-                  "badge badge-xs",
-                  role == :owner && "badge-primary",
-                  role == :admin && "badge-secondary",
-                  role == :member && "badge-ghost"
-                ]}>
-                  {role}
-                </span>
+                <div class="size-5 rounded bg-neutral/50 flex items-center justify-center text-xs font-medium">
+                  {String.first(account.name)}
+                </div>
+                <span class="flex-1 truncate">{account.name}</span>
+                <span class="text-xs text-muted">{role}</span>
               </.link>
             </li>
           <% end %>
