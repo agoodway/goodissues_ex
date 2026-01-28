@@ -16,3 +16,56 @@ Use `@/openspec/AGENTS.md` to learn:
 Keep this managed block so 'openspec update' can refresh the instructions.
 
 <!-- OPENSPEC:END -->
+
+# FruitFly
+
+FruitFly is a bug and feature request tracking system with a REST API.
+
+## Monorepo Structure
+
+```
+fruitfly/
+├── app/                    # Phoenix/Elixir backend API
+│   ├── lib/app/            # Core business logic (contexts)
+│   ├── lib/app_web/        # Web layer (controllers, views, router)
+│   ├── priv/repo/          # Database migrations
+│   ├── test/               # ExUnit tests
+│   └── openapi.json        # OpenAPI specification
+├── cli/                    # Go CLI client
+│   ├── cmd/                # Cobra commands
+│   ├── internal/           # Internal packages
+│   │   ├── client/         # API client
+│   │   └── config/         # Configuration management
+│   └── main.go             # Entry point
+└── openspec/               # Spec-driven development
+    ├── project.md          # Project conventions
+    ├── specs/              # Current specifications
+    └── changes/            # Change proposals
+```
+
+## Components
+
+### Backend (`app/`)
+- **Framework**: Phoenix 1.8 with Elixir
+- **Database**: PostgreSQL with Ecto
+- **API**: REST API at `/api/v1/` with Bearer token auth
+- **Key resources**: Projects, Issues, API Keys, Accounts, Users
+
+### CLI (`cli/`)
+- **Language**: Go with Cobra CLI framework
+- **Config**: Stored in `~/.fruitfly/config.yaml`
+- **Auth**: API keys (pk_* read-only, sk_* read/write)
+
+## Quick Commands
+
+```bash
+# Backend
+cd app && mix phx.server      # Run server
+cd app && mix test            # Run tests
+
+# CLI
+cd cli && go build -o fruitfly .
+./fruitfly configure --url http://localhost:4000 --api-key sk_...
+./fruitfly projects list
+./fruitfly issues list
+```

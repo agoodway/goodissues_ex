@@ -1,31 +1,61 @@
 # Project Context
 
 ## Purpose
-[Describe your project's purpose and goals]
+FruitFly is a bug and feature request tracking system providing a REST API for managing projects and issues. It supports multi-tenant accounts with role-based API key access.
 
 ## Tech Stack
-- [List your primary technologies]
-- [e.g., TypeScript, React, Node.js]
+- **Backend**: Elixir/Phoenix 1.8, Ecto, PostgreSQL
+- **CLI**: Go, Cobra, Viper
+- **API**: REST with OpenAPI 3.0 spec, Bearer token auth
+
+## Monorepo Structure
+```
+fruitfly/
+├── app/                    # Phoenix/Elixir backend API
+│   ├── lib/app/            # Core business logic (contexts)
+│   ├── lib/app_web/        # Web layer (controllers, views, router)
+│   ├── priv/repo/          # Database migrations
+│   └── openapi.json        # OpenAPI specification
+├── cli/                    # Go CLI client
+│   ├── cmd/                # Cobra commands
+│   └── internal/           # Internal packages (client, config)
+└── openspec/               # Spec-driven development
+```
 
 ## Project Conventions
 
 ### Code Style
-[Describe your code style preferences, formatting rules, and naming conventions]
+- Elixir: Run `mix format` before commits
+- Go: Run `go fmt` before commits
+- Use conventional commits (feat:, fix:, docs:, chore:)
 
 ### Architecture Patterns
-[Document your architectural decisions and patterns]
+- Phoenix contexts for business logic separation
+- RESTful API design with JSON responses
+- Multi-tenant via account scoping
+- API keys with permission levels (pk_* read-only, sk_* read/write)
 
 ### Testing Strategy
-[Explain your testing approach and requirements]
+- Elixir: ExUnit with DataCase for database tests
+- API tests in `test/app_web/controllers/`
+- CLI: Go testing package
 
 ### Git Workflow
-[Describe your branching strategy and commit conventions]
+- Main branch for releases
+- Feature branches for development
+- Conventional commit messages
 
 ## Domain Context
-[Add domain-specific knowledge that AI assistants need to understand]
+- **Account**: Tenant container for projects and users
+- **Project**: Container for issues within an account
+- **Issue**: Bug or feature request with status, priority, type
+- **API Key**: Scoped to account membership, pk_* or sk_* prefix
 
 ## Important Constraints
-[List any technical, business, or regulatory constraints]
+- API keys must be scoped to a single account membership
+- Issues require a project_id
+- All API endpoints require Bearer token authentication
 
 ## External Dependencies
-[Document key external services, APIs, or systems]
+- PostgreSQL database
+- No external services currently
