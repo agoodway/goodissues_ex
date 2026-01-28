@@ -4,6 +4,29 @@ defmodule FFWeb.ErrorJSON do
 
   See config/config.exs.
   """
+  alias OpenApiSpex.Schema
+  require OpenApiSpex
+
+  OpenApiSpex.schema(%{
+    title: "Error",
+    description: "Error response",
+    type: :object,
+    properties: %{
+      errors: %Schema{
+        type: :object,
+        properties: %{
+          detail: %Schema{type: :string, description: "Error message"}
+        },
+        required: [:detail]
+      }
+    },
+    required: [:errors],
+    example: %{
+      "errors" => %{
+        "detail" => "Not Found"
+      }
+    }
+  })
 
   def render("401.json", _assigns) do
     %{errors: %{detail: "Unauthorized - valid API key required"}}
