@@ -69,6 +69,8 @@ defmodule FFWeb.Router do
       live "/api-keys", ApiKeyLive.Index, :index
       live "/api-keys/new", ApiKeyLive.New, :new
       live "/api-keys/:id", ApiKeyLive.Show, :show
+
+      live "/issues", IssueLive.Index, :index
     end
   end
 

@@ -131,6 +131,54 @@ defmodule FF.Tracking do
     |> Repo.all()
   end
 
+  @doc """
+  Lists issues for the given account with pagination metadata.
+
+  Returns a map with:
+    * `:issues` - List of issues with preloaded project
+    * `:page` - Current page number
+    * `:per_page` - Results per page
+    * `:total` - Total count of matching issues
+    * `:total_pages` - Total number of pages
+
+  ## Options
+
+    * `:project_id` - Filter by project ID
+    * `:status` - Filter by status (new, in_progress, archived)
+    * `:type` - Filter by type (bug, feature_request)
+    * `:page` - Page number (default: 1)
+    * `:per_page` - Results per page (default: #{@default_per_page}, max: #{@max_per_page})
+
+  """
+  def list_issues_paginated(%Account{id: account_id}, filters \\ %{}) do
+    {page, per_page} = extract_pagination(filters)
+
+    base_query =
+      Issue
+      |> join(:inner, [i], p in Project, on: i.project_id == p.id)
+      |> where([i, p], p.account_id == ^account_id)
+      |> apply_issue_filters(filters)
+
+    total = Repo.aggregate(base_query, :count)
+    total_pages = max(ceil(total / per_page), 1)
+
+    issues =
+      base_query
+      |> order_by([i], desc: i.inserted_at)
+      |> limit(^per_page)
+      |> offset(^((page - 1) * per_page))
+      |> preload(:project)
+      |> Repo.all()
+
+    %{
+      issues: issues,
+      page: page,
+      per_page: per_page,
+      total: total,
+      total_pages: total_pages
+    }
+  end
+
   defp extract_pagination(filters) do
     page = parse_positive_int(filters[:page] || filters["page"], 1)
     per_page = parse_positive_int(filters[:per_page] || filters["per_page"], @default_per_page)
