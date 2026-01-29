@@ -8,6 +8,7 @@ defmodule FFWeb.Dashboard.IssueLive.Index do
   use FFWeb, :live_view
 
   alias FF.Tracking
+  alias FF.Tracking.Issue
   alias FF.Accounts.Scope
 
   @impl true
@@ -182,8 +183,8 @@ defmodule FFWeb.Dashboard.IssueLive.Index do
           <%!-- Table header (hidden on mobile) --%>
           <div :if={@total > 0} class="group-header sticky top-0 z-10 !gap-0 hidden sm:flex">
             <div class="w-6 shrink-0"></div>
+            <div class="w-20 shrink-0 mr-4">KEY</div>
             <div class="flex-1 min-w-0 mr-4">TITLE</div>
-            <div class="hidden md:block w-20 shrink-0 mr-4">PROJECT</div>
             <div class="w-16 shrink-0 mr-4">TYPE</div>
             <div class="w-24 shrink-0 mr-4">STATUS</div>
             <div class="hidden lg:block w-36 shrink-0">CREATED</div>
@@ -200,14 +201,16 @@ defmodule FFWeb.Dashboard.IssueLive.Index do
               >
                 <div class="flex items-start justify-between gap-3 mb-3">
                   <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="font-mono text-xs text-primary">
+                        {Issue.issue_key(issue) || issue.project.prefix}
+                      </span>
+                    </div>
                     <span class={[
                       "font-medium block",
                       issue.status == :archived && "line-through opacity-40"
                     ]}>
                       {issue.title}
-                    </span>
-                    <span class="text-xs text-muted font-mono mt-1 block">
-                      {issue.project.name}
                     </span>
                   </div>
                   <div class="flex items-center gap-1">
@@ -246,6 +249,13 @@ defmodule FFWeb.Dashboard.IssueLive.Index do
                   <span class={["font-mono text-sm font-bold", color]}>{symbol}</span>
                 </div>
 
+                <%!-- Issue key --%>
+                <div class="w-20 shrink-0 mr-4">
+                  <span class="font-mono text-sm text-primary">
+                    {Issue.issue_key(issue)}
+                  </span>
+                </div>
+
                 <%!-- Issue title --%>
                 <div class="flex-1 min-w-0 mr-4">
                   <span class={[
@@ -253,13 +263,6 @@ defmodule FFWeb.Dashboard.IssueLive.Index do
                     issue.status == :archived && "line-through opacity-40"
                   ]}>
                     {issue.title}
-                  </span>
-                </div>
-
-                <%!-- Project --%>
-                <div class="hidden md:block w-20 shrink-0 mr-4">
-                  <span class="text-sm text-muted truncate block font-mono">
-                    {issue.project.name}
                   </span>
                 </div>
 

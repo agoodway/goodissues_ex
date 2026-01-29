@@ -56,10 +56,14 @@ defmodule FFWeb.Dashboard.IssueLiveTest do
     test "filters issues by status", %{conn: conn, user: user, account: account} do
       project = project_fixture(account)
       # Use unique titles that won't appear elsewhere in the UI
-      new_issue = issue_fixture(account, user, project, %{title: "Filter Test New Status", status: :new})
+      new_issue =
+        issue_fixture(account, user, project, %{title: "Filter Test New Status", status: :new})
 
       in_progress_issue =
-        issue_fixture(account, user, project, %{title: "Filter Test In Progress Status", status: :in_progress})
+        issue_fixture(account, user, project, %{
+          title: "Filter Test In Progress Status",
+          status: :in_progress
+        })
 
       {:ok, index_live, _html} = live(conn, ~p"/dashboard/#{account.slug}/issues")
 
@@ -99,9 +103,9 @@ defmodule FFWeb.Dashboard.IssueLiveTest do
     end
 
     test "displays issue attributes correctly", %{conn: conn, user: user, account: account} do
-      project = project_fixture(account, %{name: "Test Project"})
+      project = project_fixture(account, %{name: "Test Project", prefix: "TST"})
 
-      _issue =
+      issue =
         issue_fixture(account, user, project, %{
           title: "Display Test Issue",
           type: :bug,
@@ -112,7 +116,8 @@ defmodule FFWeb.Dashboard.IssueLiveTest do
       {:ok, _index_live, html} = live(conn, ~p"/dashboard/#{account.slug}/issues")
 
       assert html =~ "Display Test Issue"
-      assert html =~ "Test Project"
+      # Issue key should be displayed (TST-1)
+      assert html =~ "TST-#{issue.number}"
       assert html =~ "BUG"
       assert html =~ "NEW"
     end

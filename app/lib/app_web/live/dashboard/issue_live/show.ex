@@ -8,6 +8,7 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
   use FFWeb, :live_view
 
   alias FF.Tracking
+  alias FF.Tracking.Issue
   alias FF.Accounts.Scope
 
   @impl true
@@ -34,7 +35,9 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
       not socket.assigns.can_manage ->
         socket
         |> put_flash(:error, "You don't have permission to edit issues.")
-        |> push_patch(to: ~p"/dashboard/#{socket.assigns.current_scope.account.slug}/issues/#{id}")
+        |> push_patch(
+          to: ~p"/dashboard/#{socket.assigns.current_scope.account.slug}/issues/#{id}"
+        )
 
       true ->
         socket
@@ -154,6 +157,11 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
                 <.icon name="hero-arrow-left" class="size-4 sm:size-5 text-muted" />
               </.link>
               <div>
+                <div class="flex items-center gap-2 mb-0.5">
+                  <span class="font-mono text-sm text-primary font-medium">
+                    {Issue.issue_key(@issue)}
+                  </span>
+                </div>
                 <h1 class="text-base sm:text-lg font-semibold text-base-content">{@issue.title}</h1>
                 <div class="font-mono text-[11px] sm:text-xs text-muted mt-0.5 flex items-center gap-2">
                   <span class={["status-badge", type_class(@issue.type)]}>

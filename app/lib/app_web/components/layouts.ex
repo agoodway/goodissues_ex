@@ -190,7 +190,7 @@ defmodule FFWeb.Layouts do
 
   attr :active_nav, :atom,
     default: nil,
-    doc: "the currently active navigation item (:issues, :settings, :api_keys)"
+    doc: "the currently active navigation item (:issues, :projects, :settings, :api_keys)"
 
   slot :inner_block, required: true
 
@@ -258,6 +258,14 @@ defmodule FFWeb.Layouts do
           >
             <.icon name="hero-bug-ant" class="size-5" />
             <span>Issues</span>
+          </.link>
+
+          <.link
+            navigate={~p"/dashboard/#{@current_scope.account.slug}/projects"}
+            class={["nav-item", @active_nav == :projects && "active"]}
+          >
+            <.icon name="hero-folder" class="size-5" />
+            <span>Projects</span>
           </.link>
 
           <%!-- Account section --%>
