@@ -68,7 +68,7 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Show do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard flash={@flash} current_scope={@current_scope} page_title={@page_title}>
+    <FFWeb.Layouts.dashboard flash={@flash} current_scope={@current_scope} page_title={@page_title} active_nav={:api_keys}>
       <.header>
         {@api_key.name}
         <:subtitle>

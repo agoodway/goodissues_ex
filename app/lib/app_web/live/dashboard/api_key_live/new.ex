@@ -97,7 +97,7 @@ defmodule FFWeb.Dashboard.ApiKeyLive.New do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard flash={@flash} current_scope={@current_scope} page_title={@page_title}>
+    <FFWeb.Layouts.dashboard flash={@flash} current_scope={@current_scope} page_title={@page_title} active_nav={:api_keys}>
       <.header>
         New API Key
         <:subtitle>Create a new API key for {@current_scope.account.name}</:subtitle>

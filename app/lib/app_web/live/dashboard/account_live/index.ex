@@ -92,99 +92,119 @@ defmodule FFWeb.Dashboard.AccountLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard flash={@flash} current_scope={@current_scope} page_title={@page_title}>
-      <.header>
-        Account Settings
-        <:subtitle>
-          Manage your account settings and details
-        </:subtitle>
-        <:actions>
+    <FFWeb.Layouts.dashboard flash={@flash} current_scope={@current_scope} page_title={@page_title} active_nav={:settings}>
+      <div class="max-w-5xl">
+        <%!-- Page header --%>
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center gap-4">
+            <div class="size-10 rounded-sm bg-primary/10 border border-primary/20 flex items-center justify-center">
+              <.icon name="hero-building-office" class="size-5 text-primary" />
+            </div>
+            <div>
+              <h1 class="text-lg font-semibold text-base-content">Account Settings</h1>
+              <p class="font-mono text-xs text-muted mt-0.5">Manage your account settings and details</p>
+            </div>
+          </div>
           <.link
             :if={@can_manage}
             patch={~p"/dashboard/#{@account.slug}/settings"}
-            class="btn btn-primary btn-sm"
+            class="btn-action flex items-center gap-2"
           >
-            <.icon name="hero-pencil" class="size-4 mr-1" /> Edit
+            <.icon name="hero-pencil" class="size-4" />
+            <span>Edit</span>
           </.link>
-        </:actions>
-      </.header>
+        </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        <div class="card bg-base-200">
-          <div class="card-body">
-            <h2 class="card-title">Account Details</h2>
-            <.list>
-              <:item title="Name">{@account.name}</:item>
-              <:item title="Slug">{@account.slug}</:item>
-              <:item title="Status">
+        <%!-- Content grid --%>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <%!-- Account Details Card --%>
+          <div class="rounded-sm border border-base-300/50 bg-base-200/30">
+            <div class="px-4 py-3 border-b border-base-300/50">
+              <h2 class="font-mono text-xs text-muted uppercase tracking-wider">// Account Details</h2>
+            </div>
+            <div class="p-4 space-y-3">
+              <div class="flex items-center justify-between py-2 border-b border-base-300/30">
+                <span class="text-xs text-muted">Name</span>
+                <span class="text-sm font-medium">{@account.name}</span>
+              </div>
+              <div class="flex items-center justify-between py-2 border-b border-base-300/30">
+                <span class="text-xs text-muted">Slug</span>
+                <span class="font-mono text-sm">{@account.slug}</span>
+              </div>
+              <div class="flex items-center justify-between py-2 border-b border-base-300/30">
+                <span class="text-xs text-muted">Status</span>
                 <span class={[
-                  "badge",
-                  @account.status == :active && "badge-success",
-                  @account.status == :suspended && "badge-error"
+                  "status-badge",
+                  @account.status == :active && "status-badge-active",
+                  @account.status == :suspended && "status-badge-revoked"
                 ]}>
-                  {@account.status}
+                  {@account.status |> to_string() |> String.upcase()}
                 </span>
-              </:item>
-              <:item title="Created">{Calendar.strftime(@account.inserted_at, "%Y-%m-%d")}</:item>
-            </.list>
+              </div>
+              <div class="flex items-center justify-between py-2">
+                <span class="text-xs text-muted">Created</span>
+                <span class="font-mono text-sm">{Calendar.strftime(@account.inserted_at, "%Y-%m-%d")}</span>
+              </div>
+            </div>
 
-            <div :if={@can_manage} class="card-actions justify-end mt-4">
+            <div :if={@can_manage} class="px-4 py-3 border-t border-base-300/50 flex justify-end">
               <%= if @account.status == :active do %>
                 <button
                   phx-click="suspend"
                   data-confirm="Are you sure you want to suspend this account? All users will lose access."
-                  class="btn btn-error btn-sm"
+                  class="btn-subtle text-error/70 hover:text-error hover:border-error/30 flex items-center gap-2"
                 >
-                  <.icon name="hero-no-symbol" class="size-4 mr-1" /> Suspend Account
+                  <.icon name="hero-no-symbol" class="size-4" />
+                  <span>Suspend</span>
                 </button>
               <% else %>
-                <button phx-click="activate" class="btn btn-success btn-sm">
-                  <.icon name="hero-check-circle" class="size-4 mr-1" /> Activate Account
+                <button phx-click="activate" class="btn-action flex items-center gap-2">
+                  <.icon name="hero-check-circle" class="size-4" />
+                  <span>Activate</span>
                 </button>
+              <% end %>
+            </div>
+          </div>
+
+          <%!-- Members Card --%>
+          <div class="rounded-sm border border-base-300/50 bg-base-200/30">
+            <div class="px-4 py-3 border-b border-base-300/50 flex items-center justify-between">
+              <h2 class="font-mono text-xs text-muted uppercase tracking-wider">// Members</h2>
+              <span class="font-mono text-xs text-muted">[{length(@account.account_users)}]</span>
+            </div>
+            <div class="divide-y divide-base-300/30">
+              <%= for account_user <- @account.account_users do %>
+                <div class="px-4 py-3 flex items-center gap-3">
+                  <div class="size-8 rounded-sm bg-primary/10 border border-primary/20 flex items-center justify-center">
+                    <span class="font-mono text-xs font-bold text-primary">
+                      {String.first(account_user.user.email) |> String.upcase()}
+                    </span>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-sm font-medium truncate">{account_user.user.email}</div>
+                    <div class="font-mono text-[10px] text-muted">
+                      Joined {Calendar.strftime(account_user.inserted_at, "%Y-%m-%d")}
+                    </div>
+                  </div>
+                  <span class={[
+                    "status-badge",
+                    account_user.role == :owner && "status-badge-active",
+                    account_user.role == :admin && "status-badge-pending",
+                    account_user.role == :member && ""
+                  ]}>
+                    {account_user.role |> to_string() |> String.upcase()}
+                  </span>
+                </div>
               <% end %>
             </div>
           </div>
         </div>
 
-        <div class="card bg-base-200">
-          <div class="card-body">
-            <h2 class="card-title">Members ({length(@account.account_users)})</h2>
-            <div class="overflow-x-auto">
-              <table class="table table-sm">
-                <thead>
-                  <tr>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Joined</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <%= for account_user <- @account.account_users do %>
-                    <tr>
-                      <td>{account_user.user.email}</td>
-                      <td>
-                        <span class={[
-                          "badge badge-sm",
-                          account_user.role == :owner && "badge-primary",
-                          account_user.role == :admin && "badge-secondary",
-                          account_user.role == :member && "badge-ghost"
-                        ]}>
-                          {account_user.role}
-                        </span>
-                      </td>
-                      <td>{Calendar.strftime(account_user.inserted_at, "%Y-%m-%d")}</td>
-                    </tr>
-                  <% end %>
-                </tbody>
-              </table>
-            </div>
-          </div>
+        <%!-- Read-only info banner --%>
+        <div :if={!@can_manage} class="mt-4 px-4 py-3 rounded-sm bg-info/10 border border-info/20 flex items-center gap-3">
+          <.icon name="hero-information-circle" class="size-5 text-info" />
+          <span class="font-mono text-xs text-info">// READ-ONLY ACCESS — Contact an admin to make changes.</span>
         </div>
-      </div>
-
-      <div :if={!@can_manage} class="alert alert-info mt-6">
-        <.icon name="hero-information-circle" class="size-5" />
-        <span>You have read-only access to this account. Contact an admin to make changes.</span>
       </div>
 
       <.modal
