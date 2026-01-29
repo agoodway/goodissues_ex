@@ -92,7 +92,12 @@ defmodule FFWeb.Dashboard.AccountLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard flash={@flash} current_scope={@current_scope} page_title={@page_title} active_nav={:settings}>
+    <FFWeb.Layouts.dashboard
+      flash={@flash}
+      current_scope={@current_scope}
+      page_title={@page_title}
+      active_nav={:settings}
+    >
       <div class="max-w-5xl">
         <%!-- Page header --%>
         <div class="flex items-center justify-between mb-6">
@@ -102,7 +107,9 @@ defmodule FFWeb.Dashboard.AccountLive.Index do
             </div>
             <div>
               <h1 class="text-lg font-semibold text-base-content">Account Settings</h1>
-              <p class="font-mono text-xs text-muted mt-0.5">Manage your account settings and details</p>
+              <p class="font-mono text-xs text-muted mt-0.5">
+                Manage your account settings and details
+              </p>
             </div>
           </div>
           <.link
@@ -120,7 +127,9 @@ defmodule FFWeb.Dashboard.AccountLive.Index do
           <%!-- Account Details Card --%>
           <div class="rounded-sm border border-base-300/50 bg-base-200/30">
             <div class="px-4 py-3 border-b border-base-300/50">
-              <h2 class="font-mono text-xs text-muted uppercase tracking-wider">// Account Details</h2>
+              <h2 class="font-mono text-xs text-muted uppercase tracking-wider">
+                // Account Details
+              </h2>
             </div>
             <div class="p-4 space-y-3">
               <div class="flex items-center justify-between py-2 border-b border-base-300/30">
@@ -143,7 +152,9 @@ defmodule FFWeb.Dashboard.AccountLive.Index do
               </div>
               <div class="flex items-center justify-between py-2">
                 <span class="text-xs text-muted">Created</span>
-                <span class="font-mono text-sm">{Calendar.strftime(@account.inserted_at, "%Y-%m-%d")}</span>
+                <span class="font-mono text-sm">
+                  {Calendar.strftime(@account.inserted_at, "%Y-%m-%d")}
+                </span>
               </div>
             </div>
 
@@ -201,9 +212,14 @@ defmodule FFWeb.Dashboard.AccountLive.Index do
         </div>
 
         <%!-- Read-only info banner --%>
-        <div :if={!@can_manage} class="mt-4 px-4 py-3 rounded-sm bg-info/10 border border-info/20 flex items-center gap-3">
+        <div
+          :if={!@can_manage}
+          class="mt-4 px-4 py-3 rounded-sm bg-info/10 border border-info/20 flex items-center gap-3"
+        >
           <.icon name="hero-information-circle" class="size-5 text-info" />
-          <span class="font-mono text-xs text-info">// READ-ONLY ACCESS — Contact an admin to make changes.</span>
+          <span class="font-mono text-xs text-info">
+            // READ-ONLY ACCESS — Contact an admin to make changes.
+          </span>
         </div>
       </div>
 

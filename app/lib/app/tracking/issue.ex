@@ -57,14 +57,38 @@ defmodule FF.Tracking.Issue do
   def update_changeset(issue, attrs) do
     issue
     |> cast(attrs, [:title, :description, :type, :status, :priority, :submitter_email])
+    |> maybe_trim(:title)
+    |> validate_not_blank_if_changed_to_nil(:title)
+    |> validate_enum_not_nil(:type, @type_values)
+    |> validate_enum_not_nil(:status, @status_values)
+    |> validate_enum_not_nil(:priority, @priority_values)
     |> validate_length(:title, max: 255)
     |> validate_length(:description, max: 10_000)
     |> validate_length(:submitter_email, max: 255)
     |> validate_format(:submitter_email, ~r/^[^@,;\s]+@[^@,;\s]+$/,
       message: "must be a valid email"
     )
-    |> maybe_trim(:title)
     |> manage_archived_at()
+  end
+
+  defp validate_enum_not_nil(changeset, field, valid_values) do
+    # Check if the field was explicitly changed to nil (from a form submitting empty string)
+    if Map.has_key?(changeset.changes, field) && get_change(changeset, field) == nil do
+      valid_options = valid_values |> Enum.map(&to_string/1) |> Enum.join(", ")
+      add_error(changeset, field, "must be one of: #{valid_options}")
+    else
+      changeset
+    end
+  end
+
+  defp validate_not_blank_if_changed_to_nil(changeset, field) do
+    # When a form sends "" for a string field, Ecto casts it to nil.
+    # If the field is being changed to nil, add validation error.
+    if Map.has_key?(changeset.changes, field) && get_change(changeset, field) == nil do
+      add_error(changeset, field, "can't be blank")
+    else
+      changeset
+    end
   end
 
   defp maybe_trim(changeset, field) do

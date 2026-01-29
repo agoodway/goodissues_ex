@@ -145,7 +145,12 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard flash={@flash} current_scope={@current_scope} page_title={@page_title} active_nav={:api_keys}>
+    <FFWeb.Layouts.dashboard
+      flash={@flash}
+      current_scope={@current_scope}
+      page_title={@page_title}
+      active_nav={:api_keys}
+    >
       <div class="h-full flex flex-col">
         <%!-- Page header with terminal aesthetic --%>
         <div class="px-6 py-5 border-b border-base-300/50 bg-base-100">
@@ -175,7 +180,9 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Index do
           <div class="flex items-center gap-3">
             <form phx-change="search" phx-submit="search" class="flex-1 max-w-sm">
               <div class="relative">
-                <span class="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-primary text-xs">$</span>
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-primary text-xs">
+                  $
+                </span>
                 <input
                   type="text"
                   name="search"
@@ -191,7 +198,9 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Index do
               <select name="status" class="select-minimal font-mono">
                 <option value="" selected={@status_filter == ""}>--status=*</option>
                 <option value="active" selected={@status_filter == "active"}>--status=active</option>
-                <option value="revoked" selected={@status_filter == "revoked"}>--status=revoked</option>
+                <option value="revoked" selected={@status_filter == "revoked"}>
+                  --status=revoked
+                </option>
               </select>
             </form>
 
@@ -211,7 +220,9 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Index do
           <div :if={@total > 0} class="group-header sticky top-0 z-10 hidden sm:flex">
             <div class="flex items-center gap-2 flex-1">
               <span>// KEYS</span>
-              <span class="opacity-60">[{length(Enum.filter(@api_keys, & &1.status == :active))} active]</span>
+              <span class="opacity-60">
+                [{length(Enum.filter(@api_keys, &(&1.status == :active)))} active]
+              </span>
             </div>
             <div class="hidden sm:block w-40 text-right">OWNER</div>
             <div class="w-20 text-right">TYPE</div>
@@ -364,7 +375,10 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Index do
         </div>
 
         <%!-- Footer with pagination --%>
-        <div :if={@total > 0} class="px-6 py-3 border-t border-base-300/50 flex items-center justify-between bg-base-100">
+        <div
+          :if={@total > 0}
+          class="px-6 py-3 border-t border-base-300/50 flex items-center justify-between bg-base-100"
+        >
           <span class="font-mono text-xs text-muted">
             [{@page * 20 - 19}-{min(@page * 20, @total)}] of {@total}
           </span>
@@ -372,7 +386,15 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Index do
           <div :if={@total_pages > 1} class="flex items-center gap-2">
             <.link
               :if={@page > 1}
-              patch={pagination_path(@current_scope.account.slug, @search, @status_filter, @type_filter, @page - 1)}
+              patch={
+                pagination_path(
+                  @current_scope.account.slug,
+                  @search,
+                  @status_filter,
+                  @type_filter,
+                  @page - 1
+                )
+              }
               class="btn-subtle py-1.5 px-3 font-mono text-xs"
             >
               <.icon name="hero-chevron-left" class="size-3.5" />
@@ -382,7 +404,15 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Index do
             </span>
             <.link
               :if={@page < @total_pages}
-              patch={pagination_path(@current_scope.account.slug, @search, @status_filter, @type_filter, @page + 1)}
+              patch={
+                pagination_path(
+                  @current_scope.account.slug,
+                  @search,
+                  @status_filter,
+                  @type_filter,
+                  @page + 1
+                )
+              }
               class="btn-subtle py-1.5 px-3 font-mono text-xs"
             >
               <.icon name="hero-chevron-right" class="size-3.5" />
@@ -391,9 +421,14 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Index do
         </div>
 
         <%!-- Info banner for read-only users --%>
-        <div :if={!@can_manage} class="mx-6 mb-4 px-4 py-3 rounded-sm bg-info/10 border border-info/20 flex items-center gap-3">
+        <div
+          :if={!@can_manage}
+          class="mx-6 mb-4 px-4 py-3 rounded-sm bg-info/10 border border-info/20 flex items-center gap-3"
+        >
           <.icon name="hero-information-circle" class="size-5 text-info" />
-          <span class="font-mono text-xs text-info">// READ-ONLY ACCESS — Contact an admin to create or revoke API keys.</span>
+          <span class="font-mono text-xs text-info">
+            // READ-ONLY ACCESS — Contact an admin to create or revoke API keys.
+          </span>
         </div>
       </div>
     </FFWeb.Layouts.dashboard>

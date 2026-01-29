@@ -8,10 +8,11 @@ defmodule FFWeb.Dashboard.IssueLive.Index do
   use FFWeb, :live_view
 
   alias FF.Tracking
+  alias FF.Accounts.Scope
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, socket}
+    {:ok, assign(socket, :can_manage, Scope.can_manage_account?(socket.assigns.current_scope))}
   end
 
   @impl true
@@ -110,7 +111,12 @@ defmodule FFWeb.Dashboard.IssueLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard flash={@flash} current_scope={@current_scope} page_title={@page_title} active_nav={:issues}>
+    <FFWeb.Layouts.dashboard
+      flash={@flash}
+      current_scope={@current_scope}
+      page_title={@page_title}
+      active_nav={:issues}
+    >
       <div class="h-full flex flex-col">
         <%!-- Page header with terminal aesthetic --%>
         <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-base-300/50 bg-base-100">
@@ -126,6 +132,14 @@ defmodule FFWeb.Dashboard.IssueLive.Index do
                 </div>
               </div>
             </div>
+
+            <.link
+              :if={@can_manage}
+              navigate={~p"/dashboard/#{@current_scope.account.slug}/issues/new"}
+              class="btn-primary py-2 px-3 font-mono text-xs"
+            >
+              <.icon name="hero-plus" class="size-3.5 mr-1" /> New Issue
+            </.link>
           </div>
 
           <%!-- Terminal-style filters row --%>
@@ -179,8 +193,9 @@ defmodule FFWeb.Dashboard.IssueLive.Index do
           <div id="issues-list" class="animate-stagger space-y-2 sm:space-y-0 pt-3 sm:pt-0">
             <%= for issue <- @issues do %>
               <%!-- Mobile card layout --%>
-              <div
-                class="sm:hidden issue-card p-4 rounded-lg border border-base-300/50 bg-base-100"
+              <.link
+                navigate={~p"/dashboard/#{@current_scope.account.slug}/issues/#{issue.id}"}
+                class="sm:hidden issue-card p-4 rounded-lg border border-base-300/50 bg-base-100 block hover:border-primary/30 transition-colors"
                 id={"issue-mobile-#{issue.id}"}
               >
                 <div class="flex items-start justify-between gap-3 mb-3">
@@ -217,10 +232,14 @@ defmodule FFWeb.Dashboard.IssueLive.Index do
                     {format_datetime(issue.inserted_at)}
                   </span>
                 </div>
-              </div>
+              </.link>
 
               <%!-- Desktop row layout --%>
-              <div class="data-row group hidden sm:flex" id={"issue-#{issue.id}"}>
+              <.link
+                navigate={~p"/dashboard/#{@current_scope.account.slug}/issues/#{issue.id}"}
+                class="data-row group hidden sm:flex cursor-pointer"
+                id={"issue-#{issue.id}"}
+              >
                 <%!-- Priority indicator --%>
                 <div class="w-6 shrink-0 flex justify-center">
                   <% {symbol, color} = priority_indicator(issue.priority) %>
@@ -239,7 +258,9 @@ defmodule FFWeb.Dashboard.IssueLive.Index do
 
                 <%!-- Project --%>
                 <div class="hidden md:block w-20 shrink-0 mr-4">
-                  <span class="text-sm text-muted truncate block font-mono">{issue.project.name}</span>
+                  <span class="text-sm text-muted truncate block font-mono">
+                    {issue.project.name}
+                  </span>
                 </div>
 
                 <%!-- Type badge --%>
@@ -262,9 +283,11 @@ defmodule FFWeb.Dashboard.IssueLive.Index do
 
                 <%!-- Date --%>
                 <div class="hidden lg:block w-36 shrink-0">
-                  <span class="text-sm text-muted font-mono">{format_datetime(issue.inserted_at)}</span>
+                  <span class="text-sm text-muted font-mono">
+                    {format_datetime(issue.inserted_at)}
+                  </span>
                 </div>
-              </div>
+              </.link>
             <% end %>
           </div>
 

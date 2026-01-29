@@ -246,6 +246,10 @@ defmodule FF.Tracking do
   Gets an issue by ID, scoped to the given account.
   Returns `nil` if the issue doesn't exist or belongs to a different account.
 
+  ## Options
+
+    * `:preload` - List of associations to preload (e.g., `[:project, :submitter]`)
+
   ## Examples
 
       iex> get_issue(account, "valid-uuid")
@@ -254,12 +258,18 @@ defmodule FF.Tracking do
       iex> get_issue(account, "invalid-uuid")
       nil
 
+      iex> get_issue(account, "valid-uuid", preload: [:project, :submitter])
+      %Issue{project: %Project{}, submitter: %User{}}
+
   """
-  def get_issue(%Account{id: account_id}, id) do
+  def get_issue(%Account{id: account_id}, id, opts \\ []) do
+    preloads = Keyword.get(opts, :preload, [])
+
     if valid_uuid?(id) do
       Issue
       |> join(:inner, [i], p in Project, on: i.project_id == p.id)
       |> where([i, p], i.id == ^id and p.account_id == ^account_id)
+      |> preload(^preloads)
       |> Repo.one()
     else
       nil
@@ -327,5 +337,31 @@ defmodule FF.Tracking do
   """
   def delete_issue(%Issue{} = issue) do
     Repo.delete(issue)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking issue changes (for updates).
+
+  ## Examples
+
+      iex> change_issue(issue)
+      %Ecto.Changeset{data: %Issue{}}
+
+  """
+  def change_issue(%Issue{} = issue, attrs \\ %{}) do
+    Issue.update_changeset(issue, attrs)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for creating a new issue.
+
+  ## Examples
+
+      iex> change_new_issue(issue, attrs)
+      %Ecto.Changeset{data: %Issue{}}
+
+  """
+  def change_new_issue(%Issue{} = issue, attrs \\ %{}) do
+    Issue.create_changeset(issue, attrs)
   end
 end

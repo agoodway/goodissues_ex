@@ -53,10 +53,17 @@ defmodule FFWeb.Layouts do
       <div class="flex-none">
         <ul class="flex flex-column px-1 space-x-4 items-center">
           <li>
-            <a href="https://phoenixframework.org/" class="btn btn-ghost font-mono text-xs">Website</a>
+            <a href="https://phoenixframework.org/" class="btn btn-ghost font-mono text-xs">
+              Website
+            </a>
           </li>
           <li>
-            <a href="https://github.com/phoenixframework/phoenix" class="btn btn-ghost font-mono text-xs">GitHub</a>
+            <a
+              href="https://github.com/phoenixframework/phoenix"
+              class="btn btn-ghost font-mono text-xs"
+            >
+              GitHub
+            </a>
           </li>
           <li>
             <.theme_toggle />
@@ -130,32 +137,32 @@ defmodule FFWeb.Layouts do
   """
   def theme_toggle(assigns) do
     ~H"""
-    <div class="flex items-center gap-0.5 p-0.5 rounded bg-base-300/50 border border-base-300">
+    <div class="flex items-center gap-px p-px rounded bg-base-300/50 border border-base-300">
       <button
-        class="p-1.5 rounded-sm hover:bg-base-200 text-muted hover:text-base-content transition-colors [[data-theme=system]_&]:bg-base-200 [[data-theme=system]_&]:text-primary"
+        class="p-1 rounded-sm hover:bg-base-200 text-muted hover:text-base-content transition-colors [[data-theme=system]_&]:bg-base-200 [[data-theme=system]_&]:text-primary"
         phx-click={JS.dispatch("phx:set-theme")}
         data-phx-theme="system"
         title="System theme"
       >
-        <.icon name="hero-computer-desktop-micro" class="size-3.5" />
+        <.icon name="hero-computer-desktop-micro" class="size-3" />
       </button>
 
       <button
-        class="p-1.5 rounded-sm hover:bg-base-200 text-muted hover:text-base-content transition-colors [[data-theme=light]_&]:bg-base-200 [[data-theme=light]_&]:text-primary"
+        class="p-1 rounded-sm hover:bg-base-200 text-muted hover:text-base-content transition-colors [[data-theme=light]_&]:bg-base-200 [[data-theme=light]_&]:text-primary"
         phx-click={JS.dispatch("phx:set-theme")}
         data-phx-theme="light"
         title="Light theme"
       >
-        <.icon name="hero-sun-micro" class="size-3.5" />
+        <.icon name="hero-sun-micro" class="size-3" />
       </button>
 
       <button
-        class="p-1.5 rounded-sm hover:bg-base-200 text-muted hover:text-base-content transition-colors [[data-theme=dark]_&]:bg-base-200 [[data-theme=dark]_&]:text-primary"
+        class="p-1 rounded-sm hover:bg-base-200 text-muted hover:text-base-content transition-colors [[data-theme=dark]_&]:bg-base-200 [[data-theme=dark]_&]:text-primary"
         phx-click={JS.dispatch("phx:set-theme")}
         data-phx-theme="dark"
         title="Dark theme"
       >
-        <.icon name="hero-moon-micro" class="size-3.5" />
+        <.icon name="hero-moon-micro" class="size-3" />
       </button>
     </div>
     """
@@ -211,7 +218,9 @@ defmodule FFWeb.Layouts do
             </div>
             <div class="flex flex-col">
               <span class="font-semibold text-sm text-base-content tracking-tight">Fruitfly</span>
-              <span class="font-mono text-[10px] text-muted uppercase tracking-wider">Bug Tracker</span>
+              <span class="font-mono text-[10px] text-muted uppercase tracking-wider">
+                Bug Tracker
+              </span>
             </div>
           </div>
           <%!-- Close button for mobile --%>
@@ -227,7 +236,9 @@ defmodule FFWeb.Layouts do
         <%!-- Terminal-style search --%>
         <div class="px-3 py-3">
           <div class="relative">
-            <span class="absolute left-2.5 top-1/2 -translate-y-1/2 font-mono text-primary text-xs">&gt;</span>
+            <span class="absolute left-2.5 top-1/2 -translate-y-1/2 font-mono text-primary text-xs">
+              &gt;
+            </span>
             <input
               type="text"
               placeholder="search..."
@@ -331,7 +342,9 @@ defmodule FFWeb.Layouts do
         </div>
         <div class="flex-1 min-w-0">
           <div class="text-sm font-medium truncate">{@current_scope.account.name}</div>
-          <div class="font-mono text-[10px] text-muted uppercase tracking-wider">{@current_scope.account_user.role}</div>
+          <div class="font-mono text-[10px] text-muted uppercase tracking-wider">
+            {@current_scope.account_user.role}
+          </div>
         </div>
         <.icon name="hero-chevron-up-down" class="size-4 text-muted shrink-0" />
       </div>
