@@ -70,9 +70,9 @@
             <li class="px-3 py-2 border-b border-base-300/50">
               <span class="font-mono text-xs text-muted">{@current_scope.user.email}</span>
             </li>
-            <li :if={@current_scope.accounts != []}>
+            <li>
               <.link
-                href={~p"/dashboard/#{hd(@current_scope.accounts) |> elem(0) |> Map.get(:slug)}"}
+                href={~p"/dashboard"}
                 class="block px-3 py-2 font-mono text-xs hover:bg-base-300/50"
               >
                 Dashboard
@@ -98,7 +98,7 @@
           </ul>
         </div>
       <% else %>
-        <a href={~p"/users/log_in"} class="btn-action text-xs">
+        <a href={~p"/users/log-in"} class="btn-action text-xs">
           Sign In
         </a>
       <% end %>
