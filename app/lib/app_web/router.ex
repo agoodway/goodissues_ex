@@ -74,6 +74,11 @@ defmodule FFWeb.Router do
       live "/issues/new", IssueLive.New, :new
       live "/issues/:id", IssueLive.Show, :show
       live "/issues/:id/edit", IssueLive.Show, :edit
+
+      live "/projects", ProjectLive.Index, :index
+      live "/projects/new", ProjectLive.New, :new
+      live "/projects/:id", ProjectLive.Show, :show
+      live "/projects/:id/edit", ProjectLive.Show, :edit
     end
   end
 
