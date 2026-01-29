@@ -107,6 +107,15 @@ defmodule FFWeb.Api.V1.Schemas.Issue do
       type: :object,
       properties: %{
         id: %Schema{type: :string, format: :uuid, description: "Issue ID"},
+        key: %Schema{
+          type: :string,
+          description: "Human-readable issue key (e.g., FF-123)",
+          nullable: true
+        },
+        number: %Schema{
+          type: :integer,
+          description: "Issue number within its project"
+        },
         title: %Schema{type: :string, description: "Issue title"},
         description: %Schema{type: :string, description: "Issue description", nullable: true},
         type: IssueType,
@@ -138,6 +147,7 @@ defmodule FFWeb.Api.V1.Schemas.Issue do
       },
       required: [
         :id,
+        :number,
         :title,
         :type,
         :status,
@@ -149,6 +159,8 @@ defmodule FFWeb.Api.V1.Schemas.Issue do
       ],
       example: %{
         "id" => "550e8400-e29b-41d4-a716-446655440001",
+        "key" => "FF-142",
+        "number" => 142,
         "title" => "Login button not working",
         "description" => "When clicking the login button, nothing happens",
         "type" => "bug",

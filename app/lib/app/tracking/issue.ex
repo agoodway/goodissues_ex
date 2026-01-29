@@ -16,6 +16,7 @@ defmodule FF.Tracking.Issue do
   schema "issues" do
     field :title, :string
     field :description, :string
+    field :number, :integer
     field :type, Ecto.Enum, values: @type_values
     field :status, Ecto.Enum, values: @status_values, default: :new
     field :priority, Ecto.Enum, values: @priority_values, default: :medium
@@ -31,6 +32,23 @@ defmodule FF.Tracking.Issue do
   def type_values, do: @type_values
   def status_values, do: @status_values
   def priority_values, do: @priority_values
+
+  @doc """
+  Returns the human-readable issue key in the format "PREFIX-NUMBER".
+  Requires the project to be preloaded with the prefix field.
+
+  ## Examples
+
+      iex> issue_key(%Issue{number: 42, project: %Project{prefix: "FF"}})
+      "FF-42"
+
+  """
+  def issue_key(%__MODULE__{number: number, project: %{prefix: prefix}})
+      when is_integer(number) and is_binary(prefix) do
+    "#{prefix}-#{number}"
+  end
+
+  def issue_key(_), do: nil
 
   @doc """
   Changeset for creating an issue.
@@ -49,6 +67,7 @@ defmodule FF.Tracking.Issue do
     |> manage_archived_at()
     |> foreign_key_constraint(:project_id)
     |> foreign_key_constraint(:submitter_id)
+    |> unique_constraint(:number, name: :issues_project_id_number_index)
   end
 
   @doc """

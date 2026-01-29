@@ -76,7 +76,7 @@ defmodule FFWeb.Api.V1.ProjectControllerTest do
 
   describe "create" do
     test "creates project with valid params", %{conn: conn, account: account} do
-      params = %{name: "New Project", description: "A new project"}
+      params = %{name: "New Project", description: "A new project", prefix: "NP"}
 
       conn = post(conn, ~p"/api/v1/projects", params)
       assert %{"data" => %{"id" => id}} = json_response(conn, 201)
@@ -84,6 +84,7 @@ defmodule FFWeb.Api.V1.ProjectControllerTest do
       project = FF.Tracking.get_project(account, id)
       assert project.name == "New Project"
       assert project.description == "A new project"
+      assert project.prefix == "NP"
     end
 
     test "returns error for invalid params", %{conn: conn} do
@@ -91,7 +92,7 @@ defmodule FFWeb.Api.V1.ProjectControllerTest do
 
       conn = post(conn, ~p"/api/v1/projects", params)
       assert %{"errors" => errors} = json_response(conn, 422)
-      assert errors["name"] != nil
+      assert errors["name"] != nil or errors["prefix"] != nil
     end
 
     test "returns 403 with read-only API key", %{conn: conn, user: user, account: account} do

@@ -16,6 +16,8 @@ defmodule FFWeb.Api.V1.IssueJSON do
   defp data(%Issue{} = issue) do
     %{
       id: issue.id,
+      key: Issue.issue_key(issue),
+      number: issue.number,
       title: issue.title,
       description: issue.description,
       type: issue.type,

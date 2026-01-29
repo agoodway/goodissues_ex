@@ -38,8 +38,8 @@ defmodule FFWeb.Api.V1.IssueController do
 
   def index(conn, params) do
     filters = build_filters(params)
-    issues = Tracking.list_issues(conn.assigns.current_account, filters)
-    render(conn, :index, issues: issues)
+    result = Tracking.list_issues_paginated(conn.assigns.current_account, filters)
+    render(conn, :index, issues: result.issues)
   end
 
   defp build_filters(params) do
@@ -72,7 +72,7 @@ defmodule FFWeb.Api.V1.IssueController do
   )
 
   def show(conn, %{"id" => id}) do
-    case Tracking.get_issue(conn.assigns.current_account, id) do
+    case Tracking.get_issue(conn.assigns.current_account, id, preload: [:project]) do
       nil -> {:error, :not_found}
       issue -> render(conn, :show, issue: issue)
     end
@@ -97,6 +97,9 @@ defmodule FFWeb.Api.V1.IssueController do
              conn.assigns.current_user,
              params
            ) do
+      # Preload project for key computation
+      issue = FF.Repo.preload(issue, :project)
+
       conn
       |> put_status(:created)
       |> render(:show, issue: issue)
@@ -131,6 +134,8 @@ defmodule FFWeb.Api.V1.IssueController do
 
       issue ->
         with {:ok, %Issue{} = issue} <- Tracking.update_issue(issue, params) do
+          # Preload project for key computation
+          issue = FF.Repo.preload(issue, :project)
           render(conn, :show, issue: issue)
         end
     end
