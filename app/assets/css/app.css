@@ -17,36 +17,43 @@
   themes: false;
 }
 
-/* Linear-inspired theme - clean, minimal, sophisticated
-   Dark theme with subtle grays and muted accent colors */
+/* ============================================
+   FRUITFLY — Industrial Terminal Aesthetic
+
+   A refined, high-contrast design inspired by
+   command-line interfaces and brutalist design.
+   Bloomberg Terminal × Dieter Rams × Modern IDEs
+   ============================================ */
+
+/* Dark theme - the primary experience */
 @plugin "../vendor/daisyui-theme" {
   name: "dark";
   default: false;
   prefersdark: true;
   color-scheme: "dark";
-  --color-base-100: oklch(18% 0.005 260);
-  --color-base-200: oklch(15% 0.004 260);
-  --color-base-300: oklch(12% 0.003 260);
-  --color-base-content: oklch(85% 0.005 260);
-  --color-primary: oklch(70% 0.15 250);
-  --color-primary-content: oklch(98% 0.01 250);
-  --color-secondary: oklch(55% 0.08 260);
-  --color-secondary-content: oklch(95% 0.01 260);
-  --color-accent: oklch(75% 0.12 160);
-  --color-accent-content: oklch(15% 0.02 160);
-  --color-neutral: oklch(25% 0.01 260);
-  --color-neutral-content: oklch(75% 0.005 260);
-  --color-info: oklch(65% 0.12 240);
+  --color-base-100: oklch(8% 0.01 270);
+  --color-base-200: oklch(6% 0.008 270);
+  --color-base-300: oklch(12% 0.012 270);
+  --color-base-content: oklch(92% 0.01 90);
+  --color-primary: oklch(85% 0.18 145);
+  --color-primary-content: oklch(10% 0.02 145);
+  --color-secondary: oklch(70% 0.12 45);
+  --color-secondary-content: oklch(10% 0.02 45);
+  --color-accent: oklch(75% 0.15 200);
+  --color-accent-content: oklch(10% 0.02 200);
+  --color-neutral: oklch(20% 0.015 270);
+  --color-neutral-content: oklch(80% 0.01 270);
+  --color-info: oklch(70% 0.15 240);
   --color-info-content: oklch(95% 0.01 240);
-  --color-success: oklch(65% 0.15 160);
-  --color-success-content: oklch(15% 0.02 160);
-  --color-warning: oklch(75% 0.15 85);
+  --color-success: oklch(80% 0.2 145);
+  --color-success-content: oklch(10% 0.02 145);
+  --color-warning: oklch(85% 0.18 85);
   --color-warning-content: oklch(15% 0.02 85);
-  --color-error: oklch(65% 0.2 25);
+  --color-error: oklch(70% 0.22 25);
   --color-error-content: oklch(95% 0.02 25);
-  --radius-selector: 0.375rem;
-  --radius-field: 0.375rem;
-  --radius-box: 0.5rem;
+  --radius-selector: 0.125rem;
+  --radius-field: 0.125rem;
+  --radius-box: 0.25rem;
   --size-selector: 0.25rem;
   --size-field: 0.25rem;
   --border: 1px;
@@ -54,35 +61,35 @@
   --noise: 0;
 }
 
-/* Linear-inspired light theme - warm, clean, minimal */
+/* Light theme - high contrast paper aesthetic */
 @plugin "../vendor/daisyui-theme" {
   name: "light";
   default: true;
   prefersdark: false;
   color-scheme: "light";
-  --color-base-100: oklch(99% 0.002 90);
-  --color-base-200: oklch(97% 0.004 90);
-  --color-base-300: oklch(93% 0.006 90);
-  --color-base-content: oklch(25% 0.01 260);
-  --color-primary: oklch(55% 0.18 250);
-  --color-primary-content: oklch(98% 0.01 250);
-  --color-secondary: oklch(45% 0.06 260);
-  --color-secondary-content: oklch(98% 0.01 260);
-  --color-accent: oklch(55% 0.15 160);
-  --color-accent-content: oklch(98% 0.01 160);
-  --color-neutral: oklch(35% 0.015 260);
-  --color-neutral-content: oklch(98% 0.005 260);
-  --color-info: oklch(55% 0.15 240);
+  --color-base-100: oklch(98% 0.005 90);
+  --color-base-200: oklch(95% 0.008 90);
+  --color-base-300: oklch(88% 0.012 90);
+  --color-base-content: oklch(15% 0.02 270);
+  --color-primary: oklch(45% 0.2 145);
+  --color-primary-content: oklch(98% 0.01 145);
+  --color-secondary: oklch(50% 0.15 45);
+  --color-secondary-content: oklch(98% 0.01 45);
+  --color-accent: oklch(50% 0.18 200);
+  --color-accent-content: oklch(98% 0.01 200);
+  --color-neutral: oklch(25% 0.02 270);
+  --color-neutral-content: oklch(95% 0.005 270);
+  --color-info: oklch(50% 0.18 240);
   --color-info-content: oklch(98% 0.01 240);
-  --color-success: oklch(55% 0.18 160);
-  --color-success-content: oklch(98% 0.01 160);
-  --color-warning: oklch(70% 0.18 85);
-  --color-warning-content: oklch(20% 0.02 85);
-  --color-error: oklch(55% 0.22 25);
+  --color-success: oklch(50% 0.22 145);
+  --color-success-content: oklch(98% 0.01 145);
+  --color-warning: oklch(60% 0.2 85);
+  --color-warning-content: oklch(15% 0.02 85);
+  --color-error: oklch(50% 0.25 25);
   --color-error-content: oklch(98% 0.02 25);
-  --radius-selector: 0.375rem;
-  --radius-field: 0.375rem;
-  --radius-box: 0.5rem;
+  --radius-selector: 0.125rem;
+  --radius-field: 0.125rem;
+  --radius-box: 0.25rem;
   --size-selector: 0.25rem;
   --size-field: 0.25rem;
   --border: 1px;
@@ -102,318 +109,743 @@
 [data-phx-session], [data-phx-teleported-src] { display: contents }
 
 /* ============================================
-   Linear-Inspired Design System
+   Typography System
+
+   JetBrains Mono for that terminal feel
+   Space Grotesk alternative: using JetBrains Mono
+   for a distinctive monospace-forward aesthetic
    ============================================ */
 
-/* Import Inter font for clean, modern typography */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
 
-/* Base typography */
 html {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
 }
 
-/* Sidebar styling - Linear dark sidebar */
+/* Monospace elements get the terminal font */
+code, pre, kbd, .mono, .font-mono {
+  font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+  font-feature-settings: 'liga' on, 'calt' on;
+}
+
+/* ============================================
+   Noise & Texture Layer
+   Adds subtle grain for depth
+   ============================================ */
+
+.texture-noise::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+/* ============================================
+   Sidebar — Dark Terminal Panel
+   ============================================ */
+
 .sidebar {
-  background: oklch(13% 0.004 260);
-  border-right: 1px solid oklch(20% 0.005 260);
+  background: oklch(6% 0.008 270);
+  border-right: 1px solid oklch(15% 0.015 270);
+}
+
+/* Mobile sidebar - hidden by default, slides in when toggled */
+@media (max-width: 1023px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+  }
+}
+
+/* Desktop sidebar - always visible and static */
+@media (min-width: 1024px) {
+  .sidebar {
+    transform: none;
+  }
+}
+
+.sidebar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, oklch(10% 0.01 145 / 0.08) 0%, transparent 30%);
+  pointer-events: none;
 }
 
 [data-theme="light"] .sidebar {
-  background: oklch(97% 0.003 90);
-  border-right: 1px solid oklch(90% 0.006 90);
+  background: oklch(96% 0.006 90);
+  border-right: 1px solid oklch(85% 0.01 90);
 }
 
-/* Navigation items */
+[data-theme="light"] .sidebar::before {
+  background: linear-gradient(180deg, oklch(50% 0.15 145 / 0.05) 0%, transparent 30%);
+}
+
+/* ============================================
+   Navigation Items
+   Sharp corners, precise typography
+   ============================================ */
+
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
+  gap: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.125rem;
+  font-size: 0.8125rem;
   font-weight: 500;
-  color: oklch(65% 0.01 260);
-  transition: all 0.15s ease;
+  color: oklch(60% 0.01 270);
+  transition: all 0.1s ease-out;
+  position: relative;
+  letter-spacing: 0.01em;
 }
 
 .nav-item:hover {
-  background: oklch(20% 0.005 260);
-  color: oklch(90% 0.01 260);
-}
-
-[data-theme="light"] .nav-item {
-  color: oklch(45% 0.01 260);
-}
-
-[data-theme="light"] .nav-item:hover {
-  background: oklch(93% 0.005 90);
-  color: oklch(25% 0.01 260);
+  background: oklch(15% 0.01 270);
+  color: oklch(90% 0.01 270);
 }
 
 .nav-item.active {
-  background: oklch(22% 0.008 260);
-  color: oklch(95% 0.01 260);
+  background: oklch(80% 0.18 145 / 0.12);
+  color: oklch(85% 0.18 145);
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 60%;
+  background: oklch(80% 0.18 145);
+  border-radius: 1px;
+}
+
+[data-theme="light"] .nav-item {
+  color: oklch(45% 0.01 270);
+}
+
+[data-theme="light"] .nav-item:hover {
+  background: oklch(90% 0.01 90);
+  color: oklch(20% 0.01 270);
 }
 
 [data-theme="light"] .nav-item.active {
-  background: oklch(90% 0.008 90);
-  color: oklch(20% 0.01 260);
+  background: oklch(50% 0.2 145 / 0.1);
+  color: oklch(40% 0.2 145);
 }
 
-/* Section headers in sidebar */
+[data-theme="light"] .nav-item.active::before {
+  background: oklch(45% 0.2 145);
+}
+
+/* Section headers — uppercase, tracked */
 .nav-section-header {
-  font-size: 0.6875rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.625rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: oklch(50% 0.01 260);
-  padding: 0.75rem 0.75rem 0.375rem;
+  letter-spacing: 0.12em;
+  color: oklch(45% 0.01 270);
+  padding: 1rem 0.875rem 0.5rem;
 }
 
-/* List items - Linear style */
-.list-item {
-  display: flex;
+[data-theme="light"] .nav-section-header {
+  color: oklch(50% 0.01 270);
+}
+
+/* ============================================
+   List Items — Data Grid Feel
+   ============================================ */
+
+.data-row {
   align-items: center;
-  padding: 0.625rem 1rem;
-  border-bottom: 1px solid oklch(20% 0.005 260);
-  font-size: 0.875rem;
-  transition: background 0.1s ease;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid oklch(12% 0.01 270);
+  font-size: 0.8125rem;
+  transition: background 0.08s ease-out;
 }
 
-.list-item:hover {
-  background: oklch(16% 0.004 260);
+.data-row:hover {
+  background: oklch(10% 0.01 270);
 }
 
-[data-theme="light"] .list-item {
-  border-bottom-color: oklch(93% 0.006 90);
+[data-theme="light"] .data-row {
+  border-bottom-color: oklch(90% 0.01 90);
 }
 
-[data-theme="light"] .list-item:hover {
-  background: oklch(96% 0.004 90);
+[data-theme="light"] .data-row:hover {
+  background: oklch(96% 0.005 90);
 }
 
-/* Status badges - muted, minimal */
+/* ============================================
+   Issue Cards — Mobile-first card layout
+   ============================================ */
+
+.issue-card {
+  background: oklch(8% 0.01 270);
+  transition: background 0.08s ease-out, transform 0.1s ease-out;
+}
+
+.issue-card:active {
+  transform: scale(0.98);
+}
+
+[data-theme="light"] .issue-card {
+  background: oklch(99% 0.005 90);
+}
+
+/* ============================================
+   Status Badges — Terminal-style indicators
+   ============================================ */
+
 .status-badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.125rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
+  padding: 0.1875rem 0.5rem;
+  border-radius: 0.125rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 .status-badge-active {
-  background: oklch(35% 0.08 160 / 0.3);
-  color: oklch(70% 0.12 160);
+  background: oklch(80% 0.2 145 / 0.15);
+  color: oklch(80% 0.2 145);
+  border: 1px solid oklch(80% 0.2 145 / 0.3);
 }
 
 .status-badge-pending {
-  background: oklch(45% 0.08 85 / 0.3);
-  color: oklch(75% 0.12 85);
+  background: oklch(85% 0.18 85 / 0.15);
+  color: oklch(85% 0.18 85);
+  border: 1px solid oklch(85% 0.18 85 / 0.3);
 }
 
 .status-badge-revoked {
-  background: oklch(35% 0.06 25 / 0.3);
-  color: oklch(65% 0.12 25);
+  background: oklch(70% 0.22 25 / 0.15);
+  color: oklch(70% 0.22 25);
+  border: 1px solid oklch(70% 0.22 25 / 0.3);
+}
+
+.status-badge-info {
+  background: oklch(70% 0.15 240 / 0.15);
+  color: oklch(70% 0.15 240);
+  border: 1px solid oklch(70% 0.15 240 / 0.3);
+}
+
+.status-badge-muted {
+  background: oklch(50% 0.01 270 / 0.1);
+  color: oklch(50% 0.01 270);
+  border: 1px solid oklch(50% 0.01 270 / 0.25);
+}
+
+.status-badge-error {
+  background: oklch(70% 0.22 25 / 0.15);
+  color: oklch(70% 0.22 25);
+  border: 1px solid oklch(70% 0.22 25 / 0.3);
 }
 
 [data-theme="light"] .status-badge-active {
-  background: oklch(90% 0.08 160);
-  color: oklch(45% 0.15 160);
+  background: oklch(50% 0.22 145 / 0.1);
+  color: oklch(40% 0.22 145);
+  border-color: oklch(50% 0.22 145 / 0.25);
 }
 
 [data-theme="light"] .status-badge-pending {
-  background: oklch(92% 0.08 85);
-  color: oklch(50% 0.15 85);
+  background: oklch(60% 0.2 85 / 0.12);
+  color: oklch(45% 0.2 85);
+  border-color: oklch(60% 0.2 85 / 0.25);
 }
 
 [data-theme="light"] .status-badge-revoked {
-  background: oklch(92% 0.06 25);
-  color: oklch(50% 0.15 25);
+  background: oklch(50% 0.25 25 / 0.1);
+  color: oklch(45% 0.25 25);
+  border-color: oklch(50% 0.25 25 / 0.2);
 }
 
-/* Project/tag badges */
+[data-theme="light"] .status-badge-info {
+  background: oklch(50% 0.18 240 / 0.1);
+  color: oklch(40% 0.18 240);
+  border-color: oklch(50% 0.18 240 / 0.25);
+}
+
+[data-theme="light"] .status-badge-muted {
+  background: oklch(45% 0.01 270 / 0.08);
+  color: oklch(45% 0.01 270);
+  border-color: oklch(45% 0.01 270 / 0.2);
+}
+
+[data-theme="light"] .status-badge-error {
+  background: oklch(50% 0.25 25 / 0.1);
+  color: oklch(45% 0.25 25);
+  border-color: oklch(50% 0.25 25 / 0.2);
+}
+
+/* ============================================
+   Tag Badges — Code-like styling
+   ============================================ */
+
 .tag-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  padding: 0.25rem 0.625rem;
-  border-radius: 0.375rem;
-  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.125rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6875rem;
   font-weight: 500;
-  background: oklch(22% 0.01 260);
-  color: oklch(70% 0.01 260);
+  background: oklch(15% 0.01 270);
+  color: oklch(70% 0.01 270);
+  border: 1px solid oklch(20% 0.01 270);
 }
 
 [data-theme="light"] .tag-badge {
-  background: oklch(93% 0.006 90);
-  color: oklch(40% 0.01 260);
+  background: oklch(92% 0.005 90);
+  color: oklch(40% 0.01 270);
+  border-color: oklch(85% 0.01 90);
 }
 
-/* Muted text */
+/* ============================================
+   Muted Text
+   ============================================ */
+
 .text-muted {
-  color: oklch(50% 0.01 260);
+  color: oklch(50% 0.01 270);
 }
 
 [data-theme="light"] .text-muted {
-  color: oklch(55% 0.01 260);
+  color: oklch(50% 0.01 270);
 }
 
-/* Compact table styling */
+/* ============================================
+   Tables — Data-dense grid
+   ============================================ */
+
 .table-compact th {
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6875rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: oklch(50% 0.01 260);
+  letter-spacing: 0.08em;
+  color: oklch(50% 0.01 270);
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid oklch(22% 0.005 260);
+  border-bottom: 2px solid oklch(15% 0.01 270);
 }
 
 .table-compact td {
   padding: 0.75rem 1rem;
-  font-size: 0.875rem;
-  border-bottom: 1px solid oklch(18% 0.004 260);
+  font-size: 0.8125rem;
+  border-bottom: 1px solid oklch(12% 0.01 270);
 }
 
 [data-theme="light"] .table-compact th {
-  color: oklch(50% 0.01 260);
-  border-bottom-color: oklch(90% 0.006 90);
+  color: oklch(45% 0.01 270);
+  border-bottom-color: oklch(85% 0.01 90);
 }
 
 [data-theme="light"] .table-compact td {
-  border-bottom-color: oklch(94% 0.005 90);
+  border-bottom-color: oklch(92% 0.005 90);
 }
 
-/* Clean buttons */
+/* ============================================
+   Buttons — Sharp, intentional
+   ============================================ */
+
 .btn-subtle {
   background: transparent;
-  border: 1px solid oklch(28% 0.01 260);
-  color: oklch(70% 0.01 260);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  padding: 0.375rem 0.75rem;
-  border-radius: 0.375rem;
-  transition: all 0.15s ease;
+  border: 1px solid oklch(25% 0.01 270);
+  color: oklch(70% 0.01 270);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.125rem;
+  transition: all 0.1s ease-out;
+  letter-spacing: 0.01em;
 }
 
 .btn-subtle:hover {
-  background: oklch(22% 0.008 260);
-  border-color: oklch(35% 0.01 260);
-  color: oklch(85% 0.01 260);
+  background: oklch(15% 0.01 270);
+  border-color: oklch(35% 0.01 270);
+  color: oklch(90% 0.01 270);
 }
 
 [data-theme="light"] .btn-subtle {
-  border-color: oklch(85% 0.01 260);
-  color: oklch(40% 0.01 260);
+  border-color: oklch(80% 0.01 270);
+  color: oklch(35% 0.01 270);
 }
 
 [data-theme="light"] .btn-subtle:hover {
-  background: oklch(95% 0.005 90);
-  border-color: oklch(80% 0.01 260);
-  color: oklch(25% 0.01 260);
+  background: oklch(92% 0.005 90);
+  border-color: oklch(70% 0.01 270);
+  color: oklch(20% 0.01 270);
 }
 
-/* Search/filter inputs */
+/* Primary button - the action color */
+.btn-action {
+  background: oklch(80% 0.18 145);
+  border: none;
+  color: oklch(10% 0.02 145);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 0.125rem;
+  transition: all 0.1s ease-out;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.btn-action:hover {
+  background: oklch(85% 0.2 145);
+  transform: translateY(-1px);
+}
+
+[data-theme="light"] .btn-action {
+  background: oklch(45% 0.2 145);
+  color: oklch(98% 0.01 145);
+}
+
+[data-theme="light"] .btn-action:hover {
+  background: oklch(40% 0.22 145);
+}
+
+/* ============================================
+   Inputs — Terminal-style
+   ============================================ */
+
 .input-search {
-  background: oklch(15% 0.004 260);
-  border: 1px solid oklch(22% 0.005 260);
-  border-radius: 0.375rem;
+  background: oklch(10% 0.008 270);
+  border: 1px solid oklch(18% 0.01 270);
+  border-radius: 0.125rem;
   padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-  color: oklch(85% 0.01 260);
-  transition: border-color 0.15s ease;
+  font-size: 0.8125rem;
+  color: oklch(90% 0.01 270);
+  transition: border-color 0.1s ease-out, box-shadow 0.1s ease-out;
 }
 
 .input-search::placeholder {
-  color: oklch(45% 0.01 260);
+  color: oklch(40% 0.01 270);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
 }
 
 .input-search:focus {
   outline: none;
-  border-color: oklch(45% 0.08 250);
+  border-color: oklch(80% 0.18 145 / 0.6);
+  box-shadow: 0 0 0 2px oklch(80% 0.18 145 / 0.15);
 }
 
 [data-theme="light"] .input-search {
-  background: oklch(98% 0.002 90);
-  border-color: oklch(88% 0.006 90);
-  color: oklch(25% 0.01 260);
+  background: oklch(99% 0.002 90);
+  border-color: oklch(85% 0.01 90);
+  color: oklch(20% 0.01 270);
 }
 
 [data-theme="light"] .input-search::placeholder {
-  color: oklch(60% 0.01 260);
+  color: oklch(55% 0.01 270);
 }
 
 [data-theme="light"] .input-search:focus {
-  border-color: oklch(55% 0.12 250);
+  border-color: oklch(50% 0.2 145 / 0.6);
+  box-shadow: 0 0 0 2px oklch(50% 0.2 145 / 0.1);
 }
 
-/* Dropdown/select styling */
+/* ============================================
+   Selects — Clean dropdowns
+   ============================================ */
+
 .select-minimal {
-  background: oklch(15% 0.004 260);
-  border: 1px solid oklch(22% 0.005 260);
-  border-radius: 0.375rem;
+  background: oklch(10% 0.008 270);
+  border: 1px solid oklch(18% 0.01 270);
+  border-radius: 0.125rem;
   padding: 0.5rem 2rem 0.5rem 0.75rem;
-  font-size: 0.8125rem;
-  color: oklch(70% 0.01 260);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: oklch(70% 0.01 270);
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M3 4.5L6 7.5L9 4.5'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2366ff99' d='M3 4.5L6 7.5L9 4.5'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.5rem center;
+  transition: all 0.1s ease-out;
+}
+
+.select-minimal:hover {
+  border-color: oklch(25% 0.01 270);
+}
+
+.select-minimal:focus {
+  outline: none;
+  border-color: oklch(80% 0.18 145 / 0.6);
 }
 
 [data-theme="light"] .select-minimal {
-  background-color: oklch(98% 0.002 90);
-  border-color: oklch(88% 0.006 90);
-  color: oklch(40% 0.01 260);
+  background-color: oklch(99% 0.002 90);
+  border-color: oklch(85% 0.01 90);
+  color: oklch(35% 0.01 270);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23228B22' d='M3 4.5L6 7.5L9 4.5'/%3E%3C/svg%3E");
 }
 
-/* Group headers */
+/* ============================================
+   Group Headers — Section dividers
+   ============================================ */
+
 .group-header {
-  display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: oklch(55% 0.01 260);
-  background: oklch(14% 0.003 260);
-  border-bottom: 1px solid oklch(18% 0.004 260);
+  padding: 0.625rem 1.25rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: oklch(50% 0.01 270);
+  background: oklch(8% 0.008 270);
+  border-bottom: 1px solid oklch(12% 0.01 270);
 }
 
 [data-theme="light"] .group-header {
-  color: oklch(50% 0.01 260);
-  background: oklch(96% 0.004 90);
-  border-bottom-color: oklch(92% 0.005 90);
+  color: oklch(45% 0.01 270);
+  background: oklch(96% 0.005 90);
+  border-bottom-color: oklch(90% 0.01 90);
 }
 
-/* Icon colors */
+/* ============================================
+   Icon Colors
+   ============================================ */
+
 .icon-muted {
-  color: oklch(50% 0.01 260);
+  color: oklch(45% 0.01 270);
 }
 
 [data-theme="light"] .icon-muted {
-  color: oklch(55% 0.01 260);
+  color: oklch(50% 0.01 270);
 }
 
-/* Smooth transitions */
+/* ============================================
+   Animations & Transitions
+   Fast, precise, intentional
+   ============================================ */
+
+/* Only apply transitions to interactive elements */
+button, a, input, select, textarea, .nav-item, .data-row {
+  transition: all 0.1s ease-out;
+}
+
+/* Remove transitions from elements that shouldn't animate */
 * {
-  transition-property: background-color, border-color, color;
-  transition-duration: 0.15s;
-  transition-timing-function: ease;
-}
-
-/* Remove transition from interactive elements that need instant feedback */
-button, a, input, select, textarea {
   transition-property: none;
 }
 
-button:hover, a:hover {
-  transition-property: background-color, border-color, color, transform;
-  transition-duration: 0.1s;
+/* ============================================
+   Custom Scrollbar — Dark, minimal
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: oklch(25% 0.01 270);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(35% 0.01 270);
+}
+
+[data-theme="light"]::-webkit-scrollbar-thumb {
+  background: oklch(75% 0.01 270);
+}
+
+[data-theme="light"]::-webkit-scrollbar-thumb:hover {
+  background: oklch(65% 0.01 270);
+}
+
+/* ============================================
+   Focus States — High visibility
+   ============================================ */
+
+:focus-visible {
+  outline: 2px solid oklch(80% 0.18 145);
+  outline-offset: 2px;
+}
+
+[data-theme="light"] :focus-visible {
+  outline-color: oklch(50% 0.2 145);
+}
+
+/* ============================================
+   Selection — Branded highlight
+   ============================================ */
+
+::selection {
+  background: oklch(80% 0.18 145 / 0.3);
+  color: oklch(98% 0.01 145);
+}
+
+[data-theme="light"] ::selection {
+  background: oklch(50% 0.2 145 / 0.25);
+  color: oklch(15% 0.02 145);
+}
+
+/* ============================================
+   Animated Gradient Border — For special elements
+   ============================================ */
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(
+    135deg,
+    oklch(80% 0.18 145),
+    oklch(75% 0.15 200),
+    oklch(70% 0.12 45),
+    oklch(80% 0.18 145)
+  );
+  background-size: 300% 300%;
+  animation: gradient-shift 8s ease infinite;
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0.6;
+}
+
+/* ============================================
+   Glow Effects — Subtle terminal glow
+   ============================================ */
+
+.glow-primary {
+  box-shadow: 0 0 20px oklch(80% 0.18 145 / 0.15),
+              0 0 40px oklch(80% 0.18 145 / 0.08);
+}
+
+[data-theme="light"] .glow-primary {
+  box-shadow: 0 0 20px oklch(50% 0.2 145 / 0.1),
+              0 0 40px oklch(50% 0.2 145 / 0.05);
+}
+
+/* ============================================
+   Grid Pattern Background
+   ============================================ */
+
+.bg-grid {
+  background-image:
+    linear-gradient(oklch(20% 0.003 270) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(20% 0.003 270) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+[data-theme="light"] .bg-grid {
+  background-image:
+    linear-gradient(oklch(96% 0.003 90) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(96% 0.003 90) 1px, transparent 1px);
+}
+
+/* ============================================
+   Scanline Effect — Retro terminal
+   ============================================ */
+
+.scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    oklch(0% 0 0 / 0.03) 2px,
+    oklch(0% 0 0 / 0.03) 4px
+  );
+  pointer-events: none;
+}
+
+/* ============================================
+   Blinking Cursor — Terminal effect
+   ============================================ */
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.cursor-blink::after {
+  content: '_';
+  animation: blink 1s step-end infinite;
+  color: oklch(80% 0.18 145);
+}
+
+/* ============================================
+   Typing Animation
+   ============================================ */
+
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+.typing {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typing 2s steps(40, end);
+}
+
+/* ============================================
+   Stagger Animation for Lists
+   ============================================ */
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-stagger > * {
+  animation: fade-in-up 0.3s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.animate-stagger > *:nth-child(2) { animation-delay: 0.1s; }
+.animate-stagger > *:nth-child(3) { animation-delay: 0.15s; }
+.animate-stagger > *:nth-child(4) { animation-delay: 0.2s; }
+.animate-stagger > *:nth-child(5) { animation-delay: 0.25s; }
+.animate-stagger > *:nth-child(6) { animation-delay: 0.3s; }
+.animate-stagger > *:nth-child(7) { animation-delay: 0.35s; }
+.animate-stagger > *:nth-child(8) { animation-delay: 0.4s; }
+.animate-stagger > *:nth-child(9) { animation-delay: 0.45s; }
+.animate-stagger > *:nth-child(10) { animation-delay: 0.5s; }

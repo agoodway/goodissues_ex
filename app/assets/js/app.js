@@ -45,6 +45,45 @@ const Hooks = {
         }
       })
     }
+  },
+  MobileSidebar: {
+    mounted() {
+      const sidebar = document.getElementById("sidebar")
+      const backdrop = document.getElementById("sidebar-backdrop")
+
+      const toggleSidebar = () => {
+        const isOpen = sidebar.classList.contains("sidebar-open")
+        if (isOpen) {
+          // Close sidebar
+          sidebar.classList.remove("sidebar-open")
+          backdrop.classList.add("hidden")
+          document.body.style.overflow = ""
+        } else {
+          // Open sidebar
+          sidebar.classList.add("sidebar-open")
+          backdrop.classList.remove("hidden")
+          document.body.style.overflow = "hidden"
+        }
+      }
+
+      // Listen for toggle events
+      window.addEventListener("toggle-sidebar", toggleSidebar)
+
+      // Close sidebar on navigation (for LiveView)
+      this.handleEvent && this.handleEvent("close-sidebar", () => {
+        sidebar.classList.remove("sidebar-open")
+        backdrop.classList.add("hidden")
+        document.body.style.overflow = ""
+      })
+
+      // Clean up on destroy
+      this.destroy = () => {
+        window.removeEventListener("toggle-sidebar", toggleSidebar)
+      }
+    },
+    destroyed() {
+      if (this.destroy) this.destroy()
+    }
   }
 }
 

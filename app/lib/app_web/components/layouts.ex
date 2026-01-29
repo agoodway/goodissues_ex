@@ -2,6 +2,12 @@ defmodule FFWeb.Layouts do
   @moduledoc """
   This module holds layouts and related functionality
   used by your application.
+
+  Design System: Industrial Terminal Aesthetic
+  - Sharp corners, precise typography
+  - JetBrains Mono for monospace elements
+  - DM Sans for body text
+  - High contrast with green accent color
   """
   use FFWeb, :html
 
@@ -35,26 +41,28 @@ defmodule FFWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <header class="navbar px-4 sm:px-6 lg:px-8">
+    <header class="navbar px-4 sm:px-6 lg:px-8 border-b border-base-300">
       <div class="flex-1">
-        <a href="/" class="flex-1 flex w-fit items-center gap-2">
-          <img src={~p"/images/logo.svg"} width="36" />
-          <span class="text-sm font-semibold">v{Application.spec(:phoenix, :vsn)}</span>
+        <a href="/" class="flex-1 flex w-fit items-center gap-3">
+          <div class="size-8 rounded bg-primary/20 border border-primary/30 flex items-center justify-center">
+            <span class="font-mono text-primary font-bold text-sm">FF</span>
+          </div>
+          <span class="font-mono text-xs text-muted">v{Application.spec(:phoenix, :vsn)}</span>
         </a>
       </div>
       <div class="flex-none">
         <ul class="flex flex-column px-1 space-x-4 items-center">
           <li>
-            <a href="https://phoenixframework.org/" class="btn btn-ghost">Website</a>
+            <a href="https://phoenixframework.org/" class="btn btn-ghost font-mono text-xs">Website</a>
           </li>
           <li>
-            <a href="https://github.com/phoenixframework/phoenix" class="btn btn-ghost">GitHub</a>
+            <a href="https://github.com/phoenixframework/phoenix" class="btn btn-ghost font-mono text-xs">GitHub</a>
           </li>
           <li>
             <.theme_toggle />
           </li>
           <li>
-            <a href="https://hexdocs.pm/phoenix/overview.html" class="btn btn-primary">
+            <a href="https://hexdocs.pm/phoenix/overview.html" class="btn-action">
               Get Started <span aria-hidden="true">&rarr;</span>
             </a>
           </li>
@@ -122,32 +130,32 @@ defmodule FFWeb.Layouts do
   """
   def theme_toggle(assigns) do
     ~H"""
-    <div class="flex items-center gap-0.5 p-0.5 rounded-lg bg-base-300/50">
+    <div class="flex items-center gap-0.5 p-0.5 rounded bg-base-300/50 border border-base-300">
       <button
-        class="p-1.5 rounded-md hover:bg-base-200 text-muted hover:text-base-content transition-colors [[data-theme=system]_&]:bg-base-200 [[data-theme=system]_&]:text-base-content"
+        class="p-1.5 rounded-sm hover:bg-base-200 text-muted hover:text-base-content transition-colors [[data-theme=system]_&]:bg-base-200 [[data-theme=system]_&]:text-primary"
         phx-click={JS.dispatch("phx:set-theme")}
         data-phx-theme="system"
         title="System theme"
       >
-        <.icon name="hero-computer-desktop-micro" class="size-4" />
+        <.icon name="hero-computer-desktop-micro" class="size-3.5" />
       </button>
 
       <button
-        class="p-1.5 rounded-md hover:bg-base-200 text-muted hover:text-base-content transition-colors [[data-theme=light]_&]:bg-base-200 [[data-theme=light]_&]:text-base-content"
+        class="p-1.5 rounded-sm hover:bg-base-200 text-muted hover:text-base-content transition-colors [[data-theme=light]_&]:bg-base-200 [[data-theme=light]_&]:text-primary"
         phx-click={JS.dispatch("phx:set-theme")}
         data-phx-theme="light"
         title="Light theme"
       >
-        <.icon name="hero-sun-micro" class="size-4" />
+        <.icon name="hero-sun-micro" class="size-3.5" />
       </button>
 
       <button
-        class="p-1.5 rounded-md hover:bg-base-200 text-muted hover:text-base-content transition-colors [[data-theme=dark]_&]:bg-base-200 [[data-theme=dark]_&]:text-base-content"
+        class="p-1.5 rounded-sm hover:bg-base-200 text-muted hover:text-base-content transition-colors [[data-theme=dark]_&]:bg-base-200 [[data-theme=dark]_&]:text-primary"
         phx-click={JS.dispatch("phx:set-theme")}
         data-phx-theme="dark"
         title="Dark theme"
       >
-        <.icon name="hero-moon-micro" class="size-4" />
+        <.icon name="hero-moon-micro" class="size-3.5" />
       </button>
     </div>
     """
@@ -173,124 +181,126 @@ defmodule FFWeb.Layouts do
 
   attr :page_title, :string, default: nil, doc: "the page title"
 
+  attr :active_nav, :atom,
+    default: nil,
+    doc: "the currently active navigation item (:issues, :settings, :api_keys)"
+
   slot :inner_block, required: true
 
   def dashboard(assigns) do
     ~H"""
-    <div class="flex min-h-screen bg-base-100">
-      <%!-- Linear-style sidebar --%>
-      <aside class="sidebar w-56 flex flex-col">
-        <%!-- Logo/Brand area --%>
-        <div class="p-3 flex items-center gap-2">
-          <div class="size-7 rounded-lg bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center">
-            <.icon name="hero-bolt" class="size-4 text-primary-content" />
+    <div class="flex min-h-screen bg-base-100" id="dashboard-layout" phx-hook="MobileSidebar">
+      <%!-- Mobile sidebar backdrop --%>
+      <div
+        id="sidebar-backdrop"
+        class="fixed inset-0 bg-black/50 z-40 lg:hidden hidden"
+        phx-click={JS.dispatch("toggle-sidebar")}
+      >
+      </div>
+
+      <%!-- Industrial Terminal Sidebar --%>
+      <aside
+        id="sidebar"
+        class="sidebar w-72 flex flex-col fixed inset-y-0 left-0 z-50 lg:static lg:w-60 transition-transform duration-200 ease-out"
+      >
+        <%!-- Brand area with terminal aesthetic --%>
+        <div class="p-4 flex items-center justify-between border-b border-base-300/30">
+          <div class="flex items-center gap-3">
+            <div class="size-8 rounded-sm bg-primary/15 border border-primary/25 flex items-center justify-center glow-primary">
+              <span class="font-mono text-primary font-bold text-sm">FF</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="font-semibold text-sm text-base-content tracking-tight">Fruitfly</span>
+              <span class="font-mono text-[10px] text-muted uppercase tracking-wider">Bug Tracker</span>
+            </div>
           </div>
-          <span class="font-semibold text-sm text-base-content">Fruitfly</span>
+          <%!-- Close button for mobile --%>
+          <button
+            class="lg:hidden p-2 -mr-2 rounded-sm hover:bg-base-200 text-muted"
+            phx-click={JS.dispatch("toggle-sidebar")}
+            aria-label="Close menu"
+          >
+            <.icon name="hero-x-mark" class="size-5" />
+          </button>
         </div>
 
-        <%!-- Search --%>
-        <div class="px-3 pb-2">
+        <%!-- Terminal-style search --%>
+        <div class="px-3 py-3">
           <div class="relative">
-            <.icon name="hero-magnifying-glass" class="size-4 absolute left-2.5 top-1/2 -translate-y-1/2 icon-muted" />
+            <span class="absolute left-2.5 top-1/2 -translate-y-1/2 font-mono text-primary text-xs">&gt;</span>
             <input
               type="text"
-              placeholder="Search..."
-              class="input-search w-full pl-8 py-1.5 text-sm"
+              placeholder="search..."
+              class="input-search w-full pl-7 py-2 text-sm font-mono"
             />
           </div>
         </div>
 
         <%!-- Main navigation --%>
-        <nav class="flex-1 px-2 py-2 space-y-0.5">
-          <.link
-            navigate={~p"/dashboard/#{@current_scope.account.slug}"}
-            class="nav-item"
-          >
-            <.icon name="hero-home" class="size-4" />
-            <span>Home</span>
-          </.link>
-
-          <.link
-            navigate={~p"/dashboard/#{@current_scope.account.slug}"}
-            class="nav-item"
-          >
-            <.icon name="hero-inbox" class="size-4" />
-            <span>Inbox</span>
-          </.link>
-
-          <.link
-            navigate={~p"/dashboard/#{@current_scope.account.slug}"}
-            class="nav-item"
-          >
-            <.icon name="hero-clipboard-document-list" class="size-4" />
-            <span>My Issues</span>
-          </.link>
-
+        <nav class="flex-1 px-2 py-1 space-y-1 overflow-y-auto">
           <%!-- Workspace section --%>
-          <div class="nav-section-header mt-4">Workspace</div>
+          <div class="nav-section-header">// Workspace</div>
 
           <.link
-            navigate={~p"/dashboard/#{@current_scope.account.slug}"}
-            class="nav-item"
+            navigate={~p"/dashboard/#{@current_scope.account.slug}/issues"}
+            class={["nav-item", @active_nav == :issues && "active"]}
           >
-            <.icon name="hero-folder" class="size-4" />
-            <span>Projects</span>
-          </.link>
-
-          <.link
-            navigate={~p"/dashboard/#{@current_scope.account.slug}"}
-            class="nav-item"
-          >
-            <.icon name="hero-eye" class="size-4" />
-            <span>Views</span>
+            <.icon name="hero-bug-ant" class="size-5" />
+            <span>Issues</span>
           </.link>
 
           <%!-- Account section --%>
-          <div class="nav-section-header mt-4">Account</div>
+          <div class="nav-section-header mt-5">// Account</div>
 
           <.link
             navigate={~p"/dashboard/#{@current_scope.account.slug}"}
-            class="nav-item"
+            class={["nav-item", @active_nav == :settings && "active"]}
           >
-            <.icon name="hero-building-office" class="size-4" />
+            <.icon name="hero-cog-6-tooth" class="size-5" />
             <span>Settings</span>
           </.link>
 
           <.link
             navigate={~p"/dashboard/#{@current_scope.account.slug}/api-keys"}
-            class="nav-item active"
+            class={["nav-item", @active_nav == :api_keys && "active"]}
           >
-            <.icon name="hero-key" class="size-4" />
+            <.icon name="hero-key" class="size-5" />
             <span>API Keys</span>
           </.link>
         </nav>
 
         <%!-- Account switcher at bottom --%>
-        <div :if={@current_scope && @current_scope.account} class="p-2 border-t border-base-300/50">
+        <div :if={@current_scope && @current_scope.account} class="p-3 border-t border-base-300/30">
           <.account_switcher current_scope={@current_scope} />
         </div>
       </aside>
 
       <%!-- Main content area --%>
-      <div class="flex-1 flex flex-col min-w-0">
+      <div class="flex-1 flex flex-col min-w-0 w-full">
         <%!-- Top header bar --%>
-        <header class="h-12 px-4 flex items-center justify-between border-b border-base-300/50 bg-base-100">
+        <header class="h-14 lg:h-11 px-4 flex items-center justify-between border-b border-base-300/50 bg-base-100 sticky top-0 z-30">
           <div class="flex items-center gap-3">
-            <button class="p-1.5 rounded hover:bg-base-200 text-muted">
-              <.icon name="hero-arrow-left" class="size-4" />
+            <%!-- Mobile menu button --%>
+            <button
+              class="lg:hidden p-2 -ml-2 rounded-sm hover:bg-base-200 text-base-content"
+              phx-click={JS.dispatch("toggle-sidebar")}
+              aria-label="Open menu"
+            >
+              <.icon name="hero-bars-3" class="size-6" />
             </button>
-            <button class="p-1.5 rounded hover:bg-base-200 text-muted">
-              <.icon name="hero-arrow-right" class="size-4" />
-            </button>
+            <span class="font-mono text-xs text-muted">{@page_title || "Dashboard"}</span>
           </div>
 
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-3">
+            <span class="font-mono text-[10px] text-muted hidden sm:block">
+              {Calendar.strftime(DateTime.utc_now(), "%Y-%m-%d %H:%M")} UTC
+            </span>
             <.theme_toggle />
           </div>
         </header>
 
         <%!-- Page content --%>
-        <main class="flex-1 overflow-auto">
+        <main class="flex-1 overflow-auto bg-grid p-4 lg:p-6">
           {render_slot(@inner_block)}
         </main>
       </div>
@@ -314,41 +324,41 @@ defmodule FFWeb.Layouts do
       <div
         tabindex="0"
         role="button"
-        class="w-full flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-base-300/30 cursor-pointer transition-colors"
+        class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-sm hover:bg-base-300/30 cursor-pointer transition-colors border border-transparent hover:border-base-300/50"
       >
-        <div class="size-6 rounded bg-gradient-to-br from-accent/60 to-accent flex items-center justify-center text-xs font-medium text-accent-content">
-          {String.first(@current_scope.account.name)}
+        <div class="size-7 rounded-sm bg-primary/15 border border-primary/25 flex items-center justify-center font-mono text-xs font-bold text-primary">
+          {String.first(@current_scope.account.name) |> String.upcase()}
         </div>
         <div class="flex-1 min-w-0">
           <div class="text-sm font-medium truncate">{@current_scope.account.name}</div>
-          <div class="text-xs text-muted">{@current_scope.account_user.role}</div>
+          <div class="font-mono text-[10px] text-muted uppercase tracking-wider">{@current_scope.account_user.role}</div>
         </div>
         <.icon name="hero-chevron-up-down" class="size-4 text-muted shrink-0" />
       </div>
       <ul
         tabindex="0"
-        class="dropdown-content z-20 w-full mt-1 py-1 rounded-lg bg-base-200 border border-base-300 shadow-lg"
+        class="dropdown-content z-20 w-full mt-1 py-1 rounded-sm bg-base-200 border border-base-300 shadow-lg"
       >
         <%= for {account, role} <- @current_scope.accounts do %>
           <%= if account.id == @current_scope.account.id do %>
-            <li class="px-2 py-1.5 flex items-center gap-2 text-sm opacity-50">
-              <div class="size-5 rounded bg-accent/40 flex items-center justify-center text-xs font-medium">
-                {String.first(account.name)}
+            <li class="px-2.5 py-2 flex items-center gap-2.5 text-sm opacity-50">
+              <div class="size-6 rounded-sm bg-primary/10 border border-primary/20 flex items-center justify-center font-mono text-xs font-bold text-primary/60">
+                {String.first(account.name) |> String.upcase()}
               </div>
               <span class="flex-1 truncate">{account.name}</span>
-              <.icon name="hero-check" class="size-4" />
+              <.icon name="hero-check" class="size-4 text-primary" />
             </li>
           <% else %>
             <li>
               <.link
                 navigate={~p"/dashboard/#{account.slug}"}
-                class="px-2 py-1.5 flex items-center gap-2 text-sm hover:bg-base-300/50 rounded"
+                class="px-2.5 py-2 flex items-center gap-2.5 text-sm hover:bg-base-300/50 rounded-sm"
               >
-                <div class="size-5 rounded bg-neutral/50 flex items-center justify-center text-xs font-medium">
-                  {String.first(account.name)}
+                <div class="size-6 rounded-sm bg-neutral/30 border border-neutral/40 flex items-center justify-center font-mono text-xs font-medium">
+                  {String.first(account.name) |> String.upcase()}
                 </div>
                 <span class="flex-1 truncate">{account.name}</span>
-                <span class="text-xs text-muted">{role}</span>
+                <span class="font-mono text-[10px] text-muted uppercase">{role}</span>
               </.link>
             </li>
           <% end %>
