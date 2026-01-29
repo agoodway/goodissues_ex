@@ -8,24 +8,35 @@ defmodule FF.Tracking.ProjectTest do
       changeset =
         Project.create_changeset(%Project{account_id: Ecto.UUID.generate()}, %{
           name: "My Project",
-          description: "A description"
+          description: "A description",
+          prefix: "MP"
         })
 
       assert changeset.valid?
+      assert get_change(changeset, :prefix) == "MP"
     end
 
     test "requires name" do
       changeset =
-        Project.create_changeset(%Project{account_id: Ecto.UUID.generate()}, %{})
+        Project.create_changeset(%Project{account_id: Ecto.UUID.generate()}, %{prefix: "MP"})
 
       refute changeset.valid?
       assert %{name: ["can't be blank"]} = errors_on(changeset)
     end
 
+    test "requires prefix" do
+      changeset =
+        Project.create_changeset(%Project{account_id: Ecto.UUID.generate()}, %{name: "My Project"})
+
+      refute changeset.valid?
+      assert %{prefix: ["can't be blank"]} = errors_on(changeset)
+    end
+
     test "requires account_id" do
       changeset =
         Project.create_changeset(%Project{}, %{
-          name: "My Project"
+          name: "My Project",
+          prefix: "MP"
         })
 
       refute changeset.valid?
@@ -35,7 +46,8 @@ defmodule FF.Tracking.ProjectTest do
     test "validates name max length" do
       changeset =
         Project.create_changeset(%Project{account_id: Ecto.UUID.generate()}, %{
-          name: String.duplicate("a", 256)
+          name: String.duplicate("a", 256),
+          prefix: "MP"
         })
 
       refute changeset.valid?
@@ -45,7 +57,8 @@ defmodule FF.Tracking.ProjectTest do
     test "description is optional" do
       changeset =
         Project.create_changeset(%Project{account_id: Ecto.UUID.generate()}, %{
-          name: "My Project"
+          name: "My Project",
+          prefix: "MP"
         })
 
       assert changeset.valid?
@@ -55,11 +68,45 @@ defmodule FF.Tracking.ProjectTest do
     test "trims name whitespace" do
       changeset =
         Project.create_changeset(%Project{account_id: Ecto.UUID.generate()}, %{
-          name: "  My Project  "
+          name: "  My Project  ",
+          prefix: "MP"
         })
 
       assert changeset.valid?
       assert get_change(changeset, :name) == "My Project"
+    end
+
+    test "normalizes prefix to uppercase" do
+      changeset =
+        Project.create_changeset(%Project{account_id: Ecto.UUID.generate()}, %{
+          name: "My Project",
+          prefix: "mp"
+        })
+
+      assert changeset.valid?
+      assert get_change(changeset, :prefix) == "MP"
+    end
+
+    test "validates prefix format" do
+      changeset =
+        Project.create_changeset(%Project{account_id: Ecto.UUID.generate()}, %{
+          name: "My Project",
+          prefix: "M-P"
+        })
+
+      refute changeset.valid?
+      assert %{prefix: ["must be uppercase letters and numbers only"]} = errors_on(changeset)
+    end
+
+    test "validates prefix max length" do
+      changeset =
+        Project.create_changeset(%Project{account_id: Ecto.UUID.generate()}, %{
+          name: "My Project",
+          prefix: "TOOLONGPREFIX"
+        })
+
+      refute changeset.valid?
+      assert %{prefix: ["should be at most 10 character(s)"]} = errors_on(changeset)
     end
   end
 

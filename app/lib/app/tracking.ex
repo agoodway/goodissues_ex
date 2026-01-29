@@ -39,7 +39,11 @@ defmodule FF.Tracking do
 
   """
   def get_project(%Account{id: account_id}, id) do
-    Repo.get_by(Project, id: id, account_id: account_id)
+    if valid_uuid?(id) do
+      Repo.get_by(Project, id: id, account_id: account_id)
+    else
+      nil
+    end
   end
 
   @doc """
@@ -89,6 +93,48 @@ defmodule FF.Tracking do
   """
   def delete_project(%Project{} = project) do
     Repo.delete(project)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking project changes (for updates).
+  """
+  def change_project(%Project{} = project, attrs \\ %{}) do
+    Project.update_changeset(project, attrs)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for creating a new project.
+  """
+  def change_new_project(%Project{} = project, attrs \\ %{}) do
+    Project.create_changeset(project, attrs)
+  end
+
+  @doc """
+  Returns a suggested prefix for a project name.
+  """
+  defdelegate suggest_prefix(name), to: Project
+
+  @doc """
+  Counts issues for a given project.
+  """
+  def count_issues(%Project{id: project_id}) do
+    Issue
+    |> where([i], i.project_id == ^project_id)
+    |> Repo.aggregate(:count)
+  end
+
+  @doc """
+  Lists projects with issue counts for an account.
+  Returns a list of {project, issue_count} tuples.
+  """
+  def list_projects_with_counts(%Account{id: account_id}) do
+    Project
+    |> where([p], p.account_id == ^account_id)
+    |> join(:left, [p], i in Issue, on: i.project_id == p.id)
+    |> group_by([p], p.id)
+    |> select([p, i], {p, count(i.id)})
+    |> order_by([p], asc: p.name)
+    |> Repo.all()
   end
 
   # ==========================================================================
@@ -279,6 +325,9 @@ defmodule FF.Tracking do
   @doc """
   Creates an issue within a project.
 
+  The issue number is assigned atomically from the project's issue_counter.
+  Uses a database lock to prevent race conditions.
+
   ## Examples
 
       iex> create_issue(account, user, %{title: "Bug", type: :bug, project_id: "..."})
@@ -291,21 +340,43 @@ defmodule FF.Tracking do
   def create_issue(%Account{} = account, %User{id: user_id}, attrs) do
     project_id = attrs[:project_id] || attrs["project_id"]
 
-    # Verify project belongs to account
-    case get_project(account, project_id) do
-      nil ->
-        changeset =
-          %Issue{}
-          |> Ecto.Changeset.change()
-          |> Ecto.Changeset.add_error(:project_id, "does not exist or belongs to another account")
+    Repo.transaction(fn ->
+      # Lock the project row and get current counter
+      project =
+        Project
+        |> where([p], p.id == ^project_id and p.account_id == ^account.id)
+        |> lock("FOR UPDATE")
+        |> Repo.one()
 
-        {:error, changeset}
+      case project do
+        nil ->
+          changeset =
+            %Issue{}
+            |> Ecto.Changeset.change()
+            |> Ecto.Changeset.add_error(
+              :project_id,
+              "does not exist or belongs to another account"
+            )
 
-      _project ->
-        %Issue{project_id: project_id, submitter_id: user_id}
-        |> Issue.create_changeset(attrs)
-        |> Repo.insert()
-    end
+          Repo.rollback(changeset)
+
+        project ->
+          number = project.issue_counter
+
+          # Increment the counter
+          project
+          |> Project.increment_counter_changeset()
+          |> Repo.update!()
+
+          # Create the issue with the assigned number
+          case %Issue{project_id: project_id, submitter_id: user_id, number: number}
+               |> Issue.create_changeset(attrs)
+               |> Repo.insert() do
+            {:ok, issue} -> issue
+            {:error, changeset} -> Repo.rollback(changeset)
+          end
+      end
+    end)
   end
 
   @doc """

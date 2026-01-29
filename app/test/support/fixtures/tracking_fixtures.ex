@@ -8,11 +8,13 @@ defmodule FF.TrackingFixtures do
 
   def unique_project_name, do: "project#{System.unique_integer()}"
   def unique_issue_title, do: "issue#{System.unique_integer()}"
+  def unique_project_prefix, do: "P#{:erlang.unique_integer([:positive]) |> rem(9999)}"
 
   def valid_project_attributes(attrs \\ %{}) do
     Enum.into(attrs, %{
       name: unique_project_name(),
-      description: "A test project description"
+      description: "A test project description",
+      prefix: unique_project_prefix()
     })
   end
 

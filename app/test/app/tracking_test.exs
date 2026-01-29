@@ -79,11 +79,14 @@ defmodule FF.TrackingTest do
       assert {:ok, %Project{} = project} =
                Tracking.create_project(account, %{
                  name: "My Project",
-                 description: "A description"
+                 description: "A description",
+                 prefix: "MP"
                })
 
       assert project.name == "My Project"
       assert project.description == "A description"
+      assert project.prefix == "MP"
+      assert project.issue_counter == 1
       assert project.account_id == account.id
     end
 
@@ -96,8 +99,48 @@ defmodule FF.TrackingTest do
     test "creates project without description" do
       {_user, account} = user_with_account_fixture()
 
-      assert {:ok, %Project{} = project} = Tracking.create_project(account, %{name: "My Project"})
+      assert {:ok, %Project{} = project} =
+               Tracking.create_project(account, %{name: "My Project", prefix: "MP"})
+
       assert project.description == nil
+    end
+
+    test "validates prefix format" do
+      {_user, account} = user_with_account_fixture()
+
+      # lowercase is normalized to uppercase
+      assert {:ok, project} =
+               Tracking.create_project(account, %{name: "Test", prefix: "test"})
+
+      assert project.prefix == "TEST"
+
+      # invalid characters
+      assert {:error, changeset} =
+               Tracking.create_project(account, %{name: "Test2", prefix: "TE-ST"})
+
+      assert "must be uppercase letters and numbers only" in errors_on(changeset).prefix
+    end
+
+    test "validates prefix length" do
+      {_user, account} = user_with_account_fixture()
+
+      # too long
+      assert {:error, changeset} =
+               Tracking.create_project(account, %{name: "Test", prefix: "TOOLONGPREFIX"})
+
+      assert "should be at most 10 character(s)" in errors_on(changeset).prefix
+    end
+
+    test "validates prefix uniqueness within account" do
+      {_user, account} = user_with_account_fixture()
+
+      {:ok, _project1} =
+        Tracking.create_project(account, %{name: "Project 1", prefix: "PRJ"})
+
+      assert {:error, changeset} =
+               Tracking.create_project(account, %{name: "Project 2", prefix: "PRJ"})
+
+      assert "already exists in this account" in errors_on(changeset).prefix
     end
   end
 
@@ -381,6 +424,97 @@ defmodule FF.TrackingTest do
 
       assert issue.status == :archived
       assert issue.archived_at != nil
+    end
+
+    test "assigns sequential issue numbers within a project" do
+      {user, account} = user_with_account_fixture()
+      project = project_fixture(account)
+
+      {:ok, issue1} =
+        Tracking.create_issue(account, user, %{
+          title: "First Issue",
+          type: :bug,
+          project_id: project.id
+        })
+
+      {:ok, issue2} =
+        Tracking.create_issue(account, user, %{
+          title: "Second Issue",
+          type: :bug,
+          project_id: project.id
+        })
+
+      {:ok, issue3} =
+        Tracking.create_issue(account, user, %{
+          title: "Third Issue",
+          type: :bug,
+          project_id: project.id
+        })
+
+      assert issue1.number == 1
+      assert issue2.number == 2
+      assert issue3.number == 3
+    end
+
+    test "assigns independent issue numbers per project" do
+      {user, account} = user_with_account_fixture()
+      project1 = project_fixture(account)
+      project2 = project_fixture(account)
+
+      {:ok, issue1_p1} =
+        Tracking.create_issue(account, user, %{
+          title: "Project 1 Issue 1",
+          type: :bug,
+          project_id: project1.id
+        })
+
+      {:ok, issue1_p2} =
+        Tracking.create_issue(account, user, %{
+          title: "Project 2 Issue 1",
+          type: :bug,
+          project_id: project2.id
+        })
+
+      {:ok, issue2_p1} =
+        Tracking.create_issue(account, user, %{
+          title: "Project 1 Issue 2",
+          type: :bug,
+          project_id: project1.id
+        })
+
+      # Each project has its own numbering sequence
+      assert issue1_p1.number == 1
+      assert issue1_p2.number == 1
+      assert issue2_p1.number == 2
+    end
+
+    test "increments project counter when creating issues" do
+      {user, account} = user_with_account_fixture()
+      project = project_fixture(account)
+
+      # Initial counter should be 1
+      assert project.issue_counter == 1
+
+      {:ok, _issue1} =
+        Tracking.create_issue(account, user, %{
+          title: "Issue 1",
+          type: :bug,
+          project_id: project.id
+        })
+
+      # Reload project to get updated counter
+      updated_project = Tracking.get_project(account, project.id)
+      assert updated_project.issue_counter == 2
+
+      {:ok, _issue2} =
+        Tracking.create_issue(account, user, %{
+          title: "Issue 2",
+          type: :bug,
+          project_id: project.id
+        })
+
+      updated_project = Tracking.get_project(account, project.id)
+      assert updated_project.issue_counter == 3
     end
   end
 
