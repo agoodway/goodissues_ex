@@ -10,6 +10,22 @@ defmodule FF.Accounts.ApiKey do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
+  @type t :: %__MODULE__{
+          id: Ecto.UUID.t() | nil,
+          name: String.t() | nil,
+          type: :public | :private,
+          token_prefix: String.t() | nil,
+          token_hash: String.t() | nil,
+          status: :active | :revoked,
+          scopes: [String.t()],
+          last_used_at: DateTime.t() | nil,
+          expires_at: DateTime.t() | nil,
+          account_user_id: Ecto.UUID.t() | nil,
+          account_user: FF.Accounts.AccountUser.t() | Ecto.Association.NotLoaded.t(),
+          inserted_at: DateTime.t() | nil,
+          updated_at: DateTime.t() | nil
+        }
+
   schema "api_keys" do
     field :name, :string
     field :type, Ecto.Enum, values: [:public, :private], default: :public

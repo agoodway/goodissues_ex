@@ -1,6 +1,4 @@
 defmodule Mix.Tasks.Openapi.Spec do
-  use Mix.Task
-
   @shortdoc "Generate OpenAPI specification to openapi.json"
 
   @moduledoc """
@@ -8,6 +6,12 @@ defmodule Mix.Tasks.Openapi.Spec do
   and writes it to openapi.json.
   """
 
+  # Suppress dialyzer warnings for Mix module (not available in releases)
+  @dialyzer [:no_behaviours, {:nowarn_function, run: 1}]
+
+  use Mix.Task
+
+  @impl Mix.Task
   def run(_) do
     # Start the application
     {:ok, _} = Application.ensure_all_started(:app)

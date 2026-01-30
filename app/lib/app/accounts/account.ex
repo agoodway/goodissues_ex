@@ -9,6 +9,17 @@ defmodule FF.Accounts.Account do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
+  @type t :: %__MODULE__{
+          id: Ecto.UUID.t() | nil,
+          name: String.t() | nil,
+          slug: String.t() | nil,
+          status: :active | :suspended,
+          account_users: [FF.Accounts.AccountUser.t()] | Ecto.Association.NotLoaded.t(),
+          users: [FF.Accounts.User.t()] | Ecto.Association.NotLoaded.t(),
+          inserted_at: DateTime.t() | nil,
+          updated_at: DateTime.t() | nil
+        }
+
   schema "accounts" do
     field :name, :string
     field :slug, :string

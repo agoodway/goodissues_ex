@@ -1,9 +1,28 @@
 defmodule FF.Accounts.User do
+  @moduledoc """
+  Schema for user accounts.
+
+  Users authenticate via email and password, and can belong to multiple accounts.
+  """
   use Ecto.Schema
   import Ecto.Changeset
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+
+  @type t :: %__MODULE__{
+          id: Ecto.UUID.t() | nil,
+          email: String.t() | nil,
+          password: String.t() | nil,
+          hashed_password: String.t() | nil,
+          confirmed_at: DateTime.t() | nil,
+          authenticated_at: DateTime.t() | nil,
+          account_users: [FF.Accounts.AccountUser.t()] | Ecto.Association.NotLoaded.t(),
+          accounts: [FF.Accounts.Account.t()] | Ecto.Association.NotLoaded.t(),
+          inserted_at: DateTime.t() | nil,
+          updated_at: DateTime.t() | nil
+        }
+
   schema "users" do
     field :email, :string
     field :password, :string, virtual: true, redact: true

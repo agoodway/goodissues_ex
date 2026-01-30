@@ -10,6 +10,18 @@ defmodule FF.Accounts.AccountUser do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
+  @type t :: %__MODULE__{
+          id: Ecto.UUID.t() | nil,
+          role: :owner | :admin | :member,
+          user_id: Ecto.UUID.t() | nil,
+          account_id: Ecto.UUID.t() | nil,
+          user: FF.Accounts.User.t() | Ecto.Association.NotLoaded.t(),
+          account: FF.Accounts.Account.t() | Ecto.Association.NotLoaded.t(),
+          api_keys: [FF.Accounts.ApiKey.t()] | Ecto.Association.NotLoaded.t(),
+          inserted_at: DateTime.t() | nil,
+          updated_at: DateTime.t() | nil
+        }
+
   schema "account_users" do
     field :role, Ecto.Enum, values: [:owner, :admin, :member], default: :member
 

@@ -1,5 +1,8 @@
 import Config
 
+# Environment for compile-time checks
+config :app, env: :dev
+
 # Configure your database
 config :app, FF.Repo,
   username: "postgres",

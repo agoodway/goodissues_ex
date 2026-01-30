@@ -8,6 +8,11 @@ defmodule FFWeb.Plugs.ApiAuth do
 
   alias FF.Accounts
 
+  @env Application.compile_env(:app, :env, :prod)
+
+  # Suppress dialyzer warning - the else branch is reachable in dev/prod
+  @dialyzer {:nowarn_function, touch_api_key_async: 1}
+
   def init(opts), do: opts
 
   @doc """
@@ -29,12 +34,7 @@ defmodule FFWeb.Plugs.ApiAuth do
          {:ok, api_key} <- Accounts.verify_api_token(token),
          :ok <- check_user_confirmed(api_key.account_user.user),
          :ok <- check_account_active(api_key.account_user.account) do
-      # Update last_used_at timestamp (async in prod, sync in test)
-      if Mix.env() == :test do
-        Accounts.touch_api_key(api_key)
-      else
-        Task.start(fn -> Accounts.touch_api_key(api_key) end)
-      end
+      touch_api_key_async(api_key)
 
       conn
       |> assign(:current_api_key, api_key)
@@ -43,12 +43,25 @@ defmodule FFWeb.Plugs.ApiAuth do
       |> assign(:current_account, api_key.account_user.account)
     else
       _ ->
-        conn
-        |> put_status(:unauthorized)
-        |> put_view(json: FFWeb.ErrorJSON)
-        |> render(:"401")
-        |> halt()
+        halt_unauthorized(conn)
     end
+  end
+
+  defp touch_api_key_async(api_key) do
+    # Update last_used_at timestamp (async in prod, sync in test)
+    if @env == :test do
+      Accounts.touch_api_key(api_key)
+    else
+      Task.start(fn -> Accounts.touch_api_key(api_key) end)
+    end
+  end
+
+  defp halt_unauthorized(conn) do
+    conn
+    |> put_status(:unauthorized)
+    |> put_view(json: FFWeb.ErrorJSON)
+    |> render(:"401")
+    |> halt()
   end
 
   @doc """
