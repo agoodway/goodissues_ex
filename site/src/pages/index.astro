@@ -226,9 +226,9 @@ import Layout from '../layouts/Layout.astro';
           <!-- Docker run command -->
           <div class="mt-4 rounded-sm border border-base-300 bg-base-200/90 backdrop-blur overflow-hidden">
             <div class="px-4 py-2.5 border-b border-base-300/50 flex items-center justify-between">
-              <span class="font-mono text-[10px] text-muted">Run with Docker Compose</span>
+              <span class="font-mono text-[10px] text-muted">Run Container</span>
               <button
-                id="copy-compose"
+                id="copy-run"
                 class="font-mono text-[10px] text-primary hover:text-primary/80 transition-colors"
               >
                 Copy
@@ -236,7 +236,7 @@ import Layout from '../layouts/Layout.astro';
             </div>
             <div class="p-4 font-mono text-xs lg:text-sm">
               <span class="text-primary">$</span>
-              <span class="text-base-content ml-2" id="compose-command">docker compose up -d</span>
+              <span class="text-base-content ml-2" id="run-command">docker run -d -p 4000:4000 goodway/fruitfly</span>
             </div>
           </div>
 
@@ -519,9 +519,9 @@ import Layout from '../layouts/Layout.astro';
       }
     });
 
-    document.getElementById('copy-compose')?.addEventListener('click', () => {
-      navigator.clipboard.writeText('docker compose up -d');
-      const btn = document.getElementById('copy-compose');
+    document.getElementById('copy-run')?.addEventListener('click', () => {
+      navigator.clipboard.writeText('docker run -d -p 4000:4000 goodway/fruitfly');
+      const btn = document.getElementById('copy-run');
       if (btn) {
         btn.textContent = 'Copied!';
         setTimeout(() => { btn.textContent = 'Copy'; }, 2000);

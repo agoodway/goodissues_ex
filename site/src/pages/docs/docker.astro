@@ -2,7 +2,7 @@
 import DocsLayout from '../../layouts/DocsLayout.astro';
 ---
 
-<DocsLayout title="Docker Deployment" description="Deploy FruitFly using Docker and Docker Compose.">
+<DocsLayout title="Docker Deployment" description="Deploy FruitFly using Docker.">
   <h1 class="text-3xl font-bold text-base-content mb-4">Docker Deployment</h1>
   <p class="text-muted mb-8">Deploy FruitFly in production using Docker. The official image is available on Docker Hub.</p>
 
@@ -101,51 +101,26 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
     </div>
   </section>
 
-  <!-- Docker Compose -->
+  <!-- Running FruitFly -->
   <section class="mb-10">
-    <h2 class="text-xl font-bold text-base-content mb-4">Docker Compose</h2>
+    <h2 class="text-xl font-bold text-base-content mb-4">Running FruitFly</h2>
     <p class="text-sm text-muted mb-4">
-      The recommended way to deploy FruitFly is with Docker Compose:
+      Start FruitFly with Docker:
     </p>
 
     <div class="rounded-sm border border-base-300 bg-base-200/90 overflow-hidden">
       <div class="px-4 py-2 border-b border-base-300/50">
-        <span class="font-mono text-[10px] text-muted">docker-compose.yml</span>
+        <span class="font-mono text-[10px] text-muted">Terminal</span>
       </div>
-      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted" set:html={`version: "3.8"
-
-services:
-  fruitfly:
-    image: goodway/fruitfly:latest
-    ports:
-      - "4000:4000"
-    environment:
-      DATABASE_URL: postgres://postgres:postgres@db:5432/fruitfly
-      SECRET_KEY_BASE: \${SECRET_KEY_BASE}
-      PHX_HOST: \${PHX_HOST:-localhost}
-      POOL_SIZE: 10
-    depends_on:
-      db:
-        condition: service_healthy
-    restart: unless-stopped
-
-  db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: fruitfly
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-
-volumes:
-  postgres_data:`} /></pre>
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted" set:html={`docker run -d \\
+  --name fruitfly \\
+  -e DATABASE_URL=postgres://user:password@host:5432/fruitfly \\
+  -e SECRET_KEY_BASE=your-64-char-secret-key \\
+  -e PHX_HOST=fruitfly.example.com \\
+  -e POOL_SIZE=10 \\
+  -p 4000:4000 \\
+  --restart unless-stopped \\
+  goodway/fruitfly:latest`} /></pre>
     </div>
   </section>
 
@@ -153,7 +128,7 @@ volumes:
   <section class="mb-10">
     <h2 class="text-xl font-bold text-base-content mb-4">Production Configuration</h2>
     <p class="text-sm text-muted mb-4">
-      For production deployments, create a <code class="text-primary">.env</code> file:
+      For production deployments, use an environment file:
     </p>
 
     <div class="rounded-sm border border-base-300 bg-base-200/90 overflow-hidden mb-4">
@@ -161,7 +136,7 @@ volumes:
         <span class="font-mono text-[10px] text-muted">.env</span>
       </div>
       <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted"># Database
-DATABASE_URL=postgres://fruitfly:secure_password@db:5432/fruitfly
+DATABASE_URL=postgres://fruitfly:secure_password@db.example.com:5432/fruitfly
 
 # Security
 SECRET_KEY_BASE=your-64-character-secret-key-here
@@ -171,6 +146,22 @@ PHX_HOST=fruitfly.example.com
 
 # Optional
 POOL_SIZE=20</code></pre>
+    </div>
+
+    <p class="text-sm text-muted mb-4">
+      Then run with the env file:
+    </p>
+
+    <div class="rounded-sm border border-base-300 bg-base-200/90 overflow-hidden mb-4">
+      <div class="px-4 py-2 border-b border-base-300/50">
+        <span class="font-mono text-[10px] text-muted">Terminal</span>
+      </div>
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted" set:html={`docker run -d \\
+  --name fruitfly \\
+  --env-file .env \\
+  -p 4000:4000 \\
+  --restart unless-stopped \\
+  goodway/fruitfly:latest`} /></pre>
     </div>
 
     <div class="p-4 rounded-sm border border-warning/30 bg-warning/5">
@@ -241,7 +232,7 @@ server {
       <div class="px-4 py-2 border-b border-base-300/50">
         <span class="font-mono text-[10px] text-muted">Terminal</span>
       </div>
-      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">docker compose exec fruitfly bin/fruitfly eval "App.Release.migrate"</code></pre>
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">docker exec fruitfly bin/fruitfly eval "App.Release.migrate"</code></pre>
     </div>
   </section>
 
@@ -279,7 +270,7 @@ server {
       <div class="px-4 py-2 border-b border-base-300/50">
         <span class="font-mono text-[10px] text-muted">Terminal</span>
       </div>
-      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">docker compose exec db pg_dump -U postgres fruitfly > backup.sql</code></pre>
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">pg_dump -h db.example.com -U postgres fruitfly > backup.sql</code></pre>
     </div>
 
     <h3 class="text-lg font-semibold text-base-content mb-3">Restore Backup</h3>
@@ -287,7 +278,7 @@ server {
       <div class="px-4 py-2 border-b border-base-300/50">
         <span class="font-mono text-[10px] text-muted">Terminal</span>
       </div>
-      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted" set:html="docker compose exec -T db psql -U postgres fruitfly &lt; backup.sql" /></pre>
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted" set:html="psql -h db.example.com -U postgres fruitfly &lt; backup.sql" /></pre>
     </div>
   </section>
 
@@ -305,8 +296,11 @@ server {
       <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted"># Pull the latest image
 docker pull goodway/fruitfly:latest
 
-# Restart with the new image
-docker compose up -d</code></pre>
+# Stop and remove the current container
+docker stop fruitfly && docker rm fruitfly
+
+# Start with the new image
+docker run -d --name fruitfly --env-file .env -p 4000:4000 --restart unless-stopped goodway/fruitfly:latest</code></pre>
     </div>
 
     <p class="text-sm text-muted mt-4">

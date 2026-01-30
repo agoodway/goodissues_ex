@@ -20,7 +20,7 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
         <svg class="size-4 text-primary mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
         </svg>
-        <span><a href="https://docs.docker.com/compose/install/" target="_blank" rel="noopener" class="text-primary hover:underline">Docker Compose</a> (included with Docker Desktop)</span>
+        <span>A PostgreSQL database (local or hosted)</span>
       </li>
     </ul>
   </section>
@@ -42,41 +42,44 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
     </div>
   </section>
 
-  <!-- Step 2: Create docker-compose.yml -->
+  <!-- Step 2: Start PostgreSQL -->
   <section class="mb-10">
-    <h2 class="text-xl font-bold text-base-content mb-4">2. Create Docker Compose File</h2>
+    <h2 class="text-xl font-bold text-base-content mb-4">2. Start PostgreSQL</h2>
     <p class="text-sm text-muted mb-4">
-      Create a <code class="text-primary">docker-compose.yml</code> file:
+      If you don't have a PostgreSQL database, start one with Docker:
     </p>
     <div class="rounded-sm border border-base-300 bg-base-200/90 overflow-hidden">
       <div class="px-4 py-2 border-b border-base-300/50">
-        <span class="font-mono text-[10px] text-muted">docker-compose.yml</span>
+        <span class="font-mono text-[10px] text-muted">Terminal</span>
       </div>
-      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">version: "3.8"
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted" set:html={`docker run -d \\
+  --name fruitfly-db \\
+  -e POSTGRES_USER=postgres \\
+  -e POSTGRES_PASSWORD=postgres \\
+  -e POSTGRES_DB=fruitfly \\
+  -v fruitfly_data:/var/lib/postgresql/data \\
+  -p 5432:5432 \\
+  postgres:16-alpine`} /></pre>
+    </div>
+  </section>
 
-services:
-  fruitfly:
-    image: goodway/fruitfly:latest
-    ports:
-      - "4000:4000"
-    environment:
-      DATABASE_URL: postgres://postgres:postgres@db:5432/fruitfly
-      SECRET_KEY_BASE: your-secret-key-base-at-least-64-chars-long-here
-      PHX_HOST: localhost
-    depends_on:
-      - db
-
-  db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: fruitfly
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:</code></pre>
+  <!-- Step 3: Run FruitFly -->
+  <section class="mb-10">
+    <h2 class="text-xl font-bold text-base-content mb-4">3. Run FruitFly</h2>
+    <p class="text-sm text-muted mb-4">
+      Start the FruitFly container:
+    </p>
+    <div class="rounded-sm border border-base-300 bg-base-200/90 overflow-hidden">
+      <div class="px-4 py-2 border-b border-base-300/50">
+        <span class="font-mono text-[10px] text-muted">Terminal</span>
+      </div>
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted" set:html={`docker run -d \\
+  --name fruitfly \\
+  -e DATABASE_URL=postgres://postgres:postgres@host.docker.internal:5432/fruitfly \\
+  -e SECRET_KEY_BASE=$(openssl rand -base64 48) \\
+  -e PHX_HOST=localhost \\
+  -p 4000:4000 \\
+  goodway/fruitfly:latest`} /></pre>
     </div>
 
     <div class="mt-4 p-4 rounded-sm border border-warning/30 bg-warning/5">
@@ -85,35 +88,10 @@ volumes:
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
         <div class="text-sm">
-          <p class="text-warning font-medium">Important</p>
+          <p class="text-warning font-medium">Note</p>
           <p class="text-muted mt-1">
-            Replace <code class="text-warning">SECRET_KEY_BASE</code> with a secure random string.
-            Generate one with: <code class="text-primary">openssl rand -base64 48</code>
+            On Linux, replace <code class="text-warning">host.docker.internal</code> with your host's IP address or use <code class="text-warning">--network host</code>.
           </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Step 3: Start the services -->
-  <section class="mb-10">
-    <h2 class="text-xl font-bold text-base-content mb-4">3. Start FruitFly</h2>
-    <p class="text-sm text-muted mb-4">
-      Start the containers:
-    </p>
-    <div class="rounded-sm border border-base-300 bg-base-200/90 overflow-hidden">
-      <div class="px-4 py-2 border-b border-base-300/50">
-        <span class="font-mono text-[10px] text-muted">Terminal</span>
-      </div>
-      <div class="p-4 font-mono text-sm space-y-2">
-        <div>
-          <span class="text-primary">$</span>
-          <span class="text-base-content ml-2">docker compose up -d</span>
-        </div>
-        <div class="text-success">
-          [+] Running 2/2<br />
-          ✔ Container fruitfly-db-1       Started<br />
-          ✔ Container fruitfly-fruitfly-1 Started
         </div>
       </div>
     </div>
