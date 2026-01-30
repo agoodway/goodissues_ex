@@ -392,8 +392,8 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Show do
         </div>
 
         <%!-- Activity Timeline Panel --%>
-        <div class="data-panel p-5">
-          <h2 class="font-mono text-xs font-semibold uppercase tracking-wider text-muted mb-4">
+        <div class="data-panel p-4 sm:p-5">
+          <h2 class="font-mono text-xs font-semibold uppercase tracking-wider text-muted mb-3 sm:mb-4">
             Activity
           </h2>
           <div class="space-y-0">
@@ -460,8 +460,8 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Show do
         </div>
 
         <%!-- Key Details Panel --%>
-        <div class="data-panel p-5">
-          <h2 class="font-mono text-xs font-semibold uppercase tracking-wider text-muted mb-4">
+        <div class="data-panel p-4 sm:p-5">
+          <h2 class="font-mono text-xs font-semibold uppercase tracking-wider text-muted mb-3 sm:mb-4">
             Key Details
           </h2>
           <div class="space-y-0">
@@ -485,11 +485,11 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Show do
         </div>
 
         <%!-- Owner Panel --%>
-        <div class="lg:col-span-2 data-panel p-5">
-          <h2 class="font-mono text-xs font-semibold uppercase tracking-wider text-muted mb-4">
+        <div class="lg:col-span-2 data-panel p-4 sm:p-5">
+          <h2 class="font-mono text-xs font-semibold uppercase tracking-wider text-muted mb-3 sm:mb-4">
             Owner Information
           </h2>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 sm:gap-x-8">
             <div class="field-row">
               <span class="field-label">User</span>
               <span class="field-value">{@api_key.account_user.user.email}</span>
