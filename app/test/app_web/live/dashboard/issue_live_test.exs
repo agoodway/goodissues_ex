@@ -523,6 +523,298 @@ defmodule FFWeb.Dashboard.IssueLiveTest do
     end
   end
 
+  describe "Show (error data display)" do
+    setup :register_and_log_in_user_with_account
+
+    test "does not show error section when issue has no error", %{
+      conn: conn,
+      user: user,
+      account: account
+    } do
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project, %{title: "Issue Without Error"})
+
+      {:ok, _show_live, html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      assert html =~ "Issue Without Error"
+      refute html =~ "ERROR DATA"
+    end
+
+    test "shows error section when issue has linked error", %{
+      conn: conn,
+      user: user,
+      account: account
+    } do
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project, %{title: "Issue With Error"})
+      _error = error_fixture(issue, %{kind: "Elixir.RuntimeError", reason: "something went wrong"})
+
+      {:ok, _show_live, html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      assert html =~ "Issue With Error"
+      assert html =~ "ERROR DATA"
+      assert html =~ "Elixir.RuntimeError"
+      assert html =~ "something went wrong"
+      assert html =~ "UNRESOLVED"
+    end
+
+    test "shows error metadata correctly", %{conn: conn, user: user, account: account} do
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project)
+
+      _error =
+        error_fixture(issue, %{
+          kind: "Elixir.ArgumentError",
+          reason: "invalid argument",
+          muted: true
+        })
+
+      {:ok, _show_live, html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      assert html =~ "Elixir.ArgumentError"
+      assert html =~ "invalid argument"
+      assert html =~ "MUTED"
+    end
+
+    test "shows occurrence count", %{conn: conn, user: user, account: account} do
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project)
+      error = error_fixture(issue)
+
+      # Add more occurrences
+      Tracking.add_occurrence(error, %{reason: "second", stacktrace_lines: []})
+      Tracking.add_occurrence(error, %{reason: "third", stacktrace_lines: []})
+
+      {:ok, _show_live, html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      # Should show occurrence count of 3
+      assert html =~ "OCCURRENCES"
+      # The count "3" should appear - using regex to match the structure
+      assert html =~ ~r/OCCURRENCES.*\n.*3/s or html =~ ">3</span>"
+    end
+
+    test "stacktrace is collapsed by default", %{conn: conn, user: user, account: account} do
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project)
+
+      _error =
+        error_fixture(issue, %{}, %{
+          stacktrace_lines: [
+            %{module: "MyApp.Worker", function: "perform", arity: 2, file: "worker.ex", line: 42}
+          ]
+        })
+
+      {:ok, _show_live, html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      # Should show stacktrace toggle but not the expanded content
+      assert html =~ "STACKTRACE"
+      assert html =~ "hero-chevron-right"
+      refute html =~ "MyApp.Worker.perform/2"
+    end
+
+    test "clicking stacktrace toggle expands stacktrace", %{
+      conn: conn,
+      user: user,
+      account: account
+    } do
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project)
+
+      _error =
+        error_fixture(issue, %{}, %{
+          stacktrace_lines: [
+            %{module: "MyApp.Worker", function: "perform", arity: 2, file: "worker.ex", line: 42}
+          ]
+        })
+
+      {:ok, show_live, _html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      # Click to expand
+      html = render_click(show_live, "toggle_stacktrace", %{})
+
+      assert html =~ "hero-chevron-down"
+      assert html =~ "MyApp.Worker.perform/2"
+      assert html =~ "(worker.ex:42)"
+    end
+
+    test "clicking stacktrace toggle again collapses stacktrace", %{
+      conn: conn,
+      user: user,
+      account: account
+    } do
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project)
+
+      _error =
+        error_fixture(issue, %{}, %{
+          stacktrace_lines: [
+            %{module: "MyApp.Worker", function: "perform", arity: 2, file: "worker.ex", line: 42}
+          ]
+        })
+
+      {:ok, show_live, _html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      # Expand
+      render_click(show_live, "toggle_stacktrace", %{})
+      # Collapse
+      html = render_click(show_live, "toggle_stacktrace", %{})
+
+      assert html =~ "hero-chevron-right"
+      refute html =~ "MyApp.Worker.perform/2"
+    end
+
+    test "owner sees mute and status toggle controls", %{
+      conn: conn,
+      user: user,
+      account: account
+    } do
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project)
+      _error = error_fixture(issue, %{muted: false, status: :unresolved})
+
+      {:ok, _show_live, html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      assert html =~ ~s(phx-click="toggle_muted")
+      assert html =~ ~s(phx-click="toggle_status")
+      assert html =~ "MUTE"
+      assert html =~ "RESOLVE"
+    end
+
+    test "owner can toggle muted status", %{conn: conn, user: user, account: account} do
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project)
+      error = error_fixture(issue, %{muted: false})
+
+      {:ok, show_live, _html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      # Toggle to muted
+      html = render_click(show_live, "toggle_muted", %{})
+
+      # Should now show MUTED
+      assert html =~ "MUTED"
+
+      # Verify in database
+      updated_error = Tracking.get_error(account, error.id)
+      assert updated_error.muted == true
+    end
+
+    test "owner can toggle resolved status", %{conn: conn, user: user, account: account} do
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project)
+      error = error_fixture(issue)
+
+      {:ok, show_live, _html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      # Toggle to resolved
+      html = render_click(show_live, "toggle_status", %{})
+
+      # Should now show RESOLVED and UNRESOLVE button
+      assert html =~ "RESOLVED"
+      assert html =~ "UNRESOLVE"
+
+      # Verify in database
+      updated_error = Tracking.get_error(account, error.id)
+      assert updated_error.status == :resolved
+    end
+
+    test "owner can toggle back to unresolved", %{conn: conn, user: user, account: account} do
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project)
+      error = error_fixture(issue)
+      {:ok, _} = Tracking.update_error(error, %{status: :resolved})
+
+      {:ok, show_live, _html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      # Toggle back to unresolved
+      html = render_click(show_live, "toggle_status", %{})
+
+      assert html =~ "UNRESOLVED"
+      assert html =~ "RESOLVE"
+
+      # Verify in database
+      updated_error = Tracking.get_error(account, error.id)
+      assert updated_error.status == :unresolved
+    end
+  end
+
+  describe "Show error controls (member cannot manage)" do
+    setup do
+      owner = user_fixture()
+      account = account_fixture(owner, %{name: "Member Error Test Account"})
+      member = user_fixture()
+      {:ok, _account_user} = Accounts.add_user_to_account(account, member, :member)
+
+      conn =
+        build_conn()
+        |> log_in_user(member)
+
+      %{conn: conn, member: member, account: account, owner: owner}
+    end
+
+    test "member sees error data but not toggle controls", %{
+      conn: conn,
+      owner: owner,
+      account: account
+    } do
+      project = project_fixture(account)
+      issue = issue_fixture(account, owner, project)
+      _error = error_fixture(issue, %{kind: "TestError", reason: "test reason"})
+
+      {:ok, _show_live, html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      # Should see error data
+      assert html =~ "ERROR DATA"
+      assert html =~ "TestError"
+      assert html =~ "test reason"
+
+      # Should not see toggle controls
+      refute html =~ ~s(phx-click="toggle_muted")
+      refute html =~ ~s(phx-click="toggle_status")
+    end
+
+    test "member cannot toggle muted by sending event directly", %{
+      conn: conn,
+      owner: owner,
+      account: account
+    } do
+      project = project_fixture(account)
+      issue = issue_fixture(account, owner, project)
+      error = error_fixture(issue, %{muted: false})
+
+      {:ok, show_live, _html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      # Attempt to send toggle event directly
+      html = render_click(show_live, "toggle_muted", %{})
+
+      assert html =~ "You don&#39;t have permission to modify errors"
+
+      # Error should remain unchanged
+      unchanged_error = Tracking.get_error(account, error.id)
+      assert unchanged_error.muted == false
+    end
+
+    test "member cannot toggle status by sending event directly", %{
+      conn: conn,
+      owner: owner,
+      account: account
+    } do
+      project = project_fixture(account)
+      issue = issue_fixture(account, owner, project)
+      error = error_fixture(issue)
+
+      {:ok, show_live, _html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      # Attempt to send toggle event directly
+      html = render_click(show_live, "toggle_status", %{})
+
+      assert html =~ "You don&#39;t have permission to modify errors"
+
+      # Error should remain unchanged
+      unchanged_error = Tracking.get_error(account, error.id)
+      assert unchanged_error.status == :unresolved
+    end
+  end
+
   describe "Index (realtime updates)" do
     setup :register_and_log_in_user_with_account
 

@@ -9,61 +9,66 @@ defmodule FFWeb.Dashboard.IssueLive.FormComponent do
   @impl true
   def render(assigns) do
     ~H"""
-    <div>
-      <h3 class="text-lg font-bold mb-4">{@title}</h3>
-
+    <div class="space-y-5">
       <.form
         for={@form}
         id="issue-form"
         phx-target={@myself}
         phx-change="validate"
         phx-submit="save"
+        class="space-y-4"
       >
-        <.input field={@form[:title]} type="text" label="Title" required />
+        <div class="grid grid-cols-1 gap-4">
+          <.input field={@form[:title]} type="text" label="Title" required />
+        </div>
 
-        <.input
-          field={@form[:project_id]}
-          type="select"
-          label="Project"
-          options={Enum.map(@projects, &{&1.name, &1.id})}
-          prompt="Select a project"
-          required
-          disabled={@action == :edit}
-        />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <.input
+            field={@form[:project_id]}
+            type="select"
+            label="Project"
+            options={Enum.map(@projects, &{&1.name, &1.id})}
+            prompt="Select a project"
+            required
+            disabled={@action == :edit}
+          />
 
-        <.input
-          field={@form[:type]}
-          type="select"
-          label="Type"
-          options={[{"Bug", "bug"}, {"Feature Request", "feature_request"}]}
-          required
-        />
+          <.input
+            field={@form[:type]}
+            type="select"
+            label="Type"
+            options={[{"Bug", "bug"}, {"Feature Request", "feature_request"}]}
+            required
+          />
+        </div>
 
-        <.input
-          field={@form[:status]}
-          type="select"
-          label="Status"
-          options={[{"New", "new"}, {"In Progress", "in_progress"}, {"Archived", "archived"}]}
-        />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <.input
+            field={@form[:status]}
+            type="select"
+            label="Status"
+            options={[{"New", "new"}, {"In Progress", "in_progress"}, {"Archived", "archived"}]}
+          />
 
-        <.input
-          field={@form[:priority]}
-          type="select"
-          label="Priority"
-          options={[{"Low", "low"}, {"Medium", "medium"}, {"High", "high"}, {"Critical", "critical"}]}
-        />
+          <.input
+            field={@form[:priority]}
+            type="select"
+            label="Priority"
+            options={[{"Low", "low"}, {"Medium", "medium"}, {"High", "high"}, {"Critical", "critical"}]}
+          />
+        </div>
 
         <.input
           field={@form[:description]}
           type="textarea"
           label="Description"
-          rows={5}
+          rows={4}
         />
 
         <.input
           field={@form[:submitter_email]}
           type="email"
-          label="Submitter Email (optional)"
+          label="Submitter Email"
           placeholder="reporter@example.com"
         />
 
