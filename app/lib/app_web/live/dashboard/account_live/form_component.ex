@@ -6,18 +6,24 @@ defmodule FFWeb.Dashboard.AccountLive.FormComponent do
   @impl true
   def render(assigns) do
     ~H"""
-    <div>
-      <h3 class="text-lg font-bold mb-4">{@title}</h3>
-
+    <div class="space-y-5">
       <.form
         for={@form}
         id="account-form"
         phx-target={@myself}
         phx-change="validate"
         phx-submit="save"
+        class="space-y-4"
       >
         <.input field={@form[:name]} type="text" label="Name" required />
-        <.input field={@form[:slug]} type="text" label="Slug" placeholder="auto-generated from name" />
+
+        <.input
+          field={@form[:slug]}
+          type="text"
+          label="Slug"
+          placeholder="auto-generated from name"
+        />
+
         <.input
           field={@form[:status]}
           type="select"

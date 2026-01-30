@@ -585,7 +585,7 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Edit do
         </div>
 
         <%!-- Info Notice --%>
-        <div :if={MapSet.size(@selected_scopes) == 0} class="edit-panel p-4 border-l-2 border-l-info">
+        <div :if={MapSet.size(@selected_scopes) == 0} class="edit-panel p-3 sm:p-4 border-l-2 border-l-info">
           <div class="flex items-start gap-3">
             <.icon name="hero-information-circle" class="size-5 text-info flex-shrink-0 mt-0.5" />
             <div>

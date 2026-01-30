@@ -227,12 +227,12 @@ defmodule FFWeb.Dashboard.AccountLive.Index do
         :if={@live_action == :edit}
         id="account-modal"
         show
+        title="Edit Account"
         on_cancel={JS.patch(~p"/dashboard/#{@account.slug}")}
       >
         <.live_component
           module={FFWeb.Dashboard.AccountLive.FormComponent}
           id={@account.id}
-          title="Edit Account"
           action={:edit}
           account={@account}
           patch={~p"/dashboard/#{@account.slug}"}
