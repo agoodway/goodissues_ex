@@ -145,19 +145,32 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
     Calendar.strftime(dt, "%Y-%m-%d %H:%M")
   end
 
-  defp status_class(:new), do: "status-badge-info"
-  defp status_class(:in_progress), do: "status-badge-pending"
-  defp status_class(:archived), do: "status-badge-muted"
-
   defp status_label(:new), do: "NEW"
   defp status_label(:in_progress), do: "IN PROGRESS"
   defp status_label(:archived), do: "ARCHIVED"
 
-  defp type_class(:bug), do: "status-badge-error"
-  defp type_class(:feature_request), do: "status-badge-active"
-
   defp type_label(:bug), do: "BUG"
   defp type_label(:feature_request), do: "FEATURE"
+
+  defp issue_type_class(:bug), do: "project-issue-type-bug"
+  defp issue_type_class(:feature_request), do: "project-issue-type-feature"
+
+  defp issue_status_class(:new), do: "project-issue-status-new"
+  defp issue_status_class(:in_progress), do: "project-issue-status-progress"
+  defp issue_status_class(:archived), do: "project-issue-status-archived"
+
+  defp format_relative_time(datetime) do
+    now = DateTime.utc_now()
+    diff = DateTime.diff(now, datetime, :second)
+
+    cond do
+      diff < 60 -> "just now"
+      diff < 3600 -> "#{div(diff, 60)}m ago"
+      diff < 86400 -> "#{div(diff, 3600)}h ago"
+      diff < 604_800 -> "#{div(diff, 86400)}d ago"
+      true -> Calendar.strftime(datetime, "%b %d")
+    end
+  end
 
   @impl true
   def render(assigns) do
@@ -168,142 +181,225 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
       page_title={@page_title}
       active_nav={:projects}
     >
-      <div class="h-full flex flex-col">
-        <%!-- Page header --%>
-        <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-base-300/50 bg-base-100">
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-3 sm:gap-4">
+      <div class="h-full flex flex-col project-detail-page">
+        <%!-- Hero header with dramatic gradient --%>
+        <div class="project-hero relative overflow-hidden">
+          <%!-- Background effects --%>
+          <div class="absolute inset-0 project-hero-gradient"></div>
+          <div class="absolute inset-0 project-hero-grid"></div>
+          <div class="absolute top-0 right-0 w-96 h-96 project-hero-glow"></div>
+
+          <div class="relative z-10 px-4 sm:px-6 py-5 sm:py-6">
+            <%!-- Navigation breadcrumb --%>
+            <div class="flex items-center gap-2 mb-4">
               <.link
                 navigate={~p"/dashboard/#{@current_scope.account.slug}/projects"}
-                class="size-9 sm:size-10 rounded-sm bg-base-200 border border-base-300 flex items-center justify-center hover:bg-base-300 transition-colors"
-                aria-label="Back to projects"
+                class="project-back-link group"
               >
-                <.icon name="hero-arrow-left" class="size-4 sm:size-5 text-muted" />
+                <.icon name="hero-arrow-left" class="size-4 group-hover:-translate-x-0.5 transition-transform" />
+                <span>Projects</span>
               </.link>
-              <div>
-                <h1 class="text-base sm:text-lg font-semibold text-base-content">{@project.name}</h1>
-                <div class="font-mono text-[11px] sm:text-xs text-muted mt-0.5 flex items-center gap-2">
-                  <span class="status-badge status-badge-active font-mono">
-                    {@project.prefix}
-                  </span>
-                  <span>{@issue_count} issue{if @issue_count != 1, do: "s", else: ""}</span>
-                </div>
-              </div>
+              <span class="text-base-content/20 font-mono">/</span>
+              <span class="font-mono text-xs text-base-content/50">{@project.prefix}</span>
             </div>
 
-            <div :if={@can_manage} class="flex items-center gap-2">
-              <.link
-                patch={~p"/dashboard/#{@current_scope.account.slug}/projects/#{@project.id}/edit"}
-                class="btn-subtle py-1.5 px-3 font-mono text-xs"
-              >
-                <.icon name="hero-pencil-square" class="size-3.5 mr-1" /> Edit
-              </.link>
-              <button
-                phx-click="delete"
-                data-confirm="Are you sure you want to delete this project? All issues in this project will also be deleted. This cannot be undone."
-                class="btn-subtle py-1.5 px-3 font-mono text-xs text-error hover:bg-error/10"
-              >
-                <.icon name="hero-trash" class="size-3.5 mr-1" /> Delete
-              </button>
+            <%!-- Project identity --%>
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="project-prefix-badge">
+                    <span class="project-prefix-icon">
+                      <.icon name="hero-folder" class="size-4" />
+                    </span>
+                    <span class="project-prefix-text">{@project.prefix}</span>
+                  </div>
+                </div>
+
+                <h1 class="project-title">{@project.name}</h1>
+
+                <div class="flex flex-wrap items-center gap-3 mt-3">
+                  <div class="project-stat-indicator">
+                    <.icon name="hero-ticket" class="size-3.5" />
+                    <span>{@issue_count} issue{if @issue_count != 1, do: "s", else: ""}</span>
+                  </div>
+                  <div class="project-meta-divider"></div>
+                  <div class="project-stat-indicator">
+                    <.icon name="hero-hashtag" class="size-3.5" />
+                    <span>Next: {@project.prefix}-{@project.issue_counter}</span>
+                  </div>
+                  <div class="project-meta-divider"></div>
+                  <div class="project-meta-item">
+                    <.icon name="hero-clock" class="size-3.5" />
+                    <span>Updated {format_relative_time(@project.updated_at)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <%!-- Action buttons --%>
+              <div :if={@can_manage} class="flex items-center gap-2 shrink-0">
+                <.link
+                  patch={~p"/dashboard/#{@current_scope.account.slug}/projects/#{@project.id}/edit"}
+                  class="project-action-btn project-action-edit"
+                >
+                  <.icon name="hero-pencil-square" class="size-4" />
+                  <span class="hidden sm:inline">Edit</span>
+                </.link>
+                <button
+                  phx-click="delete"
+                  data-confirm="Are you sure you want to delete this project? All issues in this project will also be deleted. This cannot be undone."
+                  class="project-action-btn project-action-delete"
+                >
+                  <.icon name="hero-trash" class="size-4" />
+                  <span class="hidden sm:inline">Delete</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        <%!-- Project details --%>
-        <div class="flex-1 overflow-auto px-4 sm:px-6 py-6">
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <%!-- Main content --%>
-            <div class="lg:col-span-2 space-y-6">
-              <%!-- Description --%>
-              <div class="terminal-card">
-                <div class="group-header !border-b-0 !py-2 !px-4">DESCRIPTION</div>
-                <div class="p-4 pt-2">
-                  <div
-                    :if={@project.description}
-                    class="prose prose-sm max-w-none text-base-content/80"
-                  >
-                    <p class="whitespace-pre-wrap">{@project.description}</p>
+        <%!-- Content area --%>
+        <div class="flex-1 overflow-auto">
+          <div class="px-4 sm:px-6 py-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <%!-- Main content --%>
+              <div class="lg:col-span-8 space-y-6">
+                <%!-- Description card --%>
+                <div class="project-card">
+                  <div class="project-card-header">
+                    <div class="project-card-header-icon">
+                      <.icon name="hero-document-text" class="size-4" />
+                    </div>
+                    <span>Description</span>
                   </div>
-                  <div :if={!@project.description} class="text-muted font-mono text-sm italic">
-                    No description provided.
+                  <div class="project-card-body">
+                    <div :if={@project.description} class="project-description">
+                      <p>{@project.description}</p>
+                    </div>
+                    <div :if={!@project.description} class="project-empty-state">
+                      <.icon name="hero-document" class="size-8 opacity-30" />
+                      <span>No description provided</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <%!-- Recent issues --%>
-              <div class="terminal-card">
-                <div class="group-header !border-b-0 !py-2 !px-4 flex items-center justify-between">
-                  <span>RECENT ISSUES</span>
-                  <.link
-                    :if={@issue_count > 0}
-                    navigate={
-                      ~p"/dashboard/#{@current_scope.account.slug}/issues?project_id=#{@project.id}"
-                    }
-                    class="text-primary text-xs hover:underline"
-                  >
-                    View all
-                  </.link>
-                </div>
-                <div class="p-4 pt-2">
-                  <div :if={@recent_issues == []} class="text-muted font-mono text-sm italic">
-                    No issues yet.
-                  </div>
-                  <div :if={@recent_issues != []} class="space-y-2">
-                    <%= for issue <- @recent_issues do %>
+                <%!-- Recent issues card --%>
+                <div class="project-card project-card-issues">
+                  <div class="project-card-header">
+                    <div class="project-card-header-icon">
+                      <.icon name="hero-ticket" class="size-4" />
+                    </div>
+                    <span>Recent Issues</span>
+                    <div class="project-card-header-actions">
                       <.link
-                        navigate={~p"/dashboard/#{@current_scope.account.slug}/issues/#{issue.id}"}
-                        class="flex items-center gap-3 p-2 rounded-sm hover:bg-base-200 transition-colors"
+                        :if={@issue_count > 0}
+                        navigate={~p"/dashboard/#{@current_scope.account.slug}/issues?project_id=#{@project.id}"}
+                        class="project-view-all-link"
                       >
-                        <span class={["status-badge text-xs", type_class(issue.type)]}>
-                          {type_label(issue.type)}
-                        </span>
-                        <span class="font-mono text-sm flex-1 truncate">
-                          {Issue.issue_key(issue) || issue.id |> String.slice(0, 8)}: {issue.title}
-                        </span>
-                        <span class={["status-badge text-xs", status_class(issue.status)]}>
-                          {status_label(issue.status)}
-                        </span>
+                        View all
+                        <.icon name="hero-arrow-right" class="size-3.5" />
                       </.link>
-                    <% end %>
+                    </div>
+                  </div>
+                  <div class="project-card-body !p-0">
+                    <div :if={@recent_issues == []} class="project-empty-state py-8">
+                      <.icon name="hero-inbox" class="size-10 opacity-20" />
+                      <span class="mt-2">No issues yet</span>
+                      <.link
+                        :if={@can_manage}
+                        navigate={~p"/dashboard/#{@current_scope.account.slug}/issues/new"}
+                        class="project-create-issue-link mt-3"
+                      >
+                        <.icon name="hero-plus" class="size-4" />
+                        Create first issue
+                      </.link>
+                    </div>
+                    <div :if={@recent_issues != []} class="project-issues-list">
+                      <%= for issue <- @recent_issues do %>
+                        <.link
+                          navigate={~p"/dashboard/#{@current_scope.account.slug}/issues/#{issue.id}"}
+                          class="project-issue-row"
+                        >
+                          <div class="project-issue-row-left">
+                            <div class={["project-issue-type", issue_type_class(issue.type)]}>
+                              <.icon name={if issue.type == :bug, do: "hero-bug-ant", else: "hero-sparkles"} class="size-3" />
+                            </div>
+                            <span class="project-issue-key">{Issue.issue_key(issue)}</span>
+                            <span class="project-issue-title">{issue.title}</span>
+                          </div>
+                          <div class="project-issue-row-right">
+                            <span class={["project-issue-status", issue_status_class(issue.status)]}>
+                              {status_label(issue.status)}
+                            </span>
+                            <span class="project-issue-time">{format_relative_time(issue.inserted_at)}</span>
+                          </div>
+                        </.link>
+                      <% end %>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <%!-- Sidebar --%>
-            <div class="space-y-4">
-              <%!-- Details card --%>
-              <div class="terminal-card">
-                <div class="group-header !border-b-0 !py-2 !px-4">DETAILS</div>
-                <div class="p-4 pt-2 space-y-3">
-                  <div class="flex justify-between items-center">
-                    <span class="text-muted text-xs font-mono">PREFIX</span>
-                    <span class="status-badge status-badge-active font-mono">{@project.prefix}</span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-muted text-xs font-mono">ISSUES</span>
-                    <span class="font-mono text-sm">{@issue_count}</span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-muted text-xs font-mono">NEXT ISSUE</span>
-                    <span class="font-mono text-sm text-muted">
-                      {@project.prefix}-{@project.issue_counter}
-                    </span>
+              <%!-- Sidebar --%>
+              <div class="lg:col-span-4 space-y-5">
+                <%!-- Quick stats card --%>
+                <div class="project-sidebar-card project-stats-card">
+                  <div class="project-stats-grid">
+                    <div class="project-stat-box">
+                      <span class="project-stat-value">{@issue_count}</span>
+                      <span class="project-stat-label">Issues</span>
+                    </div>
+                    <div class="project-stat-box">
+                      <span class="project-stat-value project-stat-value-next">{@project.issue_counter}</span>
+                      <span class="project-stat-label">Next #</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <%!-- Dates card --%>
-              <div class="terminal-card">
-                <div class="group-header !border-b-0 !py-2 !px-4">TIMESTAMPS</div>
-                <div class="p-4 pt-2 space-y-3">
-                  <div class="flex justify-between items-center">
-                    <span class="text-muted text-xs font-mono">CREATED</span>
-                    <span class="font-mono text-sm">{format_datetime(@project.inserted_at)}</span>
+                <%!-- Details card --%>
+                <div class="project-sidebar-card">
+                  <div class="project-sidebar-header">
+                    <.icon name="hero-information-circle" class="size-4" />
+                    <span>Details</span>
                   </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-muted text-xs font-mono">UPDATED</span>
-                    <span class="font-mono text-sm">{format_datetime(@project.updated_at)}</span>
+                  <div class="project-sidebar-body">
+                    <div class="project-detail-row">
+                      <span class="project-detail-label">Prefix</span>
+                      <span class="project-detail-value project-detail-prefix">{@project.prefix}</span>
+                    </div>
+                    <div class="project-detail-row">
+                      <span class="project-detail-label">Issue Count</span>
+                      <span class="project-detail-value">{@issue_count}</span>
+                    </div>
+                    <div class="project-detail-row">
+                      <span class="project-detail-label">Next Issue</span>
+                      <span class="project-detail-value text-muted">{@project.prefix}-{@project.issue_counter}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <%!-- Timeline card --%>
+                <div class="project-sidebar-card">
+                  <div class="project-sidebar-header">
+                    <.icon name="hero-clock" class="size-4" />
+                    <span>Timeline</span>
+                  </div>
+                  <div class="project-sidebar-body">
+                    <div class="project-timeline">
+                      <div class="project-timeline-item">
+                        <div class="project-timeline-dot project-timeline-dot-created"></div>
+                        <div class="project-timeline-content">
+                          <span class="project-timeline-label">Created</span>
+                          <span class="project-timeline-value">{format_datetime(@project.inserted_at)}</span>
+                        </div>
+                      </div>
+                      <div class="project-timeline-item">
+                        <div class="project-timeline-dot project-timeline-dot-updated"></div>
+                        <div class="project-timeline-content">
+                          <span class="project-timeline-label">Updated</span>
+                          <span class="project-timeline-value">{format_datetime(@project.updated_at)}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -312,11 +408,9 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
         </div>
 
         <%!-- Read-only notice --%>
-        <div :if={!@can_manage} class="px-6 py-3 border-t border-base-300/50 bg-base-100">
-          <div class="flex items-center gap-2 text-muted font-mono text-xs">
-            <.icon name="hero-information-circle" class="size-4" />
-            <span>Read-only access. Contact an admin to modify this project.</span>
-          </div>
+        <div :if={!@can_manage} class="project-readonly-notice">
+          <.icon name="hero-lock-closed" class="size-4" />
+          <span>Read-only access. Contact an admin to modify this project.</span>
         </div>
       </div>
 
@@ -325,68 +419,49 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
         :if={@live_action == :edit}
         id="project-modal"
         show
+        title="Edit Project"
         on_cancel={JS.patch(~p"/dashboard/#{@current_scope.account.slug}/projects/#{@project.id}")}
       >
-        <div class="p-6">
-          <h3 class="text-lg font-semibold mb-4">Edit Project</h3>
-          <.form for={@form} id="project-form" phx-change="validate" phx-submit="save">
-            <div class="space-y-5">
-              <%!-- Name field --%>
-              <div>
-                <label for={@form[:name].id} class="label font-mono text-xs uppercase">
-                  Name <span class="text-error">*</span>
-                </label>
-                <.input
-                  field={@form[:name]}
-                  type="text"
-                  placeholder="My Project"
-                  class="input-field font-mono"
-                />
-              </div>
+        <div class="space-y-5">
+          <.form for={@form} id="project-form" phx-change="validate" phx-submit="save" class="space-y-4">
+            <.input
+              field={@form[:name]}
+              type="text"
+              label="Name"
+              placeholder="My Project"
+              required
+            />
 
-              <%!-- Prefix field --%>
-              <div>
-                <label for={@form[:prefix].id} class="label font-mono text-xs uppercase">
-                  Prefix <span class="text-error">*</span>
-                </label>
-                <.input
-                  field={@form[:prefix]}
-                  type="text"
-                  placeholder="PRJ"
-                  maxlength="10"
-                  class="input-field font-mono uppercase"
-                />
-                <p class="mt-1 text-xs text-muted font-mono">
-                  Changing the prefix will affect how new issues are displayed.
-                </p>
-              </div>
+            <.input
+              field={@form[:prefix]}
+              type="text"
+              label="Prefix"
+              placeholder="PRJ"
+              maxlength="10"
+              required
+            />
+            <p class="-mt-2 text-xs text-muted font-mono">
+              Changing the prefix will affect how new issues are displayed.
+            </p>
 
-              <%!-- Description field --%>
-              <div>
-                <label for={@form[:description].id} class="label font-mono text-xs uppercase">
-                  Description
-                </label>
-                <.input
-                  field={@form[:description]}
-                  type="textarea"
-                  rows="3"
-                  placeholder="Optional project description..."
-                  class="input-field font-mono"
-                />
-              </div>
+            <.input
+              field={@form[:description]}
+              type="textarea"
+              label="Description"
+              rows="3"
+              placeholder="Optional project description..."
+            />
 
-              <%!-- Actions --%>
-              <div class="flex items-center justify-end gap-3 pt-4 border-t border-base-300/50">
-                <.link
-                  patch={~p"/dashboard/#{@current_scope.account.slug}/projects/#{@project.id}"}
-                  class="btn-subtle py-2 px-4 font-mono text-sm"
-                >
-                  Cancel
-                </.link>
-                <button type="submit" class="btn-primary py-2 px-4 font-mono text-sm">
-                  Save Changes
-                </button>
-              </div>
+            <div class="modal-action">
+              <.link
+                patch={~p"/dashboard/#{@current_scope.account.slug}/projects/#{@project.id}"}
+                class="btn"
+              >
+                Cancel
+              </.link>
+              <.button type="submit" variant="primary" phx-disable-with="Saving...">
+                Save Changes
+              </.button>
             </div>
           </.form>
         </div>
