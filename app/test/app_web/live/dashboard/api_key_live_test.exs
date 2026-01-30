@@ -123,8 +123,9 @@ defmodule FFWeb.Dashboard.ApiKeyLiveTest do
 
       {:ok, index_live, _html} = live(conn, ~p"/dashboard/#{account.slug}/api-keys")
 
+      # Use desktop row selector (mobile row has different id prefix)
       assert index_live
-             |> element("button[phx-click='revoke'][phx-value-id='#{api_key.id}']")
+             |> element("#api-key-#{api_key.id} button[phx-click='revoke']")
              |> render_click() =~ "API key revoked"
 
       # Verify in database
@@ -135,7 +136,7 @@ defmodule FFWeb.Dashboard.ApiKeyLiveTest do
     test "owner sees 'New API Key' button", %{conn: conn, account: account} do
       {:ok, _index_live, html} = live(conn, ~p"/dashboard/#{account.slug}/api-keys")
 
-      assert html =~ "New API Key"
+      assert html =~ "New Key"
     end
   end
 
@@ -167,7 +168,7 @@ defmodule FFWeb.Dashboard.ApiKeyLiveTest do
       {:ok, _index_live, html} = live(conn, ~p"/dashboard/#{account.slug}/api-keys")
 
       refute html =~ ~s(href="/dashboard/#{account.slug}/api-keys/new")
-      assert html =~ "read-only access"
+      assert html =~ "READ-ONLY ACCESS"
     end
   end
 
