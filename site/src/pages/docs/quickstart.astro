@@ -1,0 +1,184 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Quick Start" description="Get FruitFly up and running in minutes with Docker.">
+  <h1 class="text-3xl font-bold text-base-content mb-4">Quick Start</h1>
+  <p class="text-muted mb-8">Get FruitFly running in minutes using Docker.</p>
+
+  <!-- Prerequisites -->
+  <section class="mb-10">
+    <h2 class="text-xl font-bold text-base-content mb-4">Prerequisites</h2>
+    <ul class="space-y-2 text-sm text-muted">
+      <li class="flex items-start gap-2">
+        <svg class="size-4 text-primary mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <span><a href="https://docs.docker.com/get-docker/" target="_blank" rel="noopener" class="text-primary hover:underline">Docker</a> installed on your system</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <svg class="size-4 text-primary mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <span><a href="https://docs.docker.com/compose/install/" target="_blank" rel="noopener" class="text-primary hover:underline">Docker Compose</a> (included with Docker Desktop)</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Step 1: Pull the image -->
+  <section class="mb-10">
+    <h2 class="text-xl font-bold text-base-content mb-4">1. Pull the Docker Image</h2>
+    <p class="text-sm text-muted mb-4">
+      Pull the latest FruitFly image from Docker Hub:
+    </p>
+    <div class="rounded-sm border border-base-300 bg-base-200/90 overflow-hidden">
+      <div class="px-4 py-2 border-b border-base-300/50 flex items-center justify-between">
+        <span class="font-mono text-[10px] text-muted">Terminal</span>
+      </div>
+      <div class="p-4 font-mono text-sm">
+        <span class="text-primary">$</span>
+        <span class="text-base-content ml-2">docker pull goodway/fruitfly:latest</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Step 2: Create docker-compose.yml -->
+  <section class="mb-10">
+    <h2 class="text-xl font-bold text-base-content mb-4">2. Create Docker Compose File</h2>
+    <p class="text-sm text-muted mb-4">
+      Create a <code class="text-primary">docker-compose.yml</code> file:
+    </p>
+    <div class="rounded-sm border border-base-300 bg-base-200/90 overflow-hidden">
+      <div class="px-4 py-2 border-b border-base-300/50">
+        <span class="font-mono text-[10px] text-muted">docker-compose.yml</span>
+      </div>
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">version: "3.8"
+
+services:
+  fruitfly:
+    image: goodway/fruitfly:latest
+    ports:
+      - "4000:4000"
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/fruitfly
+      SECRET_KEY_BASE: your-secret-key-base-at-least-64-chars-long-here
+      PHX_HOST: localhost
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fruitfly
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:</code></pre>
+    </div>
+
+    <div class="mt-4 p-4 rounded-sm border border-warning/30 bg-warning/5">
+      <div class="flex items-start gap-2">
+        <svg class="size-4 text-warning mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <div class="text-sm">
+          <p class="text-warning font-medium">Important</p>
+          <p class="text-muted mt-1">
+            Replace <code class="text-warning">SECRET_KEY_BASE</code> with a secure random string.
+            Generate one with: <code class="text-primary">openssl rand -base64 48</code>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Step 3: Start the services -->
+  <section class="mb-10">
+    <h2 class="text-xl font-bold text-base-content mb-4">3. Start FruitFly</h2>
+    <p class="text-sm text-muted mb-4">
+      Start the containers:
+    </p>
+    <div class="rounded-sm border border-base-300 bg-base-200/90 overflow-hidden">
+      <div class="px-4 py-2 border-b border-base-300/50">
+        <span class="font-mono text-[10px] text-muted">Terminal</span>
+      </div>
+      <div class="p-4 font-mono text-sm space-y-2">
+        <div>
+          <span class="text-primary">$</span>
+          <span class="text-base-content ml-2">docker compose up -d</span>
+        </div>
+        <div class="text-success">
+          [+] Running 2/2<br />
+          ✔ Container fruitfly-db-1       Started<br />
+          ✔ Container fruitfly-fruitfly-1 Started
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Step 4: Access the app -->
+  <section class="mb-10">
+    <h2 class="text-xl font-bold text-base-content mb-4">4. Access FruitFly</h2>
+    <p class="text-sm text-muted mb-4">
+      Open your browser and navigate to:
+    </p>
+    <div class="rounded-sm border border-base-300 bg-base-200/90 overflow-hidden">
+      <div class="p-4 font-mono text-sm">
+        <a href="http://localhost:4000" target="_blank" rel="noopener" class="text-primary hover:underline">
+          http://localhost:4000
+        </a>
+      </div>
+    </div>
+    <p class="text-sm text-muted mt-4">
+      Create an account, then navigate to the dashboard to create your first project and start tracking issues.
+    </p>
+  </section>
+
+  <!-- Step 5: Create an API Key -->
+  <section class="mb-10">
+    <h2 class="text-xl font-bold text-base-content mb-4">5. Create an API Key</h2>
+    <p class="text-sm text-muted mb-4">
+      To use the API or CLI, you'll need an API key:
+    </p>
+    <ol class="space-y-2 text-sm text-muted list-decimal list-inside">
+      <li>Log in to your FruitFly dashboard</li>
+      <li>Navigate to <strong class="text-base-content">Settings → API Keys</strong></li>
+      <li>Click <strong class="text-base-content">Create API Key</strong></li>
+      <li>Choose the key type:
+        <ul class="ml-6 mt-1 space-y-1">
+          <li><code class="text-primary">pk_*</code> — Read-only access</li>
+          <li><code class="text-primary">sk_*</code> — Full read/write access</li>
+        </ul>
+      </li>
+      <li>Copy and securely store your API key</li>
+    </ol>
+  </section>
+
+  <!-- Next steps -->
+  <section class="pt-6 border-t border-base-300/30">
+    <h2 class="text-xl font-bold text-base-content mb-4">Next Steps</h2>
+    <div class="space-y-2">
+      <a href="/docs/authentication/" class="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors">
+        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+        Learn about API authentication
+      </a>
+      <a href="/docs/api/issues/" class="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors">
+        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+        Create your first issue via API
+      </a>
+      <a href="/docs/cli/" class="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors">
+        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+        Set up the CLI tool
+      </a>
+    </div>
+  </section>
+</DocsLayout>

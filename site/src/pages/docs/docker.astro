@@ -1,0 +1,341 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Docker Deployment" description="Deploy FruitFly using Docker and Docker Compose.">
+  <h1 class="text-3xl font-bold text-base-content mb-4">Docker Deployment</h1>
+  <p class="text-muted mb-8">Deploy FruitFly in production using Docker. The official image is available on Docker Hub.</p>
+
+  <!-- Docker Image -->
+  <section class="mb-10">
+    <h2 class="text-xl font-bold text-base-content mb-4">Docker Image</h2>
+    <p class="text-sm text-muted mb-4">
+      Pull the official FruitFly image from Docker Hub:
+    </p>
+
+    <div class="rounded-sm border border-base-300 bg-base-200/90 overflow-hidden mb-4">
+      <div class="px-4 py-2 border-b border-base-300/50">
+        <span class="font-mono text-[10px] text-muted">Terminal</span>
+      </div>
+      <div class="p-4 font-mono text-sm">
+        <span class="text-primary">$</span>
+        <span class="text-base-content ml-2">docker pull goodway/fruitfly:latest</span>
+      </div>
+    </div>
+
+    <p class="text-sm text-muted">
+      Available tags:
+    </p>
+    <ul class="mt-2 space-y-1 text-sm text-muted">
+      <li><code class="text-primary">latest</code> — Latest stable release</li>
+      <li><code class="text-primary">1.0.0</code> — Specific version</li>
+    </ul>
+  </section>
+
+  <!-- Environment Variables -->
+  <section class="mb-10">
+    <h2 class="text-xl font-bold text-base-content mb-4">Environment Variables</h2>
+    <p class="text-sm text-muted mb-4">
+      Configure FruitFly using these environment variables:
+    </p>
+
+    <div class="space-y-3">
+      <div class="p-4 rounded-sm border border-base-300/50 bg-base-200/20">
+        <div class="flex items-center gap-2 mb-2">
+          <code class="text-primary font-mono text-sm">DATABASE_URL</code>
+          <span class="text-xs px-1.5 py-0.5 rounded bg-error/10 text-error">required</span>
+        </div>
+        <p class="text-sm text-muted">
+          PostgreSQL connection string.
+        </p>
+        <div class="mt-2 font-mono text-xs text-muted">
+          postgres://user:password@host:5432/fruitfly
+        </div>
+      </div>
+
+      <div class="p-4 rounded-sm border border-base-300/50 bg-base-200/20">
+        <div class="flex items-center gap-2 mb-2">
+          <code class="text-primary font-mono text-sm">SECRET_KEY_BASE</code>
+          <span class="text-xs px-1.5 py-0.5 rounded bg-error/10 text-error">required</span>
+        </div>
+        <p class="text-sm text-muted">
+          Secret key for signing cookies and tokens. Must be at least 64 characters.
+        </p>
+        <div class="mt-2 font-mono text-xs text-muted">
+          Generate with: openssl rand -base64 48
+        </div>
+      </div>
+
+      <div class="p-4 rounded-sm border border-base-300/50 bg-base-200/20">
+        <div class="flex items-center gap-2 mb-2">
+          <code class="text-primary font-mono text-sm">PHX_HOST</code>
+          <span class="text-xs px-1.5 py-0.5 rounded bg-error/10 text-error">required</span>
+        </div>
+        <p class="text-sm text-muted">
+          The hostname where FruitFly is accessible.
+        </p>
+        <div class="mt-2 font-mono text-xs text-muted">
+          Example: fruitfly.example.com
+        </div>
+      </div>
+
+      <div class="p-4 rounded-sm border border-base-300/50 bg-base-200/20">
+        <div class="flex items-center gap-2 mb-2">
+          <code class="text-primary font-mono text-sm">PORT</code>
+          <span class="text-xs px-1.5 py-0.5 rounded bg-base-300/50 text-muted">optional</span>
+        </div>
+        <p class="text-sm text-muted">
+          Port to listen on. Default: <code class="text-primary">4000</code>
+        </p>
+      </div>
+
+      <div class="p-4 rounded-sm border border-base-300/50 bg-base-200/20">
+        <div class="flex items-center gap-2 mb-2">
+          <code class="text-primary font-mono text-sm">POOL_SIZE</code>
+          <span class="text-xs px-1.5 py-0.5 rounded bg-base-300/50 text-muted">optional</span>
+        </div>
+        <p class="text-sm text-muted">
+          Database connection pool size. Default: <code class="text-primary">10</code>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Docker Compose -->
+  <section class="mb-10">
+    <h2 class="text-xl font-bold text-base-content mb-4">Docker Compose</h2>
+    <p class="text-sm text-muted mb-4">
+      The recommended way to deploy FruitFly is with Docker Compose:
+    </p>
+
+    <div class="rounded-sm border border-base-300 bg-base-200/90 overflow-hidden">
+      <div class="px-4 py-2 border-b border-base-300/50">
+        <span class="font-mono text-[10px] text-muted">docker-compose.yml</span>
+      </div>
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted" set:html={`version: "3.8"
+
+services:
+  fruitfly:
+    image: goodway/fruitfly:latest
+    ports:
+      - "4000:4000"
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/fruitfly
+      SECRET_KEY_BASE: \${SECRET_KEY_BASE}
+      PHX_HOST: \${PHX_HOST:-localhost}
+      POOL_SIZE: 10
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fruitfly
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres_data:`} /></pre>
+    </div>
+  </section>
+
+  <!-- Production Configuration -->
+  <section class="mb-10">
+    <h2 class="text-xl font-bold text-base-content mb-4">Production Configuration</h2>
+    <p class="text-sm text-muted mb-4">
+      For production deployments, create a <code class="text-primary">.env</code> file:
+    </p>
+
+    <div class="rounded-sm border border-base-300 bg-base-200/90 overflow-hidden mb-4">
+      <div class="px-4 py-2 border-b border-base-300/50">
+        <span class="font-mono text-[10px] text-muted">.env</span>
+      </div>
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted"># Database
+DATABASE_URL=postgres://fruitfly:secure_password@db:5432/fruitfly
+
+# Security
+SECRET_KEY_BASE=your-64-character-secret-key-here
+
+# Host configuration
+PHX_HOST=fruitfly.example.com
+
+# Optional
+POOL_SIZE=20</code></pre>
+    </div>
+
+    <div class="p-4 rounded-sm border border-warning/30 bg-warning/5">
+      <div class="flex items-start gap-2">
+        <svg class="size-4 text-warning mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <div class="text-sm">
+          <p class="text-warning font-medium">Security Note</p>
+          <p class="text-muted mt-1">
+            Never commit <code class="text-warning">.env</code> files to version control. Add <code class="text-warning">.env</code> to your <code class="text-warning">.gitignore</code>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Running with Nginx -->
+  <section class="mb-10">
+    <h2 class="text-xl font-bold text-base-content mb-4">Reverse Proxy (Nginx)</h2>
+    <p class="text-sm text-muted mb-4">
+      For HTTPS and domain routing, use Nginx as a reverse proxy:
+    </p>
+
+    <div class="rounded-sm border border-base-300 bg-base-200/90 overflow-hidden">
+      <div class="px-4 py-2 border-b border-base-300/50">
+        <span class="font-mono text-[10px] text-muted">nginx.conf</span>
+      </div>
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted" set:html={`upstream fruitfly {
+    server 127.0.0.1:4000;
+}
+
+server {
+    listen 80;
+    server_name fruitfly.example.com;
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name fruitfly.example.com;
+
+    ssl_certificate /etc/letsencrypt/live/fruitfly.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/fruitfly.example.com/privkey.pem;
+
+    location / {
+        proxy_pass http://fruitfly;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}`} /></pre>
+    </div>
+  </section>
+
+  <!-- Database Migrations -->
+  <section class="mb-10">
+    <h2 class="text-xl font-bold text-base-content mb-4">Database Migrations</h2>
+    <p class="text-sm text-muted mb-4">
+      Migrations run automatically when the container starts. To run migrations manually:
+    </p>
+
+    <div class="rounded-sm border border-base-300 bg-base-200/90 overflow-hidden">
+      <div class="px-4 py-2 border-b border-base-300/50">
+        <span class="font-mono text-[10px] text-muted">Terminal</span>
+      </div>
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">docker compose exec fruitfly bin/fruitfly eval "App.Release.migrate"</code></pre>
+    </div>
+  </section>
+
+  <!-- Health Checks -->
+  <section class="mb-10">
+    <h2 class="text-xl font-bold text-base-content mb-4">Health Checks</h2>
+    <p class="text-sm text-muted mb-4">
+      FruitFly exposes a health check endpoint:
+    </p>
+
+    <div class="rounded-sm border border-base-300 bg-base-200/90 overflow-hidden mb-4">
+      <div class="px-4 py-2 border-b border-base-300/50">
+        <span class="font-mono text-[10px] text-muted">Terminal</span>
+      </div>
+      <div class="p-4 font-mono text-xs space-y-2">
+        <div>
+          <span class="text-primary">$</span>
+          <span class="text-base-content ml-2">curl http://localhost:4000/health</span>
+        </div>
+        <div class="text-success" set:html={'{"status": "ok"}'} />
+      </div>
+    </div>
+
+    <p class="text-sm text-muted">
+      Use this endpoint for container orchestration health checks (Kubernetes, ECS, etc.).
+    </p>
+  </section>
+
+  <!-- Backup and Restore -->
+  <section class="mb-10">
+    <h2 class="text-xl font-bold text-base-content mb-4">Backup & Restore</h2>
+
+    <h3 class="text-lg font-semibold text-base-content mb-3">Create Backup</h3>
+    <div class="rounded-sm border border-base-300 bg-base-200/90 overflow-hidden mb-4">
+      <div class="px-4 py-2 border-b border-base-300/50">
+        <span class="font-mono text-[10px] text-muted">Terminal</span>
+      </div>
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">docker compose exec db pg_dump -U postgres fruitfly > backup.sql</code></pre>
+    </div>
+
+    <h3 class="text-lg font-semibold text-base-content mb-3">Restore Backup</h3>
+    <div class="rounded-sm border border-base-300 bg-base-200/90 overflow-hidden">
+      <div class="px-4 py-2 border-b border-base-300/50">
+        <span class="font-mono text-[10px] text-muted">Terminal</span>
+      </div>
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted" set:html="docker compose exec -T db psql -U postgres fruitfly &lt; backup.sql" /></pre>
+    </div>
+  </section>
+
+  <!-- Updating -->
+  <section class="mb-10">
+    <h2 class="text-xl font-bold text-base-content mb-4">Updating</h2>
+    <p class="text-sm text-muted mb-4">
+      To update to a new version:
+    </p>
+
+    <div class="rounded-sm border border-base-300 bg-base-200/90 overflow-hidden">
+      <div class="px-4 py-2 border-b border-base-300/50">
+        <span class="font-mono text-[10px] text-muted">Terminal</span>
+      </div>
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted"># Pull the latest image
+docker pull goodway/fruitfly:latest
+
+# Restart with the new image
+docker compose up -d</code></pre>
+    </div>
+
+    <p class="text-sm text-muted mt-4">
+      Migrations will run automatically during startup.
+    </p>
+  </section>
+
+  <!-- Next steps -->
+  <section class="pt-6 border-t border-base-300/30">
+    <h2 class="text-xl font-bold text-base-content mb-4">Related</h2>
+    <div class="space-y-2">
+      <a href="/docs/quickstart/" class="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors">
+        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+        Quick Start Guide
+      </a>
+      <a href="/docs/authentication/" class="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors">
+        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+        Authentication & API Keys
+      </a>
+      <a href="https://hub.docker.com/r/goodway/fruitfly" target="_blank" rel="noopener" class="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors">
+        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        </svg>
+        Docker Hub
+      </a>
+    </div>
+  </section>
+</DocsLayout>
