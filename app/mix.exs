@@ -84,7 +84,7 @@ defmodule FF.MixProject do
       {:cors_plug, "~> 3.0"},
 
       # MCP Server
-      {:hermes_mcp, "~> 0.14.1"},
+      {:anubis_mcp, "~> 0.17"},
 
       # Environment & Config
       {:dotenvy, "~> 1.1"},

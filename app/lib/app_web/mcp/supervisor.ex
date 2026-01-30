@@ -14,8 +14,11 @@ defmodule FFWeb.MCP.Supervisor do
   @impl true
   def init(_init_arg) do
     children = [
-      # Registry must start first
-      Hermes.Server.Registry,
+      # Session store must start first for state persistence
+      FFWeb.MCP.SessionStore,
+
+      # Registry must start before the server
+      Anubis.Server.Registry,
 
       # Then the MCP server
       {FFWeb.MCP.Server, transport: :streamable_http, name: FFWeb.MCP.Server}

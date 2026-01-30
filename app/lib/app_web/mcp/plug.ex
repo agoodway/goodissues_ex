@@ -2,23 +2,23 @@ defmodule FFWeb.MCP.Plug do
   @moduledoc """
   Authenticates MCP requests using Bearer token.
 
-  Validates early before forwarding to Hermes server.
+  Validates early before forwarding to Anubis server.
   """
   import Plug.Conn
   alias FF.Accounts
 
-  alias Hermes.Server.Transport.StreamableHTTP.Plug, as: HermesPlug
+  alias Anubis.Server.Transport.StreamableHTTP.Plug, as: AnubisPlug
 
   def init(opts) do
-    # Initialize Hermes plug with our options
-    HermesPlug.init(opts)
+    # Initialize Anubis plug with our options
+    AnubisPlug.init(opts)
   end
 
-  def call(conn, hermes_opts) do
+  def call(conn, anubis_opts) do
     with {:ok, token} <- extract_bearer_token(conn),
          {:ok, _api_key} <- Accounts.verify_api_token(token) do
-      # Forward to Hermes server
-      HermesPlug.call(conn, hermes_opts)
+      # Forward to Anubis server
+      AnubisPlug.call(conn, anubis_opts)
     else
       {:error, :missing_auth} ->
         send_error(conn, 401, "Authorization header with Bearer token is required")

@@ -1,109 +1,34 @@
 defmodule FFWeb.MCP.Server do
   @moduledoc """
-  MCP server implementation using Hermes.
+  MCP server implementation using Anubis.
 
   Authenticates clients via Bearer token and exposes tools.
   """
-  use Hermes.Server,
+  use Anubis.Server,
     name: "fruitfly",
     version: "1.0.0",
     capabilities: [:tools]
 
   alias FF.Accounts
-  alias FFWeb.MCP.Tools
-  alias Hermes.Server.Frame
-  alias Hermes.Server.Response
+  alias Anubis.Server.Frame
 
-  # List all tool modules here
-  @tool_modules [
-    Tools.Accounts
-    # Add more tool modules as you create them
-  ]
-
-  # Build routing map at compile time
-  @tool_routing @tool_modules
-                |> Enum.flat_map(fn mod ->
-                  Enum.map(mod.tools(), &{&1.name, mod})
-                end)
-                |> Map.new()
+  # Register tool components at compile time
+  component(FFWeb.MCP.Tools.Projects.ProjectsList, name: "projects_list")
+  component(FFWeb.MCP.Tools.Projects.ProjectsGet, name: "projects_get")
+  component(FFWeb.MCP.Tools.Issues.IssuesList, name: "issues_list")
+  component(FFWeb.MCP.Tools.Issues.IssuesGet, name: "issues_get")
+  component(FFWeb.MCP.Tools.Issues.IssuesCreate, name: "issues_create")
+  component(FFWeb.MCP.Tools.Issues.IssuesUpdate, name: "issues_update")
 
   @impl true
   def init(_client_info, frame) do
-    # Extract and validate Bearer token
     case extract_and_authenticate(frame) do
       {:ok, api_key} ->
-        # Store api_key in frame for tool access
-        frame = assign(frame, :api_key, api_key)
-
-        # Register all tools
-        frame = register_all_tools(frame)
-
-        # Register test tool
-        frame =
-          Frame.register_tool(frame, "hello_world",
-            description: "Test tool that returns a greeting",
-            input_schema: %{
-              "type" => "object",
-              "properties" => %{
-                "name" => %{"type" => "string", "description" => "Name to greet"}
-              }
-            }
-          )
-
-        {:ok, frame}
+        {:ok, Frame.assign(frame, :api_key, api_key)}
 
       {:error, _reason} ->
         {:stop, :unauthorized}
     end
-  end
-
-  @impl true
-  def handle_tool_call("hello_world", arguments, frame) do
-    name = Map.get(arguments, "name", "World")
-
-    response =
-      Response.tool()
-      |> Response.text("Hello, #{name}!")
-
-    {:reply, response, frame}
-  end
-
-  def handle_tool_call(tool_name, arguments, frame) do
-    case Map.fetch(@tool_routing, tool_name) do
-      {:ok, module} ->
-        dispatch_to_module(module, tool_name, arguments, frame)
-
-      :error ->
-        handle_unknown_tool(tool_name, frame)
-    end
-  end
-
-  defp dispatch_to_module(module, tool_name, arguments, frame) do
-    case module.handle(tool_name, arguments, frame.assigns) do
-      {:reply, response, _state} ->
-        {:reply, response, frame}
-
-      other ->
-        require Logger
-        Logger.error("Unexpected tool response: #{inspect(other)}")
-
-        response =
-          Response.tool()
-          |> Response.error("Internal error")
-
-        {:reply, response, frame}
-    end
-  end
-
-  defp handle_unknown_tool(tool_name, frame) do
-    require Logger
-    Logger.warning("Unknown tool called: #{tool_name}")
-
-    response =
-      Response.tool()
-      |> Response.error("Unknown tool: #{tool_name}")
-
-    {:reply, response, frame}
   end
 
   # Private helpers
@@ -143,15 +68,4 @@ defmodule FFWeb.MCP.Server do
   end
 
   defp extract_bearer_token(_), do: {:error, :invalid_format}
-
-  defp register_all_tools(frame) do
-    Enum.reduce(@tool_modules, frame, fn module, acc_frame ->
-      Enum.reduce(module.tools(), acc_frame, fn tool, inner_frame ->
-        Frame.register_tool(inner_frame, tool.name,
-          description: tool.description,
-          input_schema: tool.input_schema
-        )
-      end)
-    end)
-  end
 end
