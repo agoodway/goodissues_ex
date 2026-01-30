@@ -132,6 +132,9 @@ defmodule FFWeb.Router do
     # Errors
     post "/errors", ErrorController, :create
     patch "/errors/:id", ErrorController, :update
+
+    # Events (telemetry)
+    post "/events/batch", EventController, :create_batch
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

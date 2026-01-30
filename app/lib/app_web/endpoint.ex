@@ -51,7 +51,8 @@ defmodule FFWeb.Endpoint do
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
-    json_decoder: Phoenix.json_library()
+    json_decoder: Phoenix.json_library(),
+    length: 8_000_000
 
   plug Plug.MethodOverride
   plug Plug.Head

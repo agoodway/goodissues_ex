@@ -14,6 +14,7 @@ defmodule FF.Accounts.ApiKey do
     projects:read projects:write
     issues:read issues:write
     errors:read errors:write
+    events:read events:write
   )
 
   @type t :: %__MODULE__{
