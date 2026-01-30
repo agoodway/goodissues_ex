@@ -305,6 +305,8 @@ defmodule FF.Tracking do
   ## Options
 
     * `:preload` - List of associations to preload (e.g., `[:project, :submitter]`)
+    * `:preload_error_with_count` - When true, preloads error with occurrence count
+      and latest occurrence's stacktrace lines
 
   ## Examples
 
@@ -317,18 +319,59 @@ defmodule FF.Tracking do
       iex> get_issue(account, "valid-uuid", preload: [:project, :submitter])
       %Issue{project: %Project{}, submitter: %User{}}
 
+      iex> get_issue(account, "valid-uuid", preload_error_with_count: true)
+      %Issue{error: %Error{occurrence_count: 5, ...}}
+
   """
   def get_issue(%Account{id: account_id}, id, opts \\ []) do
     preloads = Keyword.get(opts, :preload, [])
+    preload_error_with_count = Keyword.get(opts, :preload_error_with_count, false)
 
     if valid_uuid?(id) do
-      Issue
-      |> join(:inner, [i], p in Project, on: i.project_id == p.id)
-      |> where([i, p], i.id == ^id and p.account_id == ^account_id)
-      |> preload(^preloads)
-      |> Repo.one()
+      issue =
+        Issue
+        |> join(:inner, [i], p in Project, on: i.project_id == p.id)
+        |> where([i, p], i.id == ^id and p.account_id == ^account_id)
+        |> preload(^preloads)
+        |> Repo.one()
+
+      if issue && preload_error_with_count do
+        preload_error_with_occurrence_count(issue)
+      else
+        issue
+      end
     else
       nil
+    end
+  end
+
+  defp preload_error_with_occurrence_count(nil), do: nil
+
+  defp preload_error_with_occurrence_count(%Issue{} = issue) do
+    case get_error_for_issue(issue.id) do
+      nil ->
+        %{issue | error: nil}
+
+      error ->
+        %{issue | error: error}
+    end
+  end
+
+  defp get_error_for_issue(issue_id) do
+    Error
+    |> where([e], e.issue_id == ^issue_id)
+    |> join(:left, [e], o in Occurrence, on: o.error_id == e.id)
+    |> group_by([e], e.id)
+    |> select([e, o], %{e | occurrence_count: count(o.id)})
+    |> Repo.one()
+    |> case do
+      nil ->
+        nil
+
+      error ->
+        # Preload the latest occurrence with stacktrace
+        error
+        |> Repo.preload(occurrences: from(o in Occurrence, order_by: [desc: o.inserted_at], limit: 1, preload: :stacktrace_lines))
     end
   end
 
@@ -542,6 +585,37 @@ defmodule FF.Tracking do
     |> preload(:issue)
     |> Repo.one()
   end
+
+  @doc """
+  Gets an error summary with occurrence count.
+
+  Returns the error with a virtual `:occurrence_count` field populated,
+  or nil if the error doesn't exist.
+
+  ## Examples
+
+      iex> get_error_summary(error_id)
+      %Error{occurrence_count: 5, ...}
+
+      iex> get_error_summary("nonexistent")
+      nil
+
+  """
+  def get_error_summary(error_id) when is_binary(error_id) do
+    if valid_uuid?(error_id) do
+      Error
+      |> where([e], e.id == ^error_id)
+      |> join(:left, [e], o in Occurrence, on: o.error_id == e.id)
+      |> group_by([e], e.id)
+      |> select([e, o], %{e | occurrence_count: count(o.id)})
+      |> preload([e], [:issue, occurrences: :stacktrace_lines])
+      |> Repo.one()
+    else
+      nil
+    end
+  end
+
+  def get_error_summary(nil), do: nil
 
   @doc """
   Gets an error by ID, scoped to the given account.

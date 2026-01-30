@@ -1131,4 +1131,140 @@ defmodule FF.TrackingTest do
       assert Tracking.get_error(account, error.id) == nil
     end
   end
+
+  describe "get_error_summary/1" do
+    test "returns error with occurrence count" do
+      {user, account} = user_with_account_fixture()
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project)
+      error = error_fixture(issue)
+
+      # Add more occurrences
+      Tracking.add_occurrence(error, %{reason: "second", stacktrace_lines: []})
+      Tracking.add_occurrence(error, %{reason: "third", stacktrace_lines: []})
+
+      result = Tracking.get_error_summary(error.id)
+
+      assert result.id == error.id
+      assert result.occurrence_count == 3
+      assert result.issue != nil
+    end
+
+    test "returns nil for non-existent error" do
+      assert Tracking.get_error_summary(Ecto.UUID.generate()) == nil
+    end
+
+    test "returns nil for nil input" do
+      assert Tracking.get_error_summary(nil) == nil
+    end
+
+    test "returns nil for invalid uuid" do
+      assert Tracking.get_error_summary("invalid") == nil
+    end
+
+    test "preloads occurrences with stacktrace lines" do
+      {user, account} = user_with_account_fixture()
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project)
+
+      error =
+        error_fixture(issue, %{}, %{
+          stacktrace_lines: [
+            %{module: "Test.Module", function: "run", arity: 0, file: "test.ex", line: 10}
+          ]
+        })
+
+      result = Tracking.get_error_summary(error.id)
+
+      assert length(result.occurrences) == 1
+      [occurrence] = result.occurrences
+      assert length(occurrence.stacktrace_lines) == 1
+      assert hd(occurrence.stacktrace_lines).module == "Test.Module"
+    end
+  end
+
+  describe "get_issue/3 with preload_error_with_count" do
+    test "preloads error with occurrence count when option is true" do
+      {user, account} = user_with_account_fixture()
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project)
+      error = error_fixture(issue)
+
+      # Add more occurrences
+      Tracking.add_occurrence(error, %{reason: "second", stacktrace_lines: []})
+
+      result = Tracking.get_issue(account, issue.id, preload_error_with_count: true)
+
+      assert result.id == issue.id
+      assert result.error != nil
+      assert result.error.id == error.id
+      assert result.error.occurrence_count == 2
+    end
+
+    test "sets error to nil when issue has no error" do
+      {user, account} = user_with_account_fixture()
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project)
+
+      result = Tracking.get_issue(account, issue.id, preload_error_with_count: true)
+
+      assert result.id == issue.id
+      assert result.error == nil
+    end
+
+    test "preloads only one occurrence with stacktrace" do
+      {user, account} = user_with_account_fixture()
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project)
+
+      error =
+        error_fixture(issue, %{}, %{
+          reason: "first",
+          stacktrace_lines: [
+            %{module: "Test.Module", function: "run", arity: 0, file: "test.ex", line: 10}
+          ]
+        })
+
+      # Add more occurrences
+      Tracking.add_occurrence(error, %{
+        reason: "second",
+        stacktrace_lines: [
+          %{module: "Another.Module", function: "execute", arity: 1}
+        ]
+      })
+
+      Tracking.add_occurrence(error, %{
+        reason: "third",
+        stacktrace_lines: []
+      })
+
+      result = Tracking.get_issue(account, issue.id, preload_error_with_count: true)
+
+      # Should have only one occurrence preloaded (the most recent by inserted_at)
+      # Note: count should reflect all occurrences
+      assert result.error.occurrence_count == 3
+      assert length(result.error.occurrences) == 1
+
+      # The preloaded occurrence should have stacktrace lines loaded
+      [occurrence] = result.error.occurrences
+      assert is_list(occurrence.stacktrace_lines)
+    end
+
+    test "can combine with regular preloads" do
+      {user, account} = user_with_account_fixture()
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project)
+      _error = error_fixture(issue)
+
+      result =
+        Tracking.get_issue(account, issue.id,
+          preload: [:project, :submitter],
+          preload_error_with_count: true
+        )
+
+      assert result.project.id == project.id
+      assert result.submitter.id == user.id
+      assert result.error != nil
+    end
+  end
 end

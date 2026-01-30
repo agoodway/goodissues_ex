@@ -24,6 +24,9 @@ defmodule FF.Tracking.Error do
     belongs_to :issue, FF.Tracking.Issue
     has_many :occurrences, FF.Tracking.Occurrence
 
+    # Virtual field for occurrence count in queries
+    field :occurrence_count, :integer, virtual: true
+
     timestamps(type: :utc_datetime)
   end
 
