@@ -10,6 +10,12 @@ defmodule FF.Accounts.ApiKey do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
+  @valid_scopes ~w(
+    projects:read projects:write
+    issues:read issues:write
+    errors:read errors:write
+  )
+
   @type t :: %__MODULE__{
           id: Ecto.UUID.t() | nil,
           name: String.t() | nil,
@@ -63,6 +69,32 @@ defmodule FF.Accounts.ApiKey do
     api_key
     |> cast(attrs, [:name, :type, :scopes, :expires_at, :account_user_id])
     |> validate_required([:name, :type, :account_user_id])
+    |> validate_scopes()
     |> foreign_key_constraint(:account_user_id)
+  end
+
+  @doc """
+  Changeset for updating only scopes.
+  Used when editing an existing API key's permissions.
+  """
+  def scopes_changeset(api_key, attrs) do
+    api_key
+    |> cast(attrs, [:scopes])
+    |> validate_scopes()
+  end
+
+  @doc "Returns the list of valid scope values"
+  def valid_scopes, do: @valid_scopes
+
+  defp validate_scopes(changeset) do
+    validate_change(changeset, :scopes, fn :scopes, scopes ->
+      invalid_scopes = Enum.reject(scopes, &(&1 in @valid_scopes))
+
+      if invalid_scopes == [] do
+        []
+      else
+        [{:scopes, "contains invalid scopes: #{Enum.join(invalid_scopes, ", ")}"}]
+      end
+    end)
   end
 end

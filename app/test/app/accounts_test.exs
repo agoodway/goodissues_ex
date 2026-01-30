@@ -852,6 +852,112 @@ defmodule FF.AccountsTest do
     end
   end
 
+  describe "update_api_key/4" do
+    test "owner can update API key scopes" do
+      user = user_fixture()
+      account = account_fixture(user)
+      account_user = Accounts.get_account_user(user, account)
+      {_token, api_key} = api_key_fixture(user, account)
+
+      {:ok, updated_key} =
+        Accounts.update_api_key(account, account_user, api_key.id, %{
+          scopes: ["projects:read", "issues:write"]
+        })
+
+      assert updated_key.scopes == ["projects:read", "issues:write"]
+    end
+
+    test "admin can update API key scopes" do
+      owner = user_fixture()
+      account = account_fixture(owner)
+      admin = user_fixture()
+      {:ok, _} = Accounts.add_user_to_account(account, admin, :admin)
+
+      admin_account_user = Accounts.get_account_user(admin, account)
+      {_token, api_key} = api_key_fixture(owner, account)
+
+      {:ok, updated_key} =
+        Accounts.update_api_key(account, admin_account_user, api_key.id, %{
+          scopes: ["projects:read"]
+        })
+
+      assert updated_key.scopes == ["projects:read"]
+    end
+
+    test "member cannot update API key scopes" do
+      owner = user_fixture()
+      account = account_fixture(owner)
+      member = user_fixture()
+      {:ok, _} = Accounts.add_user_to_account(account, member, :member)
+
+      member_account_user = Accounts.get_account_user(member, account)
+      {_token, api_key} = api_key_fixture(owner, account)
+
+      assert {:error, :not_authorized} =
+               Accounts.update_api_key(account, member_account_user, api_key.id, %{
+                 scopes: ["projects:read"]
+               })
+    end
+
+    test "cannot update revoked API key" do
+      user = user_fixture()
+      account = account_fixture(user)
+      account_user = Accounts.get_account_user(user, account)
+      {_token, api_key} = api_key_fixture(user, account)
+
+      Accounts.revoke_api_key(api_key)
+
+      assert {:error, :revoked} =
+               Accounts.update_api_key(account, account_user, api_key.id, %{
+                 scopes: ["projects:read"]
+               })
+    end
+
+    test "cannot update API key from different account" do
+      user1 = user_fixture()
+      account1 = account_fixture(user1)
+      account_user1 = Accounts.get_account_user(user1, account1)
+
+      user2 = user_fixture()
+      account2 = account_fixture(user2)
+      {_token, api_key2} = api_key_fixture(user2, account2)
+
+      assert {:error, :not_found} =
+               Accounts.update_api_key(account1, account_user1, api_key2.id, %{
+                 scopes: ["projects:read"]
+               })
+    end
+
+    test "returns not_found for non-existent API key" do
+      user = user_fixture()
+      account = account_fixture(user)
+      account_user = Accounts.get_account_user(user, account)
+
+      assert {:error, :not_found} =
+               Accounts.update_api_key(account, account_user, Ecto.UUID.generate(), %{
+                 scopes: ["projects:read"]
+               })
+    end
+
+    test "can update to empty scopes (all access)" do
+      user = user_fixture()
+      account = account_fixture(user)
+      account_user = Accounts.get_account_user(user, account)
+
+      {:ok, {api_key, _token}} =
+        Accounts.create_api_key(account_user, %{
+          name: "Key with scopes",
+          type: :private,
+          scopes: ["projects:read"]
+        })
+
+      {:ok, updated_key} =
+        Accounts.update_api_key(account, account_user, api_key.id, %{scopes: []})
+
+      assert updated_key.scopes == []
+    end
+  end
+
   describe "Scope.owner?/1" do
     test "returns true for owner" do
       user = user_fixture()

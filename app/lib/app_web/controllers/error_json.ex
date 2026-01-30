@@ -36,6 +36,10 @@ defmodule FFWeb.ErrorJSON do
     %{errors: %{detail: "Forbidden - insufficient permissions"}}
   end
 
+  def render("forbidden_scope.json", %{scope: scope}) do
+    %{errors: %{detail: "Forbidden - missing required scope: #{scope}"}}
+  end
+
   def render("404.json", _assigns) do
     %{errors: %{detail: "Not Found"}}
   end

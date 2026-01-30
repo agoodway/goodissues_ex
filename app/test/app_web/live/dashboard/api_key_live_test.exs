@@ -300,4 +300,140 @@ defmodule FFWeb.Dashboard.ApiKeyLiveTest do
       assert flash["error"] == "You don't have permission to create API keys."
     end
   end
+
+  describe "Edit (owner/admin)" do
+    setup :register_and_log_in_user_with_account
+
+    test "displays edit form with current scopes", %{conn: conn, user: user, account: account} do
+      account_user = Accounts.get_account_user(user, account)
+
+      {:ok, {api_key, _token}} =
+        Accounts.create_api_key(account_user, %{
+          name: "Key with Scopes",
+          type: :private,
+          scopes: ["projects:read", "issues:write"]
+        })
+
+      {:ok, _edit_live, html} =
+        live(conn, ~p"/dashboard/#{account.slug}/api-keys/#{api_key.id}/edit")
+
+      assert html =~ "Edit API Key Scopes"
+      assert html =~ "Key with Scopes"
+      assert html =~ "projects:read"
+      assert html =~ "issues:write"
+    end
+
+    test "updates scopes successfully", %{conn: conn, user: user, account: account} do
+      {_token, api_key} = api_key_fixture(user, account)
+
+      {:ok, edit_live, _html} =
+        live(conn, ~p"/dashboard/#{account.slug}/api-keys/#{api_key.id}/edit")
+
+      # Toggle some scopes
+      edit_live
+      |> element("input[phx-value-scope='projects:read']")
+      |> render_click()
+
+      edit_live
+      |> element("input[phx-value-scope='projects:write']")
+      |> render_click()
+
+      # Submit the form
+      {:ok, _show_live, html} =
+        edit_live
+        |> form("#edit-api-key-form")
+        |> render_submit()
+        |> follow_redirect(conn)
+
+      assert html =~ "API key scopes updated successfully"
+      assert html =~ "projects:read"
+      assert html =~ "projects:write"
+    end
+
+    test "shows edit button on show page for active keys", %{
+      conn: conn,
+      user: user,
+      account: account
+    } do
+      {_token, api_key} = api_key_fixture(user, account)
+
+      {:ok, _show_live, html} = live(conn, ~p"/dashboard/#{account.slug}/api-keys/#{api_key.id}")
+
+      assert html =~ "Edit Scopes"
+      assert html =~ ~s(href="/dashboard/#{account.slug}/api-keys/#{api_key.id}/edit")
+    end
+
+    test "does not show edit button for revoked keys", %{conn: conn, user: user, account: account} do
+      {_token, api_key} = api_key_fixture(user, account)
+      Accounts.revoke_api_key(api_key)
+
+      {:ok, _show_live, html} = live(conn, ~p"/dashboard/#{account.slug}/api-keys/#{api_key.id}")
+
+      refute html =~ "Edit Scopes"
+      refute html =~ ~s(href="/dashboard/#{account.slug}/api-keys/#{api_key.id}/edit")
+    end
+
+    test "redirects when trying to edit revoked key", %{conn: conn, user: user, account: account} do
+      {_token, api_key} = api_key_fixture(user, account)
+      Accounts.revoke_api_key(api_key)
+
+      {:error, {:live_redirect, %{to: path, flash: flash}}} =
+        live(conn, ~p"/dashboard/#{account.slug}/api-keys/#{api_key.id}/edit")
+
+      assert path == "/dashboard/#{account.slug}/api-keys/#{api_key.id}"
+      assert flash["error"] == "Cannot edit a revoked API key."
+    end
+
+    test "redirects when API key not found", %{conn: conn, account: account} do
+      fake_id = Ecto.UUID.generate()
+
+      {:error, {:live_redirect, %{to: path, flash: flash}}} =
+        live(conn, ~p"/dashboard/#{account.slug}/api-keys/#{fake_id}/edit")
+
+      assert path == "/dashboard/#{account.slug}/api-keys"
+      assert flash["error"] == "API key not found."
+    end
+  end
+
+  describe "Edit (member cannot access)" do
+    setup do
+      owner = user_fixture()
+      account = account_fixture(owner, %{name: "Member Test Account"})
+      member = user_fixture()
+      {:ok, _account_user} = Accounts.add_user_to_account(account, member, :member)
+
+      conn =
+        build_conn()
+        |> log_in_user(member)
+
+      %{conn: conn, member: member, account: account, owner: owner}
+    end
+
+    test "member is redirected when trying to edit API key", %{
+      conn: conn,
+      owner: owner,
+      account: account
+    } do
+      {_token, api_key} = api_key_fixture(owner, account)
+
+      {:error, {:live_redirect, %{to: path, flash: flash}}} =
+        live(conn, ~p"/dashboard/#{account.slug}/api-keys/#{api_key.id}/edit")
+
+      assert path == "/dashboard/#{account.slug}/api-keys"
+      assert flash["error"] == "You don't have permission to edit API keys."
+    end
+
+    test "member does not see edit button on show page", %{
+      conn: conn,
+      owner: owner,
+      account: account
+    } do
+      {_token, api_key} = api_key_fixture(owner, account)
+
+      {:ok, _show_live, html} = live(conn, ~p"/dashboard/#{account.slug}/api-keys/#{api_key.id}")
+
+      refute html =~ "Edit Scopes"
+      refute html =~ ~s(href="/dashboard/#{account.slug}/api-keys/#{api_key.id}/edit")
+    end
+  end
 end

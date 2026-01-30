@@ -5,6 +5,11 @@ defmodule FFWeb.Api.V1.ErrorController do
   alias FF.Tracking
   alias FF.Tracking.Error
 
+  plug FFWeb.Plugs.ApiAuth,
+       {:require_scope, "errors:read"} when action in [:index, :show, :search]
+
+  plug FFWeb.Plugs.ApiAuth, {:require_scope, "errors:write"} when action in [:create, :update]
+
   action_fallback FFWeb.FallbackController
 
   tags(["Errors"])

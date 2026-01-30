@@ -94,6 +94,12 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Show do
         </:subtitle>
         <:actions>
           <%= if @can_manage && @api_key.status == :active do %>
+            <.link
+              navigate={~p"/dashboard/#{@current_scope.account.slug}/api-keys/#{@api_key.id}/edit"}
+              class="btn btn-primary btn-sm"
+            >
+              <.icon name="hero-pencil-square" class="size-4 mr-1" /> Edit Scopes
+            </.link>
             <button
               phx-click="revoke"
               data-confirm="Are you sure you want to revoke this API key? This cannot be undone."

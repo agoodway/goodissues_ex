@@ -6,6 +6,11 @@ defmodule FFWeb.Api.V1.IssueController do
   alias FF.Tracking.Issue
   alias FFWeb.Api.V1.Schemas.Issue, as: IssueSchemas
 
+  plug FFWeb.Plugs.ApiAuth, {:require_scope, "issues:read"} when action in [:index, :show]
+
+  plug FFWeb.Plugs.ApiAuth,
+       {:require_scope, "issues:write"} when action in [:create, :update, :delete]
+
   action_fallback FFWeb.FallbackController
 
   tags(["Issues"])

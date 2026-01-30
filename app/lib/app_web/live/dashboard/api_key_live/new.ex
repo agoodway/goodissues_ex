@@ -214,7 +214,7 @@ defmodule FFWeb.Dashboard.ApiKeyLive.New do
               field={@form[:scopes]}
               type="text"
               label="Scopes (comma-separated, optional)"
-              placeholder="read:projects, write:projects"
+              placeholder="projects:read, projects:write"
             />
 
             <.input field={@form[:expires_at]} type="date" label="Expires At (optional)" />

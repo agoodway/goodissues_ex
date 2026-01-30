@@ -416,7 +416,7 @@ defmodule FF.Accounts do
 
     query =
       if search && search != "" do
-        search_term = "%#{search}%"
+        search_term = "%#{escape_like(search)}%"
         from a in query, where: ilike(a.name, ^search_term) or ilike(a.slug, ^search_term)
       else
         query
@@ -652,6 +652,55 @@ defmodule FF.Accounts do
     {:error, reason} -> {:error, reason}
   end
 
+  @doc """
+  Updates an API key's scopes.
+
+  Only owner/admin of the account can update API keys. Revoked keys cannot be edited.
+
+  Returns `{:ok, api_key}` on success, or `{:error, reason}` on failure where reason
+  can be `:not_found`, `:not_authorized`, `:revoked`, or a changeset.
+  """
+  def update_api_key(%Account{} = account, %AccountUser{} = actor, api_key_id, attrs) do
+    Repo.transact(fn ->
+      # Re-verify actor's current role in the account
+      actor_query =
+        from(au in AccountUser,
+          where: au.id == ^actor.id and au.account_id == ^account.id,
+          where: au.role in [:owner, :admin],
+          lock: "FOR UPDATE"
+        )
+
+      unless Repo.exists?(actor_query) do
+        throw({:error, :not_authorized})
+      end
+
+      # Get and lock the API key, verifying it belongs to this account
+      api_key_query =
+        from(k in ApiKey,
+          join: au in AccountUser,
+          on: k.account_user_id == au.id,
+          where: k.id == ^api_key_id and au.account_id == ^account.id,
+          lock: "FOR UPDATE",
+          select: k
+        )
+
+      case Repo.one(api_key_query) do
+        nil ->
+          throw({:error, :not_found})
+
+        %ApiKey{status: :revoked} ->
+          throw({:error, :revoked})
+
+        api_key ->
+          api_key
+          |> ApiKey.scopes_changeset(attrs)
+          |> Repo.update()
+      end
+    end)
+  catch
+    {:error, reason} -> {:error, reason}
+  end
+
   @doc "Get an API key by ID with preloaded associations"
   def get_api_key!(id) do
     ApiKey
@@ -662,6 +711,11 @@ defmodule FF.Accounts do
   @doc "Returns an ApiKey changeset for tracking changes"
   def change_api_key(%ApiKey{} = api_key, attrs \\ %{}) do
     ApiKey.changeset(api_key, attrs)
+  end
+
+  @doc "Returns an ApiKey scopes changeset for editing scopes"
+  def change_api_key_scopes(%ApiKey{} = api_key, attrs \\ %{}) do
+    ApiKey.scopes_changeset(api_key, attrs)
   end
 
   @doc """
@@ -694,7 +748,7 @@ defmodule FF.Accounts do
 
     query =
       if search && search != "" do
-        search_term = "%#{search}%"
+        search_term = "%#{escape_like(search)}%"
 
         from [k, au, u, a] in query,
           where: ilike(k.name, ^search_term) or ilike(u.email, ^search_term)
@@ -774,7 +828,7 @@ defmodule FF.Accounts do
 
     query =
       if search && search != "" do
-        search_term = "%#{search}%"
+        search_term = "%#{escape_like(search)}%"
 
         from [k, au, u, _a] in query,
           where: ilike(k.name, ^search_term) or ilike(u.email, ^search_term)
@@ -857,4 +911,16 @@ defmodule FF.Accounts do
   defp parse_api_key_type("private"), do: :private
   defp parse_api_key_type(type) when is_atom(type), do: type
   defp parse_api_key_type(_), do: nil
+
+  # ============================================
+  # SQL Escape Helpers
+  # ============================================
+
+  @doc false
+  defp escape_like(string) when is_binary(string) do
+    string
+    |> String.replace("\\", "\\\\")
+    |> String.replace("%", "\\%")
+    |> String.replace("_", "\\_")
+  end
 end

@@ -6,6 +6,11 @@ defmodule FFWeb.Api.V1.ProjectController do
   alias FF.Tracking.Project
   alias FFWeb.Api.V1.Schemas.Project, as: ProjectSchemas
 
+  plug FFWeb.Plugs.ApiAuth, {:require_scope, "projects:read"} when action in [:index, :show]
+
+  plug FFWeb.Plugs.ApiAuth,
+       {:require_scope, "projects:write"} when action in [:create, :update, :delete]
+
   action_fallback FFWeb.FallbackController
 
   tags(["Projects"])

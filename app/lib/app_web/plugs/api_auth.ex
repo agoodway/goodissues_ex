@@ -21,6 +21,7 @@ defmodule FFWeb.Plugs.ApiAuth do
   def call(conn, opts) do
     case opts do
       :require_write_access -> require_write_access(conn, [])
+      {:require_scope, scope} -> require_scope(conn, scope)
       _ -> require_api_auth(conn, opts)
     end
   end
@@ -79,6 +80,43 @@ defmodule FFWeb.Plugs.ApiAuth do
       |> put_view(json: FFWeb.ErrorJSON)
       |> render(:"403")
       |> halt()
+    end
+  end
+
+  @doc """
+  Requires a specific scope on the API key.
+  Must be used after require_api_auth/2.
+
+  Empty scopes on the API key means "all access" (no restrictions).
+
+  ## Examples
+
+      plug FFWeb.Plugs.ApiAuth, {:require_scope, "projects:read"}
+      plug FFWeb.Plugs.ApiAuth, {:require_scope, "issues:write"}
+  """
+  def require_scope(conn, required_scope) do
+    case conn.assigns[:current_api_key] do
+      nil ->
+        # No API key means no authentication - return forbidden
+        conn
+        |> put_status(:forbidden)
+        |> put_view(json: FFWeb.ErrorJSON)
+        |> render(:forbidden_scope, scope: required_scope)
+        |> halt()
+
+      api_key ->
+        scopes = api_key.scopes || []
+
+        # Empty scopes means "all access" - no restrictions
+        if scopes == [] or required_scope in scopes do
+          conn
+        else
+          conn
+          |> put_status(:forbidden)
+          |> put_view(json: FFWeb.ErrorJSON)
+          |> render(:forbidden_scope, scope: required_scope)
+          |> halt()
+        end
     end
   end
 
