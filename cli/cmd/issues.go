@@ -116,9 +116,13 @@ func runIssuesList(cmd *cobra.Command, args []string) {
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(w, "ID\tTITLE\tTYPE\tSTATUS\tPRIORITY")
+	fmt.Fprintln(w, "KEY\tTITLE\tTYPE\tSTATUS\tPRIORITY")
 	for _, i := range issues {
-		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", i.ID, i.Title, i.Type, i.Status, i.Priority)
+		key := i.ID
+		if i.Key != nil {
+			key = *i.Key
+		}
+		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", key, i.Title, i.Type, i.Status, i.Priority)
 	}
 	w.Flush()
 }
@@ -132,6 +136,9 @@ func runIssuesGet(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
+	if issue.Key != nil {
+		fmt.Printf("Key:         %s\n", *issue.Key)
+	}
 	fmt.Printf("ID:          %s\n", issue.ID)
 	fmt.Printf("Title:       %s\n", issue.Title)
 	fmt.Printf("Type:        %s\n", issue.Type)
