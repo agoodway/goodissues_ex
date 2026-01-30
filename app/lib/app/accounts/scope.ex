@@ -81,6 +81,6 @@ defmodule FF.Accounts.Scope do
   @doc """
   Checks if the user is the owner of the current account.
   """
-  def is_owner?(%__MODULE__{account_user: %AccountUser{role: :owner}}), do: true
-  def is_owner?(_), do: false
+  def owner?(%__MODULE__{account_user: %AccountUser{role: :owner}}), do: true
+  def owner?(_), do: false
 end

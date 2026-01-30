@@ -17,6 +17,9 @@ defmodule FFWeb.ConnCase do
 
   use ExUnit.CaseTemplate
 
+  alias FF.Accounts.Scope
+  alias FF.AccountsFixtures
+
   using do
     quote do
       # The default endpoint for testing
@@ -45,8 +48,8 @@ defmodule FFWeb.ConnCase do
   test context.
   """
   def register_and_log_in_user(%{conn: conn} = context) do
-    user = FF.AccountsFixtures.user_fixture()
-    scope = FF.Accounts.Scope.for_user(user)
+    user = AccountsFixtures.user_fixture()
+    scope = Scope.for_user(user)
 
     opts =
       context
@@ -74,7 +77,7 @@ defmodule FFWeb.ConnCase do
   defp maybe_set_token_authenticated_at(_token, nil), do: nil
 
   defp maybe_set_token_authenticated_at(token, authenticated_at) do
-    FF.AccountsFixtures.override_token_authenticated_at(token, authenticated_at)
+    AccountsFixtures.override_token_authenticated_at(token, authenticated_at)
   end
 
   @doc """
@@ -90,9 +93,9 @@ defmodule FFWeb.ConnCase do
   be owner of both accounts.
   """
   def register_and_log_in_user_with_account(%{conn: conn} = context) do
-    user = FF.AccountsFixtures.user_fixture()
-    account = FF.AccountsFixtures.account_fixture(user, %{name: "Test Account"})
-    scope = FF.Accounts.Scope.for_user(user)
+    user = AccountsFixtures.user_fixture()
+    account = AccountsFixtures.account_fixture(user, %{name: "Test Account"})
+    scope = Scope.for_user(user)
 
     opts =
       context

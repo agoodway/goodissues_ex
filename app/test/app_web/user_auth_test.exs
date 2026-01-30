@@ -314,7 +314,7 @@ defmodule FFWeb.UserAuthTest do
       assert socket.assigns.current_scope.user.id == user.id
       assert socket.assigns.current_scope.account.id == account.id
       assert socket.assigns.current_scope.account_user != nil
-      assert length(socket.assigns.current_scope.accounts) >= 1
+      assert socket.assigns.current_scope.accounts != []
     end
 
     test "halts with redirect if account not found", %{user: user} do

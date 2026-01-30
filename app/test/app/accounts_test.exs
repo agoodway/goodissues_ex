@@ -734,7 +734,7 @@ defmodule FF.AccountsTest do
       assert scope.user.id == user.id
       assert scope.account.id == account.id
       assert scope.account_user.id == account_user.id
-      assert length(scope.accounts) >= 1
+      assert scope.accounts != []
     end
   end
 
@@ -852,7 +852,7 @@ defmodule FF.AccountsTest do
     end
   end
 
-  describe "Scope.is_owner?/1" do
+  describe "Scope.owner?/1" do
     test "returns true for owner" do
       user = user_fixture()
       account = account_fixture(user)
@@ -864,7 +864,7 @@ defmodule FF.AccountsTest do
         |> Scope.for_user()
         |> Scope.with_account(account, account_user, accounts)
 
-      assert Scope.is_owner?(scope)
+      assert Scope.owner?(scope)
     end
 
     test "returns false for admin" do
@@ -881,7 +881,7 @@ defmodule FF.AccountsTest do
         |> Scope.for_user()
         |> Scope.with_account(account, account_user, accounts)
 
-      refute Scope.is_owner?(scope)
+      refute Scope.owner?(scope)
     end
 
     test "returns false for member" do
@@ -898,7 +898,7 @@ defmodule FF.AccountsTest do
         |> Scope.for_user()
         |> Scope.with_account(account, account_user, accounts)
 
-      refute Scope.is_owner?(scope)
+      refute Scope.owner?(scope)
     end
   end
 end

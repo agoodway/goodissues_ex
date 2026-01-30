@@ -1,8 +1,13 @@
 defmodule FF.Accounts.UserNotifier do
+  @moduledoc """
+  Handles email notifications to users.
+
+  Delivers emails for login, email confirmation, and email change requests.
+  """
   import Swoosh.Email
 
-  alias FF.Mailer
   alias FF.Accounts.User
+  alias FF.Mailer
 
   # Delivers the email using the application mailer.
   defp deliver(recipient, subject, body) do

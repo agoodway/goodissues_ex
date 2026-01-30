@@ -1,4 +1,9 @@
 defmodule FFWeb.UserAuth do
+  @moduledoc """
+  Authentication helpers for web requests and LiveViews.
+
+  Handles session management, user login/logout, and LiveView mounting.
+  """
   use FFWeb, :verified_routes
 
   import Plug.Conn
@@ -281,14 +286,16 @@ defmodule FFWeb.UserAuth do
 
   defp mount_current_scope(socket, session) do
     Phoenix.Component.assign_new(socket, :current_scope, fn ->
-      if user_token = session["user_token"] do
-        case Accounts.get_user_by_session_token(user_token) do
-          {user, _token_inserted_at} -> Scope.for_user(user)
-          _ -> nil
-        end
-      else
-        nil
-      end
+      scope_from_session(session)
     end)
   end
+
+  defp scope_from_session(%{"user_token" => user_token}) do
+    case Accounts.get_user_by_session_token(user_token) do
+      {user, _token_inserted_at} -> Scope.for_user(user)
+      _ -> nil
+    end
+  end
+
+  defp scope_from_session(_session), do: nil
 end

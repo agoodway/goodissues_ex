@@ -1,4 +1,10 @@
 defmodule FF.Accounts.UserToken do
+  @moduledoc """
+  Schema and functions for user session and email tokens.
+
+  Handles generation and verification of session tokens and email tokens
+  (magic links, email change confirmations).
+  """
   use Ecto.Schema
   import Ecto.Query
   alias FF.Accounts.UserToken

@@ -6,7 +6,7 @@ defmodule FF.Accounts do
   import Ecto.Query, warn: false
   alias FF.Repo
 
-  alias FF.Accounts.{Account, AccountUser, ApiKey, User, UserToken, UserNotifier}
+  alias FF.Accounts.{Account, AccountUser, ApiKey, User, UserNotifier, UserToken}
 
   ## Database getters
 
