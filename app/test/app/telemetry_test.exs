@@ -144,6 +144,107 @@ defmodule FF.TelemetryTest do
     end
   end
 
+  describe "list_spans_by_request_id_for_project/3" do
+    setup do
+      {user, account} = user_with_account_fixture()
+      project = project_fixture(account)
+      {:ok, account: account, user: user, project: project}
+    end
+
+    test "returns spans for request_id scoped to project", %{account: account, project: project} do
+      project2 = project_fixture(account)
+
+      events1 = [
+        %{
+          "request_id" => "req-789",
+          "event_type" => "phoenix_request",
+          "event_name" => "start",
+          "timestamp" => DateTime.to_iso8601(~U[2026-01-30 12:00:00Z])
+        },
+        %{
+          "request_id" => "req-789",
+          "event_type" => "ecto_query",
+          "event_name" => "query",
+          "timestamp" => DateTime.to_iso8601(~U[2026-01-30 12:00:01Z])
+        }
+      ]
+
+      events2 = [
+        %{
+          "request_id" => "req-789",
+          "event_type" => "phoenix_request",
+          "event_name" => "different-project"
+        }
+      ]
+
+      {:ok, 2} = Telemetry.create_spans_batch(account, project.id, events1)
+      {:ok, 1} = Telemetry.create_spans_batch(account, project2.id, events2)
+
+      spans = Telemetry.list_spans_by_request_id_for_project(account, project.id, "req-789")
+      assert length(spans) == 2
+      assert Enum.all?(spans, &(&1.request_id == "req-789"))
+      assert Enum.all?(spans, &(&1.project_id == project.id))
+    end
+
+    test "returns spans ordered by timestamp ascending", %{account: account, project: project} do
+      events = [
+        %{
+          "request_id" => "req-order",
+          "event_type" => "ecto_query",
+          "event_name" => "second",
+          "timestamp" => DateTime.to_iso8601(~U[2026-01-30 12:00:01Z])
+        },
+        %{
+          "request_id" => "req-order",
+          "event_type" => "phoenix_request",
+          "event_name" => "first",
+          "timestamp" => DateTime.to_iso8601(~U[2026-01-30 12:00:00Z])
+        }
+      ]
+
+      {:ok, 2} = Telemetry.create_spans_batch(account, project.id, events)
+
+      spans = Telemetry.list_spans_by_request_id_for_project(account, project.id, "req-order")
+      assert [first, second] = spans
+      assert first.event_name == "first"
+      assert second.event_name == "second"
+    end
+
+    test "returns empty list for non-existent request_id", %{account: account, project: project} do
+      spans = Telemetry.list_spans_by_request_id_for_project(account, project.id, "non-existent")
+      assert spans == []
+    end
+
+    test "returns empty list for invalid project_id", %{account: account} do
+      spans = Telemetry.list_spans_by_request_id_for_project(account, "invalid-uuid", "req-123")
+      assert spans == []
+    end
+
+    test "does not return spans from different account", %{account: account, project: project} do
+      {_other_user, other_account} = user_with_account_fixture()
+
+      events = [
+        %{
+          "request_id" => "shared-req-id-2",
+          "event_type" => "phoenix_request",
+          "event_name" => "test"
+        }
+      ]
+
+      {:ok, 1} = Telemetry.create_spans_batch(account, project.id, events)
+
+      # Other account should not see these spans even with correct project_id
+      spans =
+        Telemetry.list_spans_by_request_id_for_project(
+          other_account,
+          project.id,
+          "shared-req-id-2"
+        )
+
+      assert spans == []
+    end
+  end
+
   describe "list_spans/3" do
     setup do
       {user, account} = user_with_account_fixture()

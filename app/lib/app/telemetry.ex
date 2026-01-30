@@ -177,6 +177,36 @@ defmodule FF.Telemetry do
   end
 
   @doc """
+  Lists spans for a given request_id, scoped to a specific project.
+
+  Useful for displaying telemetry data on the issue detail page where the
+  project is already known.
+
+  ## Examples
+
+      iex> list_spans_by_request_id_for_project(account, project_id, "abc123")
+      [%Span{}, ...]
+
+  """
+  @spec list_spans_by_request_id_for_project(Account.t(), String.t(), String.t()) ::
+          list(Span.t())
+  def list_spans_by_request_id_for_project(%Account{id: account_id}, project_id, request_id) do
+    if valid_uuid?(project_id) do
+      Span
+      |> join(:inner, [s], p in Project, on: s.project_id == p.id)
+      |> where(
+        [s, p],
+        p.account_id == ^account_id and s.project_id == ^project_id and
+          s.request_id == ^request_id
+      )
+      |> order_by([s], asc: s.timestamp)
+      |> Repo.all()
+    else
+      []
+    end
+  end
+
+  @doc """
   Lists recent spans for a project.
 
   ## Options

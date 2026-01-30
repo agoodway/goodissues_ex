@@ -8,6 +8,7 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
   use FFWeb, :live_view
 
   alias FF.Accounts.Scope
+  alias FF.Telemetry
   alias FF.Tracking
   alias FF.Tracking.Issue
 
@@ -58,12 +59,38 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
         |> push_navigate(to: ~p"/dashboard/#{account.slug}/issues")
 
       issue ->
+        {request_id, telemetry_spans} = load_telemetry_for_issue(account, issue)
+
         socket
         |> assign(:page_title, issue.title)
         |> assign(:issue, issue)
         |> assign(:projects, Tracking.list_projects(account))
         |> assign(:stacktrace_expanded, false)
+        |> assign(:request_id, request_id)
+        |> assign(:telemetry_spans, telemetry_spans)
+        |> assign(:expanded_span_ids, MapSet.new())
     end
+  end
+
+  defp load_telemetry_for_issue(account, issue) do
+    request_id = extract_request_id(issue)
+
+    spans =
+      if request_id do
+        Telemetry.list_spans_by_request_id_for_project(account, issue.project_id, request_id)
+      else
+        []
+      end
+
+    {request_id, spans}
+  end
+
+  defp extract_request_id(%{error: nil}), do: nil
+  defp extract_request_id(%{error: %{occurrences: []}}), do: nil
+  defp extract_request_id(%{error: %{occurrences: :not_loaded}}), do: nil
+
+  defp extract_request_id(%{error: %{occurrences: [first | _]}}) do
+    get_in(first.context, ["request_id"])
   end
 
   @impl true
@@ -77,6 +104,19 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
 
   def handle_event("toggle_stacktrace", _params, socket) do
     {:noreply, assign(socket, :stacktrace_expanded, !socket.assigns.stacktrace_expanded)}
+  end
+
+  def handle_event("toggle_span", %{"id" => span_id}, socket) do
+    expanded_ids = socket.assigns.expanded_span_ids
+
+    updated_ids =
+      if MapSet.member?(expanded_ids, span_id) do
+        MapSet.delete(expanded_ids, span_id)
+      else
+        MapSet.put(expanded_ids, span_id)
+      end
+
+    {:noreply, assign(socket, :expanded_span_ids, updated_ids)}
   end
 
   def handle_event("toggle_muted", _params, socket) do
@@ -258,6 +298,55 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
       "#{module}.#{function}#{location}"
     end
   end
+
+  # Telemetry helper functions
+  defp truncate_request_id(request_id) when byte_size(request_id) > 16 do
+    String.slice(request_id, 0, 8) <> "..." <> String.slice(request_id, -8, 8)
+  end
+
+  defp truncate_request_id(request_id), do: request_id
+
+  defp event_type_class(:phoenix_request), do: "telemetry-badge-request"
+  defp event_type_class(:phoenix_router), do: "telemetry-badge-router"
+  defp event_type_class(:phoenix_error), do: "telemetry-badge-error"
+  defp event_type_class(:liveview_mount), do: "telemetry-badge-liveview"
+  defp event_type_class(:liveview_event), do: "telemetry-badge-liveview"
+  defp event_type_class(:ecto_query), do: "telemetry-badge-ecto"
+  defp event_type_class(_), do: "telemetry-badge-default"
+
+  defp event_type_icon(:phoenix_request), do: "hero-globe-alt"
+  defp event_type_icon(:phoenix_router), do: "hero-map"
+  defp event_type_icon(:phoenix_error), do: "hero-exclamation-circle"
+  defp event_type_icon(:liveview_mount), do: "hero-bolt"
+  defp event_type_icon(:liveview_event), do: "hero-cursor-arrow-rays"
+  defp event_type_icon(:ecto_query), do: "hero-circle-stack"
+  defp event_type_icon(_), do: "hero-signal"
+
+  defp event_type_label(:phoenix_request), do: "Request"
+  defp event_type_label(:phoenix_router), do: "Router"
+  defp event_type_label(:phoenix_error), do: "Error"
+  defp event_type_label(:liveview_mount), do: "Mount"
+  defp event_type_label(:liveview_event), do: "Event"
+  defp event_type_label(:ecto_query), do: "Query"
+  defp event_type_label(_), do: "Event"
+
+  defp format_duration(ms) when ms < 1000, do: "#{round(ms)}ms"
+  defp format_duration(ms), do: "#{Float.round(ms / 1000, 1)}s"
+
+  defp format_span_time(timestamp) do
+    Calendar.strftime(timestamp, "%H:%M:%S.%f")
+    |> String.slice(0, 12)
+  end
+
+  defp format_measurement(value) when is_integer(value) or is_float(value) do
+    if value > 1_000_000 do
+      "#{Float.round(value / 1_000_000, 2)}M"
+    else
+      to_string(value)
+    end
+  end
+
+  defp format_measurement(value), do: inspect(value)
 
   @impl true
   def render(assigns) do
@@ -500,6 +589,99 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
                         >
                           <span class="issue-stacktrace-num">{idx + 1}</span>
                           <span class="issue-stacktrace-code">{format_stacktrace_line(line)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <%!-- Request Timeline Section (Telemetry) --%>
+                <div :if={@request_id} class="issue-card issue-card-telemetry" id="request-timeline">
+                  <div class="issue-card-header issue-card-header-telemetry">
+                    <div class="issue-card-header-icon issue-card-header-icon-telemetry">
+                      <.icon name="hero-signal" class="size-4" />
+                    </div>
+                    <span>Request Timeline</span>
+                    <span class="telemetry-request-id" title={@request_id}>
+                      {truncate_request_id(@request_id)}
+                    </span>
+                  </div>
+                  <div class="issue-card-body">
+                    <div :if={@telemetry_spans == []} class="telemetry-empty-state">
+                      <.icon name="hero-clock" class="size-8 opacity-30" />
+                      <span>No telemetry data found for this request</span>
+                    </div>
+                    <div :if={@telemetry_spans != []} class="telemetry-timeline">
+                      <div
+                        :for={span <- @telemetry_spans}
+                        class="telemetry-span"
+                        id={"span-#{span.id}"}
+                      >
+                        <button
+                          phx-click="toggle_span"
+                          phx-value-id={span.id}
+                          class="telemetry-span-header"
+                        >
+                          <div class="telemetry-span-main">
+                            <span class={["telemetry-event-badge", event_type_class(span.event_type)]}>
+                              <.icon name={event_type_icon(span.event_type)} class="size-3" />
+                              <span>{event_type_label(span.event_type)}</span>
+                            </span>
+                            <span class="telemetry-event-name">{span.event_name}</span>
+                          </div>
+                          <div class="telemetry-span-meta">
+                            <span :if={span.duration_ms} class="telemetry-duration">
+                              {format_duration(span.duration_ms)}
+                            </span>
+                            <span class="telemetry-timestamp">
+                              {format_span_time(span.timestamp)}
+                            </span>
+                            <.icon
+                              name={
+                                if MapSet.member?(@expanded_span_ids, span.id),
+                                  do: "hero-chevron-down",
+                                  else: "hero-chevron-right"
+                              }
+                              class="size-4 telemetry-expand-icon"
+                            />
+                          </div>
+                        </button>
+                        <div
+                          :if={MapSet.member?(@expanded_span_ids, span.id)}
+                          class="telemetry-span-details"
+                        >
+                          <div :if={span.context != %{}} class="telemetry-detail-section">
+                            <span class="telemetry-detail-label">Context</span>
+                            <div class="telemetry-detail-content">
+                              <div
+                                :for={{key, value} <- span.context}
+                                class="telemetry-detail-row"
+                              >
+                                <span class="telemetry-detail-key">{key}</span>
+                                <span class="telemetry-detail-value">{inspect(value)}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div :if={span.measurements != %{}} class="telemetry-detail-section">
+                            <span class="telemetry-detail-label">Measurements</span>
+                            <div class="telemetry-detail-content">
+                              <div
+                                :for={{key, value} <- span.measurements}
+                                class="telemetry-detail-row"
+                              >
+                                <span class="telemetry-detail-key">{key}</span>
+                                <span class="telemetry-detail-value">
+                                  {format_measurement(value)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            :if={span.context == %{} && span.measurements == %{}}
+                            class="telemetry-no-details"
+                          >
+                            No additional details available
+                          </div>
                         </div>
                       </div>
                     </div>

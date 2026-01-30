@@ -932,4 +932,285 @@ defmodule FFWeb.Dashboard.IssueLiveTest do
       assert html =~ "0 issues"
     end
   end
+
+  describe "Show (telemetry display)" do
+    setup :register_and_log_in_user_with_account
+
+    test "does not show telemetry section for issue without error", %{
+      conn: conn,
+      user: user,
+      account: account
+    } do
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project, %{title: "No Error Issue"})
+
+      {:ok, _show_live, html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      assert html =~ "No Error Issue"
+      refute html =~ "Request Timeline"
+    end
+
+    test "does not show telemetry section when error has no request_id in context", %{
+      conn: conn,
+      user: user,
+      account: account
+    } do
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project, %{title: "Error Without Request ID"})
+
+      _error =
+        error_fixture(issue, %{kind: "Elixir.RuntimeError", reason: "no request_id"}, %{
+          context: %{"user_id" => 123}
+        })
+
+      {:ok, _show_live, html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      assert html =~ "Error Without Request ID"
+      assert html =~ "Error Details"
+      refute html =~ "Request Timeline"
+    end
+
+    test "shows empty telemetry state when request_id exists but no spans", %{
+      conn: conn,
+      user: user,
+      account: account
+    } do
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project, %{title: "Error With No Spans"})
+
+      _error =
+        error_fixture(issue, %{kind: "Elixir.RuntimeError", reason: "test error"}, %{
+          context: %{"request_id" => "req-no-spans"}
+        })
+
+      {:ok, _show_live, html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      assert html =~ "Request Timeline"
+      assert html =~ "req-no-spans"
+      assert html =~ "No telemetry data found for this request"
+    end
+
+    test "displays telemetry spans when request_id matches", %{
+      conn: conn,
+      user: user,
+      account: account
+    } do
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project, %{title: "Error With Telemetry"})
+
+      _error =
+        error_fixture(issue, %{kind: "Elixir.RuntimeError", reason: "test error"}, %{
+          context: %{"request_id" => "req-with-spans"}
+        })
+
+      # Create telemetry spans with matching request_id
+      {:ok, _} =
+        FF.Telemetry.create_spans_batch(account, project.id, [
+          %{
+            "request_id" => "req-with-spans",
+            "event_type" => "phoenix_request",
+            "event_name" => "phoenix.endpoint.stop",
+            "timestamp" => DateTime.to_iso8601(~U[2026-01-30 12:00:00Z]),
+            "duration_ms" => 42.5,
+            "context" => %{"method" => "GET", "path" => "/api/test"},
+            "measurements" => %{"duration" => 42_500_000}
+          },
+          %{
+            "request_id" => "req-with-spans",
+            "event_type" => "ecto_query",
+            "event_name" => "app.repo.query",
+            "timestamp" => DateTime.to_iso8601(~U[2026-01-30 12:00:01Z]),
+            "duration_ms" => 15.0,
+            "context" => %{"source" => "users"},
+            "measurements" => %{"query_time" => 15_000_000}
+          }
+        ])
+
+      {:ok, _show_live, html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      assert html =~ "Request Timeline"
+      assert html =~ "req-with-spans"
+      # Should show both spans
+      assert html =~ "phoenix.endpoint.stop"
+      assert html =~ "app.repo.query"
+      # Should show duration
+      assert html =~ "43ms" or html =~ "42ms"
+      assert html =~ "15ms"
+      # Should show event type badges
+      assert html =~ "Request"
+      assert html =~ "Query"
+    end
+
+    test "clicking span expands to show details", %{
+      conn: conn,
+      user: user,
+      account: account
+    } do
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project, %{title: "Expandable Spans"})
+
+      _error =
+        error_fixture(issue, %{kind: "Elixir.RuntimeError", reason: "test error"}, %{
+          context: %{"request_id" => "req-expandable"}
+        })
+
+      {:ok, 1} =
+        FF.Telemetry.create_spans_batch(account, project.id, [
+          %{
+            "request_id" => "req-expandable",
+            "event_type" => "phoenix_request",
+            "event_name" => "test.event",
+            "timestamp" => DateTime.to_iso8601(DateTime.utc_now()),
+            "context" => %{"method" => "POST", "path" => "/api/users"},
+            "measurements" => %{"total_time" => 100_000}
+          }
+        ])
+
+      {:ok, show_live, html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      # Initially, details should not be visible
+      refute html =~ "method"
+      refute html =~ "POST"
+
+      # Get span ID from the page
+      [span] =
+        FF.Telemetry.list_spans_by_request_id_for_project(account, project.id, "req-expandable")
+
+      # Click to expand
+      html = render_click(show_live, "toggle_span", %{"id" => span.id})
+
+      # Now details should be visible
+      assert html =~ "Context"
+      assert html =~ "method"
+      assert html =~ "POST"
+      assert html =~ "Measurements"
+      assert html =~ "total_time"
+    end
+
+    test "clicking expanded span collapses it", %{
+      conn: conn,
+      user: user,
+      account: account
+    } do
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project, %{title: "Collapsible Spans"})
+
+      _error =
+        error_fixture(issue, %{kind: "Elixir.RuntimeError", reason: "test error"}, %{
+          context: %{"request_id" => "req-collapsible"}
+        })
+
+      {:ok, 1} =
+        FF.Telemetry.create_spans_batch(account, project.id, [
+          %{
+            "request_id" => "req-collapsible",
+            "event_type" => "phoenix_request",
+            "event_name" => "test.collapse",
+            "timestamp" => DateTime.to_iso8601(DateTime.utc_now()),
+            "context" => %{"key" => "value"}
+          }
+        ])
+
+      {:ok, show_live, _html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      [span] =
+        FF.Telemetry.list_spans_by_request_id_for_project(account, project.id, "req-collapsible")
+
+      # Expand
+      html = render_click(show_live, "toggle_span", %{"id" => span.id})
+      assert html =~ "key"
+      assert html =~ "value"
+
+      # Collapse
+      html = render_click(show_live, "toggle_span", %{"id" => span.id})
+      refute html =~ "Context"
+    end
+
+    test "shows spans in chronological order", %{
+      conn: conn,
+      user: user,
+      account: account
+    } do
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project, %{title: "Ordered Spans"})
+
+      _error =
+        error_fixture(issue, %{kind: "Elixir.RuntimeError", reason: "test error"}, %{
+          context: %{"request_id" => "req-ordered"}
+        })
+
+      # Create spans out of order
+      {:ok, 3} =
+        FF.Telemetry.create_spans_batch(account, project.id, [
+          %{
+            "request_id" => "req-ordered",
+            "event_type" => "ecto_query",
+            "event_name" => "third.event",
+            "timestamp" => DateTime.to_iso8601(~U[2026-01-30 12:00:02Z])
+          },
+          %{
+            "request_id" => "req-ordered",
+            "event_type" => "phoenix_request",
+            "event_name" => "first.event",
+            "timestamp" => DateTime.to_iso8601(~U[2026-01-30 12:00:00Z])
+          },
+          %{
+            "request_id" => "req-ordered",
+            "event_type" => "phoenix_router",
+            "event_name" => "second.event",
+            "timestamp" => DateTime.to_iso8601(~U[2026-01-30 12:00:01Z])
+          }
+        ])
+
+      {:ok, _show_live, html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      # Check that spans appear in chronological order
+      first_pos = :binary.match(html, "first.event") |> elem(0)
+      second_pos = :binary.match(html, "second.event") |> elem(0)
+      third_pos = :binary.match(html, "third.event") |> elem(0)
+
+      assert first_pos < second_pos
+      assert second_pos < third_pos
+    end
+
+    test "only shows spans from the correct project", %{
+      conn: conn,
+      user: user,
+      account: account
+    } do
+      project = project_fixture(account)
+      other_project = project_fixture(account, %{name: "Other Project", prefix: "OTH"})
+      issue = issue_fixture(account, user, project, %{title: "Project Scoped Spans"})
+
+      _error =
+        error_fixture(issue, %{kind: "Elixir.RuntimeError", reason: "test error"}, %{
+          context: %{"request_id" => "req-scoped"}
+        })
+
+      # Create span in correct project
+      {:ok, 1} =
+        FF.Telemetry.create_spans_batch(account, project.id, [
+          %{
+            "request_id" => "req-scoped",
+            "event_type" => "phoenix_request",
+            "event_name" => "correct.project.event"
+          }
+        ])
+
+      # Create span with same request_id in different project
+      {:ok, 1} =
+        FF.Telemetry.create_spans_batch(account, other_project.id, [
+          %{
+            "request_id" => "req-scoped",
+            "event_type" => "phoenix_request",
+            "event_name" => "wrong.project.event"
+          }
+        ])
+
+      {:ok, _show_live, html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      assert html =~ "correct.project.event"
+      refute html =~ "wrong.project.event"
+    end
+  end
 end
