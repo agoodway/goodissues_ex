@@ -415,20 +415,20 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Edit do
       </div>
 
       <%!-- Page Header --%>
-      <div class="mb-6">
+      <div class="mb-4 sm:mb-6">
         <div class="flex items-center gap-3 mb-2">
-          <div class="w-10 h-10 flex items-center justify-center bg-primary/15 text-primary">
-            <.icon name="hero-shield-check" class="size-5" />
+          <div class="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center bg-primary/15 text-primary flex-shrink-0">
+            <.icon name="hero-shield-check" class="size-4 sm:size-5" />
           </div>
-          <div>
-            <h1 class="text-xl font-semibold tracking-tight">Edit Permissions</h1>
-            <p class="text-sm text-muted">Configure API access scopes for this key</p>
+          <div class="min-w-0">
+            <h1 class="text-lg sm:text-xl font-semibold tracking-tight">Edit Permissions</h1>
+            <p class="text-xs sm:text-sm text-muted">Configure API access scopes for this key</p>
           </div>
         </div>
       </div>
 
       <%!-- Key Info Bar --%>
-      <div class="key-info-bar mb-6">
+      <div class="key-info-bar mb-4 sm:mb-6">
         <div class="flex items-center gap-2">
           <.icon name={if @api_key.type == :private, do: "hero-lock-closed", else: "hero-globe-alt"} class="size-4 text-muted" />
           <span class="text-primary font-semibold">{@api_key.name}</span>
@@ -455,9 +455,9 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Edit do
       </div>
 
       <.form for={@form} id="edit-api-key-form" phx-submit="save">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
           <%!-- Read Permissions --%>
-          <div class="edit-panel p-4">
+          <div class="edit-panel p-3 sm:p-4">
             <div class="section-header read-header">
               <.icon name="hero-eye" class="size-3.5" />
               <span>Read Permissions</span>
@@ -498,7 +498,7 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Edit do
           </div>
 
           <%!-- Write Permissions --%>
-          <div class="edit-panel p-4">
+          <div class="edit-panel p-3 sm:p-4">
             <div class="section-header write-header">
               <.icon name="hero-pencil" class="size-3.5" />
               <span>Write Permissions</span>
@@ -540,7 +540,7 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Edit do
         </div>
 
         <%!-- Summary Bar --%>
-        <div class="summary-bar mb-6">
+        <div class="summary-bar mb-4 sm:mb-6">
           <div class="summary-left flex items-center gap-5">
             <div class="flex items-center gap-3">
               <span class="font-mono text-xs font-semibold uppercase tracking-wider text-muted">Selected</span>
