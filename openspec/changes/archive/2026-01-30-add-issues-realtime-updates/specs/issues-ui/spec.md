@@ -1,4 +1,4 @@
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Issue List View
 The dashboard SHALL provide a list view of all issues within the current account with realtime updates when issues are created or modified.
@@ -58,8 +58,6 @@ The dashboard sidebar SHALL include a link to the issues list.
 - **WHEN** viewing any dashboard page
 - **THEN** the sidebar includes an "Issues" link under the Workspace section
 - **AND** clicking the link navigates to `/dashboard/:account_slug/issues`
-
-## ADDED Requirements
 
 ### Requirement: Issue Events Broadcasting
 The system SHALL broadcast issue creation and update events to subscribed LiveViews using Phoenix PubSub.

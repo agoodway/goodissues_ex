@@ -27,7 +27,6 @@ The application already has Phoenix PubSub configured (`{Phoenix.PubSub, name: F
 
 **Alternatives considered**:
 - **Phoenix Presence**: More complex, includes user tracking overhead that we don't need
-- **Direct LiveView events**: Limited to a single LiveView process, doesn't work across multiple browser tabs
 
 ### 2. Channel Topic Per-Account
 **Decision**: Use topic pattern `"issues:account:<account_id>"` for scoping events.
@@ -106,14 +105,6 @@ end
 
 ### Risk 3: Missing Updates During LiveView Disconnect
 **Mitigation**: Standard Phoenix behavior. When LiveView reconnects, it re-fetches data, so missing updates are naturally recovered. No special handling needed.
-
-### Trade-off: Channel vs Direct PubSub
-We chose PubSub directly over creating a Phoenix Channel because:
-- LiveView can subscribe to PubSub topics directly
-- No WebSocket upgrade overhead required for admin users (LiveView already uses WebSocket)
-- Simpler implementation (no channel module needed)
-
-However, this means API consumers can't subscribe to issue events without implementing their own WebSocket/HTTP polling. Future enhancement could add a proper Phoenix Channel for API integration.
 
 ## Migration Plan
 
