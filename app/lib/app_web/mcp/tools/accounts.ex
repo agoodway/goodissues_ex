@@ -2,11 +2,12 @@ defmodule FFWeb.MCP.Tools.Accounts do
   @moduledoc """
   MCP tools for account management operations.
   """
-  alias FFWeb.MCP.Tools.Base
+  import Ecto.Query
+
   alias FF.Accounts
   alias FF.Repo
+  alias FFWeb.MCP.Tools.Base
   alias Hermes.Server.Component.Tool
-  import Ecto.Query
 
   @doc "List all available tools in this module"
   def tools do

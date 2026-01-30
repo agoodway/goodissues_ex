@@ -58,47 +58,52 @@ defmodule FFWeb.MCP.Server do
   end
 
   @impl true
+  def handle_tool_call("hello_world", arguments, frame) do
+    name = Map.get(arguments, "name", "World")
+
+    response =
+      Response.tool()
+      |> Response.text("Hello, #{name}!")
+
+    {:reply, response, frame}
+  end
+
   def handle_tool_call(tool_name, arguments, frame) do
-    # Handle test tool
-    if tool_name == "hello_world" do
-      name = Map.get(arguments, "name", "World")
+    case Map.fetch(@tool_routing, tool_name) do
+      {:ok, module} ->
+        dispatch_to_module(module, tool_name, arguments, frame)
 
-      response =
-        Response.tool()
-        |> Response.text("Hello, #{name}!")
-
-      {:reply, response, frame}
-    else
-      # Route to appropriate tool module
-      case Map.fetch(@tool_routing, tool_name) do
-        {:ok, module} ->
-          # Call tool handler with frame.assigns (containing api_key)
-          case module.handle(tool_name, arguments, frame.assigns) do
-            {:reply, response, _state} ->
-              {:reply, response, frame}
-
-            other ->
-              require Logger
-              Logger.error("Unexpected tool response: #{inspect(other)}")
-
-              response =
-                Response.tool()
-                |> Response.error("Internal error")
-
-              {:reply, response, frame}
-          end
-
-        :error ->
-          require Logger
-          Logger.warning("Unknown tool called: #{tool_name}")
-
-          response =
-            Response.tool()
-            |> Response.error("Unknown tool: #{tool_name}")
-
-          {:reply, response, frame}
-      end
+      :error ->
+        handle_unknown_tool(tool_name, frame)
     end
+  end
+
+  defp dispatch_to_module(module, tool_name, arguments, frame) do
+    case module.handle(tool_name, arguments, frame.assigns) do
+      {:reply, response, _state} ->
+        {:reply, response, frame}
+
+      other ->
+        require Logger
+        Logger.error("Unexpected tool response: #{inspect(other)}")
+
+        response =
+          Response.tool()
+          |> Response.error("Internal error")
+
+        {:reply, response, frame}
+    end
+  end
+
+  defp handle_unknown_tool(tool_name, frame) do
+    require Logger
+    Logger.warning("Unknown tool called: #{tool_name}")
+
+    response =
+      Response.tool()
+      |> Response.error("Unknown tool: #{tool_name}")
+
+    {:reply, response, frame}
   end
 
   # Private helpers
