@@ -7,9 +7,9 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
   """
   use FFWeb, :live_view
 
+  alias FF.Accounts.Scope
   alias FF.Tracking
   alias FF.Tracking.Issue
-  alias FF.Accounts.Scope
 
   @impl true
   def mount(_params, _session, socket) do
@@ -104,31 +104,38 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
 
   @impl true
   def handle_event("delete", _params, socket) do
-    account = socket.assigns.current_scope.account
-
     if Scope.can_manage_account?(socket.assigns.current_scope) do
-      # Re-fetch project to prevent TOCTOU race condition
-      case Tracking.get_project(account, socket.assigns.project.id) do
-        nil ->
-          {:noreply,
-           socket
-           |> put_flash(:error, "Project not found.")
-           |> push_navigate(to: ~p"/dashboard/#{account.slug}/projects")}
-
-        project ->
-          case Tracking.delete_project(project) do
-            {:ok, _project} ->
-              {:noreply,
-               socket
-               |> put_flash(:info, "Project deleted successfully.")
-               |> push_navigate(to: ~p"/dashboard/#{account.slug}/projects")}
-
-            {:error, _changeset} ->
-              {:noreply, put_flash(socket, :error, "Failed to delete project.")}
-          end
-      end
+      do_delete_project(socket)
     else
       {:noreply, put_flash(socket, :error, "You don't have permission to delete projects.")}
+    end
+  end
+
+  defp do_delete_project(socket) do
+    account = socket.assigns.current_scope.account
+
+    case Tracking.get_project(account, socket.assigns.project.id) do
+      nil ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Project not found.")
+         |> push_navigate(to: ~p"/dashboard/#{account.slug}/projects")}
+
+      project ->
+        delete_and_redirect(socket, project, account)
+    end
+  end
+
+  defp delete_and_redirect(socket, project, account) do
+    case Tracking.delete_project(project) do
+      {:ok, _project} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Project deleted successfully.")
+         |> push_navigate(to: ~p"/dashboard/#{account.slug}/projects")}
+
+      {:error, _changeset} ->
+        {:noreply, put_flash(socket, :error, "Failed to delete project.")}
     end
   end
 

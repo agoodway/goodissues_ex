@@ -6,9 +6,9 @@ defmodule FFWeb.Dashboard.IssueLive.New do
   """
   use FFWeb, :live_view
 
+  alias FF.Accounts.Scope
   alias FF.Tracking
   alias FF.Tracking.Issue
-  alias FF.Accounts.Scope
 
   @impl true
   def mount(_params, _session, socket) do

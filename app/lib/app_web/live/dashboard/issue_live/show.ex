@@ -7,9 +7,9 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
   """
   use FFWeb, :live_view
 
+  alias FF.Accounts.Scope
   alias FF.Tracking
   alias FF.Tracking.Issue
-  alias FF.Accounts.Scope
 
   @impl true
   def mount(_params, _session, socket) do
@@ -64,31 +64,38 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
 
   @impl true
   def handle_event("delete", _params, socket) do
-    account = socket.assigns.current_scope.account
-
     if Scope.can_manage_account?(socket.assigns.current_scope) do
-      # Re-fetch issue to prevent TOCTOU race condition
-      case Tracking.get_issue(account, socket.assigns.issue.id) do
-        nil ->
-          {:noreply,
-           socket
-           |> put_flash(:error, "Issue not found.")
-           |> push_navigate(to: ~p"/dashboard/#{account.slug}/issues")}
-
-        issue ->
-          case Tracking.delete_issue(issue) do
-            {:ok, _issue} ->
-              {:noreply,
-               socket
-               |> put_flash(:info, "Issue deleted successfully.")
-               |> push_navigate(to: ~p"/dashboard/#{account.slug}/issues")}
-
-            {:error, _changeset} ->
-              {:noreply, put_flash(socket, :error, "Failed to delete issue.")}
-          end
-      end
+      do_delete_issue(socket)
     else
       {:noreply, put_flash(socket, :error, "You don't have permission to delete issues.")}
+    end
+  end
+
+  defp do_delete_issue(socket) do
+    account = socket.assigns.current_scope.account
+
+    case Tracking.get_issue(account, socket.assigns.issue.id) do
+      nil ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Issue not found.")
+         |> push_navigate(to: ~p"/dashboard/#{account.slug}/issues")}
+
+      issue ->
+        delete_issue_and_redirect(socket, issue, account)
+    end
+  end
+
+  defp delete_issue_and_redirect(socket, issue, account) do
+    case Tracking.delete_issue(issue) do
+      {:ok, _issue} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Issue deleted successfully.")
+         |> push_navigate(to: ~p"/dashboard/#{account.slug}/issues")}
+
+      {:error, _changeset} ->
+        {:noreply, put_flash(socket, :error, "Failed to delete issue.")}
     end
   end
 

@@ -25,6 +25,7 @@ defmodule FF.Tracking.Issue do
 
     belongs_to :project, FF.Tracking.Project
     belongs_to :submitter, FF.Accounts.User
+    has_one :error, FF.Tracking.Error
 
     timestamps(type: :utc_datetime)
   end
@@ -93,7 +94,7 @@ defmodule FF.Tracking.Issue do
   defp validate_enum_not_nil(changeset, field, valid_values) do
     # Check if the field was explicitly changed to nil (from a form submitting empty string)
     if Map.has_key?(changeset.changes, field) && get_change(changeset, field) == nil do
-      valid_options = valid_values |> Enum.map(&to_string/1) |> Enum.join(", ")
+      valid_options = Enum.map_join(valid_values, ", ", &to_string/1)
       add_error(changeset, field, "must be one of: #{valid_options}")
     else
       changeset

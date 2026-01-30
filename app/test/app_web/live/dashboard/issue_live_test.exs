@@ -522,4 +522,120 @@ defmodule FFWeb.Dashboard.IssueLiveTest do
       assert flash["error"] == "You don't have permission to create issues."
     end
   end
+
+  describe "Index (realtime updates)" do
+    setup :register_and_log_in_user_with_account
+
+    test "receives flash notification when issue is created via API", %{
+      conn: conn,
+      user: user,
+      account: account
+    } do
+      project = project_fixture(account, %{prefix: "RT"})
+
+      {:ok, index_live, _html} = live(conn, ~p"/dashboard/#{account.slug}/issues")
+
+      # Create an issue (simulating API creation)
+      {:ok, _issue} =
+        Tracking.create_issue(account, user, %{
+          title: "API Created Issue",
+          type: :bug,
+          project_id: project.id
+        })
+
+      # The LiveView should receive the PubSub message and show a flash
+      html = render(index_live)
+      assert html =~ "New issue created: RT-1"
+    end
+
+    test "increments total count when issue is created", %{
+      conn: conn,
+      user: user,
+      account: account
+    } do
+      project = project_fixture(account)
+
+      {:ok, index_live, html} = live(conn, ~p"/dashboard/#{account.slug}/issues")
+      assert html =~ "0 issues"
+
+      # Create an issue
+      {:ok, _issue} =
+        Tracking.create_issue(account, user, %{
+          title: "New Issue",
+          type: :bug,
+          project_id: project.id
+        })
+
+      html = render(index_live)
+      assert html =~ "1 issues"
+    end
+
+    test "updates issue in list when issue is updated", %{
+      conn: conn,
+      user: user,
+      account: account
+    } do
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project, %{title: "Original Title", status: :new})
+
+      {:ok, index_live, html} = live(conn, ~p"/dashboard/#{account.slug}/issues")
+      assert html =~ "Original Title"
+      assert html =~ "NEW"
+
+      # Update the issue
+      {:ok, _updated} =
+        Tracking.update_issue(issue, %{title: "Updated Title", status: :in_progress})
+
+      html = render(index_live)
+      assert html =~ "Updated Title"
+      assert html =~ "IN PROGRESS"
+    end
+
+    test "removes issue from list when filter no longer matches", %{
+      conn: conn,
+      user: user,
+      account: account
+    } do
+      project = project_fixture(account)
+      issue = issue_fixture(account, user, project, %{title: "Filterable Issue", status: :new})
+
+      # View issues filtered by status=new
+      {:ok, index_live, _html} = live(conn, ~p"/dashboard/#{account.slug}/issues?status=new")
+
+      html = render(index_live)
+      assert html =~ "Filterable Issue"
+      assert html =~ "1 issues"
+
+      # Update issue status to in_progress (no longer matches filter)
+      {:ok, _updated} = Tracking.update_issue(issue, %{status: :in_progress})
+
+      html = render(index_live)
+      refute html =~ "Filterable Issue"
+      assert html =~ "0 issues"
+    end
+
+    test "does not update issues from other accounts", %{conn: conn, account: account} do
+      _project = project_fixture(account)
+
+      # Create another account with its own issue
+      other_user = user_fixture()
+      other_account = account_fixture(other_user, %{name: "Other Account"})
+      other_project = project_fixture(other_account, %{prefix: "OTH"})
+
+      {:ok, index_live, _html} = live(conn, ~p"/dashboard/#{account.slug}/issues")
+
+      # Create issue in the other account
+      {:ok, _other_issue} =
+        Tracking.create_issue(other_account, other_user, %{
+          title: "Other Account Issue",
+          type: :bug,
+          project_id: other_project.id
+        })
+
+      # Should not see notification or count update for other account's issue
+      html = render(index_live)
+      refute html =~ "New issue created: OTH-1"
+      assert html =~ "0 issues"
+    end
+  end
 end

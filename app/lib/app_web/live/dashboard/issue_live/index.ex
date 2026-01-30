@@ -7,12 +7,19 @@ defmodule FFWeb.Dashboard.IssueLive.Index do
   """
   use FFWeb, :live_view
 
+  alias FF.Accounts.Scope
   alias FF.Tracking
   alias FF.Tracking.Issue
-  alias FF.Accounts.Scope
 
   @impl true
   def mount(_params, _session, socket) do
+    # Subscribe to realtime issue updates for this account
+    account_id = socket.assigns.current_scope.account.id
+
+    if connected?(socket) do
+      Phoenix.PubSub.subscribe(FF.PubSub, Tracking.issues_topic(account_id))
+    end
+
     {:ok, assign(socket, :can_manage, Scope.can_manage_account?(socket.assigns.current_scope))}
   end
 
@@ -85,6 +92,76 @@ defmodule FFWeb.Dashboard.IssueLive.Index do
      push_patch(socket,
        to: pagination_path(account_slug, socket.assigns.status_filter, type, 1)
      )}
+  end
+
+  # Handle realtime issue creation events
+  @impl true
+  def handle_info({:issue_created, issue_data}, socket) do
+    # Increment the total count and show toast notification
+    new_total = socket.assigns.total + 1
+    issue_key = "#{issue_data.project.prefix}-#{issue_data.number}"
+
+    socket =
+      socket
+      |> assign(:total, new_total)
+      |> put_flash(:info, "New issue created: #{issue_key}")
+
+    {:noreply, socket}
+  end
+
+  # Handle realtime issue update events
+  @impl true
+  def handle_info({:issue_updated, issue_data}, socket) do
+    # Check if the updated issue is in the current list
+    issues = socket.assigns.issues
+
+    case Enum.find_index(issues, &(&1.id == issue_data.id)) do
+      nil ->
+        # Issue not in current list, nothing to update
+        {:noreply, socket}
+
+      index ->
+        # Update the issue in the list
+        updated_issue = update_issue_from_payload(Enum.at(issues, index), issue_data)
+
+        # Check if issue still matches current filters
+        if matches_filters?(updated_issue, socket.assigns) do
+          updated_issues = List.replace_at(issues, index, updated_issue)
+          {:noreply, assign(socket, :issues, updated_issues)}
+        else
+          # Remove issue from list if it no longer matches filters
+          updated_issues = List.delete_at(issues, index)
+
+          {:noreply,
+           socket |> assign(:issues, updated_issues) |> assign(:total, socket.assigns.total - 1)}
+        end
+    end
+  end
+
+  defp update_issue_from_payload(issue, payload) do
+    %{
+      issue
+      | title: payload.title,
+        status: payload.status,
+        type: payload.type,
+        priority: payload.priority
+    }
+  end
+
+  defp matches_filters?(issue, assigns) do
+    status_match =
+      case assigns.status_filter do
+        "" -> true
+        status -> to_string(issue.status) == status
+      end
+
+    type_match =
+      case assigns.type_filter do
+        "" -> true
+        type -> to_string(issue.type) == type
+      end
+
+    status_match and type_match
   end
 
   defp format_datetime(nil), do: "-"

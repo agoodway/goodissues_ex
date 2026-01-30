@@ -108,8 +108,7 @@ defmodule FF.Tracking.Project do
     |> String.replace(~r/[^a-zA-Z0-9\s]/, "")
     |> String.split()
     |> Enum.take(3)
-    |> Enum.map(&String.first/1)
-    |> Enum.join()
+    |> Enum.map_join(&String.first/1)
     |> String.upcase()
     |> case do
       "" -> "PRJ"
