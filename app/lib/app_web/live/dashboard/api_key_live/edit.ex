@@ -430,7 +430,10 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Edit do
       <%!-- Key Info Bar --%>
       <div class="key-info-bar mb-4 sm:mb-6">
         <div class="flex items-center gap-2">
-          <.icon name={if @api_key.type == :private, do: "hero-lock-closed", else: "hero-globe-alt"} class="size-4 text-muted" />
+          <.icon
+            name={if @api_key.type == :private, do: "hero-lock-closed", else: "hero-globe-alt"}
+            class="size-4 text-muted"
+          />
           <span class="text-primary font-semibold">{@api_key.name}</span>
         </div>
         <div class="divider-line h-4 w-px bg-base-300 hidden sm:block"></div>
@@ -543,7 +546,9 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Edit do
         <div class="summary-bar mb-4 sm:mb-6">
           <div class="summary-left flex items-center gap-5">
             <div class="flex items-center gap-3">
-              <span class="font-mono text-xs font-semibold uppercase tracking-wider text-muted">Selected</span>
+              <span class="font-mono text-xs font-semibold uppercase tracking-wider text-muted">
+                Selected
+              </span>
               <span class="count-badge">{MapSet.size(@selected_scopes)}</span>
             </div>
 
@@ -585,14 +590,17 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Edit do
         </div>
 
         <%!-- Info Notice --%>
-        <div :if={MapSet.size(@selected_scopes) == 0} class="edit-panel p-3 sm:p-4 border-l-2 border-l-info">
+        <div
+          :if={MapSet.size(@selected_scopes) == 0}
+          class="edit-panel p-3 sm:p-4 border-l-2 border-l-info"
+        >
           <div class="flex items-start gap-3">
             <.icon name="hero-information-circle" class="size-5 text-info flex-shrink-0 mt-0.5" />
             <div>
               <div class="text-sm font-medium">No Scope Restrictions</div>
               <div class="text-xs text-muted mt-1">
                 When no scopes are selected, this API key has access to all operations allowed by its type
-                (<%= if @api_key.type == :private, do: "read and write", else: "read only" %>).
+                ({if @api_key.type == :private, do: "read and write", else: "read only"}).
                 Select specific scopes above to restrict access.
               </div>
             </div>

@@ -547,7 +547,9 @@ defmodule FFWeb.Dashboard.IssueLiveTest do
     } do
       project = project_fixture(account)
       issue = issue_fixture(account, user, project, %{title: "Issue With Error"})
-      _error = error_fixture(issue, %{kind: "Elixir.RuntimeError", reason: "something went wrong"})
+
+      _error =
+        error_fixture(issue, %{kind: "Elixir.RuntimeError", reason: "something went wrong"})
 
       {:ok, _show_live, html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
 

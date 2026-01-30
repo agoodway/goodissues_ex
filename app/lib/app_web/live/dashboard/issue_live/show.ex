@@ -283,7 +283,10 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
                 navigate={~p"/dashboard/#{@current_scope.account.slug}/issues"}
                 class="issue-back-link group"
               >
-                <.icon name="hero-arrow-left" class="size-4 group-hover:-translate-x-0.5 transition-transform" />
+                <.icon
+                  name="hero-arrow-left"
+                  class="size-4 group-hover:-translate-x-0.5 transition-transform"
+                />
                 <span>Issues</span>
               </.link>
               <span class="text-base-content/20 font-mono">/</span>
@@ -296,7 +299,10 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
                 <div class="flex items-center gap-3 mb-2">
                   <div class="issue-key-badge">
                     <span class="issue-key-icon">
-                      <.icon name={if @issue.type == :bug, do: "hero-bug-ant", else: "hero-sparkles"} class="size-4" />
+                      <.icon
+                        name={if @issue.type == :bug, do: "hero-bug-ant", else: "hero-sparkles"}
+                        class="size-4"
+                      />
                     </span>
                     <span class="issue-key-text">{Issue.issue_key(@issue)}</span>
                   </div>
@@ -383,17 +389,39 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
                       <div :if={@can_manage} class="flex items-center gap-2">
                         <button
                           phx-click="toggle_muted"
-                          class={["issue-error-toggle", @issue.error.muted && "issue-error-toggle-active"]}
+                          class={[
+                            "issue-error-toggle",
+                            @issue.error.muted && "issue-error-toggle-active"
+                          ]}
                         >
-                          <.icon name={if @issue.error.muted, do: "hero-speaker-x-mark", else: "hero-speaker-wave"} class="size-3.5" />
+                          <.icon
+                            name={
+                              if @issue.error.muted,
+                                do: "hero-speaker-x-mark",
+                                else: "hero-speaker-wave"
+                            }
+                            class="size-3.5"
+                          />
                           <span>{if @issue.error.muted, do: "Muted", else: "Mute"}</span>
                         </button>
                         <button
                           phx-click="toggle_status"
-                          class={["issue-error-toggle", @issue.error.status == :resolved && "issue-error-toggle-resolved"]}
+                          class={[
+                            "issue-error-toggle",
+                            @issue.error.status == :resolved && "issue-error-toggle-resolved"
+                          ]}
                         >
-                          <.icon name={if @issue.error.status == :resolved, do: "hero-check-circle", else: "hero-x-circle"} class="size-3.5" />
-                          <span>{if @issue.error.status == :resolved, do: "Resolved", else: "Resolve"}</span>
+                          <.icon
+                            name={
+                              if @issue.error.status == :resolved,
+                                do: "hero-check-circle",
+                                else: "hero-x-circle"
+                            }
+                            class="size-3.5"
+                          />
+                          <span>
+                            {if @issue.error.status == :resolved, do: "Resolved", else: "Resolve"}
+                          </span>
                         </button>
                       </div>
                     </div>
@@ -402,19 +430,26 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
                     <%!-- Error stats row --%>
                     <div class="issue-error-stats">
                       <div class="issue-error-stat">
-                        <span class="issue-error-stat-value">{@issue.error.occurrence_count || 0}</span>
+                        <span class="issue-error-stat-value">
+                          {@issue.error.occurrence_count || 0}
+                        </span>
                         <span class="issue-error-stat-label">Occurrences</span>
                       </div>
                       <div class="issue-error-stat-divider"></div>
                       <div class="issue-error-stat">
-                        <span class={["issue-error-stat-value", error_status_value_class(@issue.error.status)]}>
+                        <span class={[
+                          "issue-error-stat-value",
+                          error_status_value_class(@issue.error.status)
+                        ]}>
                           {error_status_label(@issue.error.status)}
                         </span>
                         <span class="issue-error-stat-label">Status</span>
                       </div>
                       <div class="issue-error-stat-divider"></div>
                       <div class="issue-error-stat">
-                        <span class="issue-error-stat-value text-sm">{format_datetime(@issue.error.last_occurrence_at)}</span>
+                        <span class="issue-error-stat-value text-sm">
+                          {format_datetime(@issue.error.last_occurrence_at)}
+                        </span>
                         <span class="issue-error-stat-label">Last Seen</span>
                       </div>
                     </div>
@@ -434,13 +469,20 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
                     </div>
 
                     <%!-- Collapsible stacktrace --%>
-                    <div :if={@issue.error.occurrences != [] && hd(@issue.error.occurrences).stacktrace_lines != []}>
+                    <div :if={
+                      @issue.error.occurrences != [] &&
+                        hd(@issue.error.occurrences).stacktrace_lines != []
+                    }>
                       <button
                         phx-click="toggle_stacktrace"
                         class="issue-stacktrace-toggle"
                       >
                         <.icon
-                          name={if @stacktrace_expanded, do: "hero-chevron-down", else: "hero-chevron-right"}
+                          name={
+                            if @stacktrace_expanded,
+                              do: "hero-chevron-down",
+                              else: "hero-chevron-right"
+                          }
                           class="size-4 transition-transform"
                         />
                         <span>Stack Trace</span>
@@ -449,7 +491,13 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
                         </span>
                       </button>
                       <div :if={@stacktrace_expanded} class="issue-stacktrace">
-                        <div :for={{line, idx} <- Enum.with_index(hd(@issue.error.occurrences).stacktrace_lines)} class="issue-stacktrace-line">
+                        <div
+                          :for={
+                            {line, idx} <-
+                              Enum.with_index(hd(@issue.error.occurrences).stacktrace_lines)
+                          }
+                          class="issue-stacktrace-line"
+                        >
                           <span class="issue-stacktrace-num">{idx + 1}</span>
                           <span class="issue-stacktrace-code">{format_stacktrace_line(line)}</span>
                         </div>
@@ -471,7 +519,9 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
                     <div class="issue-detail-row">
                       <span class="issue-detail-label">Project</span>
                       <.link
-                        navigate={~p"/dashboard/#{@current_scope.account.slug}/projects/#{@issue.project.id}"}
+                        navigate={
+                          ~p"/dashboard/#{@current_scope.account.slug}/projects/#{@issue.project.id}"
+                        }
                         class="issue-detail-value issue-detail-link"
                       >
                         <span class="issue-project-prefix">{@issue.project.prefix}</span>
@@ -481,7 +531,10 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
                     <div class="issue-detail-row">
                       <span class="issue-detail-label">Type</span>
                       <span class={["issue-detail-badge", type_detail_class(@issue.type)]}>
-                        <.icon name={if @issue.type == :bug, do: "hero-bug-ant", else: "hero-sparkles"} class="size-3.5" />
+                        <.icon
+                          name={if @issue.type == :bug, do: "hero-bug-ant", else: "hero-sparkles"}
+                          class="size-3.5"
+                        />
                         {type_label(@issue.type)}
                       </span>
                     </div>
@@ -512,10 +565,18 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
                       <span class="issue-detail-label">Submitter</span>
                       <div class="issue-person">
                         <div class="issue-person-avatar">
-                          {get_initials((@issue.submitter && @issue.submitter.email) || @issue.submitter_email)}
+                          {get_initials(
+                            (@issue.submitter && @issue.submitter.email) || @issue.submitter_email
+                          )}
                         </div>
-                        <span class="issue-person-email" title={(@issue.submitter && @issue.submitter.email) || @issue.submitter_email}>
-                          {(@issue.submitter && @issue.submitter.email) || @issue.submitter_email || "—"}
+                        <span
+                          class="issue-person-email"
+                          title={
+                            (@issue.submitter && @issue.submitter.email) || @issue.submitter_email
+                          }
+                        >
+                          {(@issue.submitter && @issue.submitter.email) || @issue.submitter_email ||
+                            "—"}
                         </span>
                       </div>
                     </div>
@@ -534,21 +595,27 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
                         <div class="issue-timeline-dot issue-timeline-dot-created"></div>
                         <div class="issue-timeline-content">
                           <span class="issue-timeline-label">Created</span>
-                          <span class="issue-timeline-value">{format_datetime(@issue.inserted_at)}</span>
+                          <span class="issue-timeline-value">
+                            {format_datetime(@issue.inserted_at)}
+                          </span>
                         </div>
                       </div>
                       <div class="issue-timeline-item">
                         <div class="issue-timeline-dot issue-timeline-dot-updated"></div>
                         <div class="issue-timeline-content">
                           <span class="issue-timeline-label">Updated</span>
-                          <span class="issue-timeline-value">{format_datetime(@issue.updated_at)}</span>
+                          <span class="issue-timeline-value">
+                            {format_datetime(@issue.updated_at)}
+                          </span>
                         </div>
                       </div>
                       <div :if={@issue.archived_at} class="issue-timeline-item">
                         <div class="issue-timeline-dot issue-timeline-dot-archived"></div>
                         <div class="issue-timeline-content">
                           <span class="issue-timeline-label">Archived</span>
-                          <span class="issue-timeline-value">{format_datetime(@issue.archived_at)}</span>
+                          <span class="issue-timeline-value">
+                            {format_datetime(@issue.archived_at)}
+                          </span>
                         </div>
                       </div>
                     </div>

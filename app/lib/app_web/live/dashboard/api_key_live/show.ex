@@ -295,10 +295,15 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Show do
                 @api_key.status == :active && "bg-success/15 text-success status-indicator-active",
                 @api_key.status == :revoked && "bg-error/15 text-error"
               ]}>
-                <.icon name={if @api_key.type == :private, do: "hero-lock-closed", else: "hero-globe-alt"} class="size-4 sm:size-5" />
+                <.icon
+                  name={if @api_key.type == :private, do: "hero-lock-closed", else: "hero-globe-alt"}
+                  class="size-4 sm:size-5"
+                />
               </div>
               <div class="min-w-0">
-                <h1 class="text-lg sm:text-xl font-semibold tracking-tight truncate">{@api_key.name}</h1>
+                <h1 class="text-lg sm:text-xl font-semibold tracking-tight truncate">
+                  {@api_key.name}
+                </h1>
                 <div class="flex items-center gap-2 mt-1 flex-wrap">
                   <span class={[
                     "status-badge",
@@ -306,7 +311,8 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Show do
                     @api_key.status == :revoked && "status-badge-revoked"
                   ]}>
                     <%= if @api_key.status == :active do %>
-                      <span class="inline-block w-1.5 h-1.5 rounded-full bg-current mr-1.5 animate-pulse"></span>
+                      <span class="inline-block w-1.5 h-1.5 rounded-full bg-current mr-1.5 animate-pulse">
+                      </span>
                     <% end %>
                     {@api_key.status}
                   </span>
@@ -369,8 +375,7 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Show do
           <div class="flex flex-wrap gap-1">
             <%= if @api_key.scopes == [] do %>
               <span class="scope-chip">
-                <.icon name="hero-check-circle" class="size-3" />
-                All scopes
+                <.icon name="hero-check-circle" class="size-3" /> All scopes
               </span>
             <% else %>
               <%= for scope <- @api_key.scopes do %>
@@ -405,7 +410,9 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Show do
               </div>
               <div class="pb-4">
                 <div class="text-xs font-medium">Created</div>
-                <div class="font-mono text-xs text-muted">{format_datetime(@api_key.inserted_at)}</div>
+                <div class="font-mono text-xs text-muted">
+                  {format_datetime(@api_key.inserted_at)}
+                </div>
               </div>
             </div>
 
@@ -450,7 +457,9 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Show do
               <div>
                 <div class="text-xs font-medium">Expires</div>
                 <%= if @api_key.expires_at do %>
-                  <div class="font-mono text-xs text-muted">{format_datetime(@api_key.expires_at)}</div>
+                  <div class="font-mono text-xs text-muted">
+                    {format_datetime(@api_key.expires_at)}
+                  </div>
                 <% else %>
                   <div class="font-mono text-xs text-muted">Never</div>
                 <% end %>
@@ -523,7 +532,9 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Show do
           <.icon name="hero-information-circle" class="size-5 text-info flex-shrink-0" />
           <div>
             <div class="text-sm font-medium">Read-only Access</div>
-            <div class="text-xs text-muted mt-0.5">Contact an account admin to modify or revoke this API key.</div>
+            <div class="text-xs text-muted mt-0.5">
+              Contact an account admin to modify or revoke this API key.
+            </div>
           </div>
         </div>
       </div>

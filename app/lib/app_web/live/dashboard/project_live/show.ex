@@ -196,7 +196,10 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
                 navigate={~p"/dashboard/#{@current_scope.account.slug}/projects"}
                 class="project-back-link group"
               >
-                <.icon name="hero-arrow-left" class="size-4 group-hover:-translate-x-0.5 transition-transform" />
+                <.icon
+                  name="hero-arrow-left"
+                  class="size-4 group-hover:-translate-x-0.5 transition-transform"
+                />
                 <span>Projects</span>
               </.link>
               <span class="text-base-content/20 font-mono">/</span>
@@ -292,11 +295,12 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
                     <div class="project-card-header-actions">
                       <.link
                         :if={@issue_count > 0}
-                        navigate={~p"/dashboard/#{@current_scope.account.slug}/issues?project_id=#{@project.id}"}
+                        navigate={
+                          ~p"/dashboard/#{@current_scope.account.slug}/issues?project_id=#{@project.id}"
+                        }
                         class="project-view-all-link"
                       >
-                        View all
-                        <.icon name="hero-arrow-right" class="size-3.5" />
+                        View all <.icon name="hero-arrow-right" class="size-3.5" />
                       </.link>
                     </div>
                   </div>
@@ -309,8 +313,7 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
                         navigate={~p"/dashboard/#{@current_scope.account.slug}/issues/new"}
                         class="project-create-issue-link mt-3"
                       >
-                        <.icon name="hero-plus" class="size-4" />
-                        Create first issue
+                        <.icon name="hero-plus" class="size-4" /> Create first issue
                       </.link>
                     </div>
                     <div :if={@recent_issues != []} class="project-issues-list">
@@ -321,7 +324,12 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
                         >
                           <div class="project-issue-row-left">
                             <div class={["project-issue-type", issue_type_class(issue.type)]}>
-                              <.icon name={if issue.type == :bug, do: "hero-bug-ant", else: "hero-sparkles"} class="size-3" />
+                              <.icon
+                                name={
+                                  if issue.type == :bug, do: "hero-bug-ant", else: "hero-sparkles"
+                                }
+                                class="size-3"
+                              />
                             </div>
                             <span class="project-issue-key">{Issue.issue_key(issue)}</span>
                             <span class="project-issue-title">{issue.title}</span>
@@ -330,7 +338,9 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
                             <span class={["project-issue-status", issue_status_class(issue.status)]}>
                               {status_label(issue.status)}
                             </span>
-                            <span class="project-issue-time">{format_relative_time(issue.inserted_at)}</span>
+                            <span class="project-issue-time">
+                              {format_relative_time(issue.inserted_at)}
+                            </span>
                           </div>
                         </.link>
                       <% end %>
@@ -349,7 +359,9 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
                       <span class="project-stat-label">Issues</span>
                     </div>
                     <div class="project-stat-box">
-                      <span class="project-stat-value project-stat-value-next">{@project.issue_counter}</span>
+                      <span class="project-stat-value project-stat-value-next">
+                        {@project.issue_counter}
+                      </span>
                       <span class="project-stat-label">Next #</span>
                     </div>
                   </div>
@@ -364,7 +376,9 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
                   <div class="project-sidebar-body">
                     <div class="project-detail-row">
                       <span class="project-detail-label">Prefix</span>
-                      <span class="project-detail-value project-detail-prefix">{@project.prefix}</span>
+                      <span class="project-detail-value project-detail-prefix">
+                        {@project.prefix}
+                      </span>
                     </div>
                     <div class="project-detail-row">
                       <span class="project-detail-label">Issue Count</span>
@@ -372,7 +386,9 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
                     </div>
                     <div class="project-detail-row">
                       <span class="project-detail-label">Next Issue</span>
-                      <span class="project-detail-value text-muted">{@project.prefix}-{@project.issue_counter}</span>
+                      <span class="project-detail-value text-muted">
+                        {@project.prefix}-{@project.issue_counter}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -389,14 +405,18 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
                         <div class="project-timeline-dot project-timeline-dot-created"></div>
                         <div class="project-timeline-content">
                           <span class="project-timeline-label">Created</span>
-                          <span class="project-timeline-value">{format_datetime(@project.inserted_at)}</span>
+                          <span class="project-timeline-value">
+                            {format_datetime(@project.inserted_at)}
+                          </span>
                         </div>
                       </div>
                       <div class="project-timeline-item">
                         <div class="project-timeline-dot project-timeline-dot-updated"></div>
                         <div class="project-timeline-content">
                           <span class="project-timeline-label">Updated</span>
-                          <span class="project-timeline-value">{format_datetime(@project.updated_at)}</span>
+                          <span class="project-timeline-value">
+                            {format_datetime(@project.updated_at)}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -423,7 +443,13 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
         on_cancel={JS.patch(~p"/dashboard/#{@current_scope.account.slug}/projects/#{@project.id}")}
       >
         <div class="space-y-5">
-          <.form for={@form} id="project-form" phx-change="validate" phx-submit="save" class="space-y-4">
+          <.form
+            for={@form}
+            id="project-form"
+            phx-change="validate"
+            phx-submit="save"
+            class="space-y-4"
+          >
             <.input
               field={@form[:name]}
               type="text"

@@ -371,7 +371,14 @@ defmodule FF.Tracking do
       error ->
         # Preload the latest occurrence with stacktrace
         error
-        |> Repo.preload(occurrences: from(o in Occurrence, order_by: [desc: o.inserted_at], limit: 1, preload: :stacktrace_lines))
+        |> Repo.preload(
+          occurrences:
+            from(o in Occurrence,
+              order_by: [desc: o.inserted_at],
+              limit: 1,
+              preload: :stacktrace_lines
+            )
+        )
     end
   end
 

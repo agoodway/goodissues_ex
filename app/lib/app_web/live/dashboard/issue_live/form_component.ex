@@ -54,7 +54,12 @@ defmodule FFWeb.Dashboard.IssueLive.FormComponent do
             field={@form[:priority]}
             type="select"
             label="Priority"
-            options={[{"Low", "low"}, {"Medium", "medium"}, {"High", "high"}, {"Critical", "critical"}]}
+            options={[
+              {"Low", "low"},
+              {"Medium", "medium"},
+              {"High", "high"},
+              {"Critical", "critical"}
+            ]}
           />
         </div>
 
