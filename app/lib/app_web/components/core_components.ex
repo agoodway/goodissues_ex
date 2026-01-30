@@ -470,45 +470,89 @@ defmodule FFWeb.CoreComponents do
   end
 
   @doc """
-  Renders a modal dialog.
+  Renders a modal dialog with industrial terminal aesthetic.
 
   ## Examples
 
-      <.modal id="confirm-modal">
-        Are you sure you want to delete this?
-        <:actions>
-          <.button phx-click="delete">Delete</.button>
-        </:actions>
+      <.modal id="confirm-modal" title="Confirm Delete">
+        <p>Are you sure you want to delete this?</p>
+        <div class="modal-action">
+          <.button>Cancel</.button>
+          <.button variant="primary" phx-click="delete">Delete</.button>
+        </div>
       </.modal>
 
+  ## Options
+
+  - `size` - Modal size: `:sm`, `:md` (default), `:lg`, `:xl`
+  - `title` - Optional modal title displayed in the header
   """
   attr :id, :string, required: true
   attr :show, :boolean, default: false
   attr :on_cancel, JS, default: %JS{}
+  attr :size, :atom, default: :md, values: [:sm, :md, :lg, :xl]
+  attr :title, :string, default: nil
   slot :inner_block, required: true
 
   def modal(assigns) do
+    size_class =
+      case assigns.size do
+        :sm -> "modal-panel-sm"
+        :md -> "modal-panel-md"
+        :lg -> "modal-panel-lg"
+        :xl -> "modal-panel-xl"
+      end
+
+    assigns = assign(assigns, :size_class, size_class)
+
     ~H"""
     <dialog
       id={@id}
-      class="modal"
+      class="modal-terminal"
       phx-mounted={@show && show_modal(@id)}
       phx-remove={hide_modal(@id)}
     >
-      <div class="modal-box">
-        <form method="dialog">
-          <button
-            phx-click={JS.exec(@on_cancel, "phx-remove", to: "##{@id}")}
-            type="button"
-            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-            aria-label={gettext("close")}
-          >
-            <.icon name="hero-x-mark" class="size-5" />
-          </button>
-        </form>
-        {render_slot(@inner_block)}
+      <%!-- Backdrop with blur --%>
+      <div class="modal-backdrop-blur"></div>
+
+      <%!-- Modal panel --%>
+      <div class={"modal-panel #{@size_class}"}>
+        <%!-- Glow border effect --%>
+        <div class="modal-glow"></div>
+
+        <%!-- Scanline overlay --%>
+        <div class="modal-scanlines"></div>
+
+        <%!-- Header bar --%>
+        <div class="modal-header">
+          <div class="modal-header-decoration">
+            <span class="modal-dot modal-dot-error"></span>
+            <span class="modal-dot modal-dot-warning"></span>
+            <span class="modal-dot modal-dot-success"></span>
+          </div>
+          <span :if={@title} class="modal-title">{@title}</span>
+          <span :if={!@title} class="modal-title-placeholder">_</span>
+          <form method="dialog" class="ml-auto">
+            <button
+              phx-click={JS.exec(@on_cancel, "phx-remove", to: "##{@id}")}
+              type="button"
+              class="modal-close-btn"
+              aria-label={gettext("close")}
+            >
+              <span class="modal-close-icon">×</span>
+              <span class="modal-close-text">ESC</span>
+            </button>
+          </form>
+        </div>
+
+        <%!-- Content area --%>
+        <div class="modal-content">
+          {render_slot(@inner_block)}
+        </div>
       </div>
-      <form method="dialog" class="modal-backdrop">
+
+      <%!-- Backdrop click handler --%>
+      <form method="dialog" class="modal-backdrop-click">
         <button phx-click={JS.exec(@on_cancel, "phx-remove", to: "##{@id}")}>close</button>
       </form>
     </dialog>

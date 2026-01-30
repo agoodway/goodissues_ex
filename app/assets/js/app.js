@@ -98,13 +98,49 @@ topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
 window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
 window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
 
-// Modal event handlers for daisyUI dialogs
+// Modal event handlers for terminal-style modals
 window.addEventListener("modal:open", e => {
-  e.target.showModal()
+  const modal = e.target
+  modal.showModal()
+
+  // Add opening class for animations
+  modal.classList.add("modal-opening")
+  requestAnimationFrame(() => {
+    modal.classList.remove("modal-opening")
+  })
+
+  // Intercept native ESC/cancel to add closing animation
+  const handleCancel = (event) => {
+    event.preventDefault()
+    closeModalWithAnimation(modal)
+  }
+  modal._cancelHandler = handleCancel
+  modal.addEventListener("cancel", handleCancel)
 })
+
 window.addEventListener("modal:close", e => {
-  e.target.close()
+  const modal = e.target
+  closeModalWithAnimation(modal)
 })
+
+function closeModalWithAnimation(modal) {
+  if (!modal.open || modal.classList.contains("modal-closing")) return
+
+  // Clean up cancel handler
+  if (modal._cancelHandler) {
+    modal.removeEventListener("cancel", modal._cancelHandler)
+    delete modal._cancelHandler
+  }
+
+  // Add closing animation
+  modal.classList.add("modal-closing")
+
+  // Wait for animation to complete before closing
+  setTimeout(() => {
+    modal.classList.remove("modal-closing")
+    modal.close()
+  }, 200)
+}
 
 // connect if there are any LiveViews on the page
 liveSocket.connect()
