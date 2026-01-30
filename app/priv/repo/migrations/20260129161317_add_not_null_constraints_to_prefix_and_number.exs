@@ -32,8 +32,5 @@ defmodule FF.Repo.Migrations.AddNotNullConstraintsToPrefixAndNumber do
     # Create unique indexes concurrently for zero-downtime
     create unique_index(:projects, [:account_id, :prefix], concurrently: true)
     create unique_index(:issues, [:project_id, :number], concurrently: true)
-
-    # Add index on issues.inserted_at for query performance
-    create index(:issues, [:project_id, :inserted_at], concurrently: true)
   end
 end
