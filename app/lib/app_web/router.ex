@@ -105,6 +105,11 @@ defmodule FFWeb.Router do
     # Issues
     get "/issues", IssueController, :index
     get "/issues/:id", IssueController, :show
+
+    # Errors
+    get "/errors", ErrorController, :index
+    get "/errors/search", ErrorController, :search
+    get "/errors/:id", ErrorController, :show
   end
 
   # ============================================
@@ -122,6 +127,10 @@ defmodule FFWeb.Router do
     post "/issues", IssueController, :create
     patch "/issues/:id", IssueController, :update
     delete "/issues/:id", IssueController, :delete
+
+    # Errors
+    post "/errors", ErrorController, :create
+    patch "/errors/:id", ErrorController, :update
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

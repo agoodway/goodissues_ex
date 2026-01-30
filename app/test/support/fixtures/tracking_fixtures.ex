@@ -56,4 +56,59 @@ defmodule FF.TrackingFixtures do
 
     issue
   end
+
+  def unique_fingerprint, do: :crypto.strong_rand_bytes(32) |> Base.encode16(case: :lower)
+
+  def valid_error_attributes(attrs \\ %{}) do
+    Enum.into(attrs, %{
+      kind: "Elixir.RuntimeError",
+      reason: "something went wrong",
+      source_line: "lib/app/worker.ex:42",
+      source_function: "MyApp.Worker.perform/2",
+      fingerprint: unique_fingerprint(),
+      last_occurrence_at: DateTime.utc_now(:second)
+    })
+  end
+
+  def valid_occurrence_attributes(attrs \\ %{}) do
+    Enum.into(attrs, %{
+      reason: "something went wrong",
+      context: %{"request_id" => "abc123"},
+      breadcrumbs: ["Started processing", "Fetched data"],
+      stacktrace_lines: [
+        %{
+          application: "my_app",
+          module: "MyApp.Worker",
+          function: "perform",
+          arity: 2,
+          file: "lib/my_app/worker.ex",
+          line: 42
+        },
+        %{
+          application: "elixir",
+          module: "Task.Supervised",
+          function: "invoke",
+          arity: 2,
+          file: "lib/task/supervised.ex",
+          line: 90
+        }
+      ]
+    })
+  end
+
+  @doc """
+  Creates an error fixture with an occurrence.
+
+  Requires an issue to be passed.
+  """
+  def error_fixture(issue, error_attrs \\ %{}, occurrence_attrs \\ %{}) do
+    {:ok, error} =
+      Tracking.create_error_with_occurrence(
+        issue,
+        valid_error_attributes(error_attrs),
+        valid_occurrence_attributes(occurrence_attrs)
+      )
+
+    error
+  end
 end
