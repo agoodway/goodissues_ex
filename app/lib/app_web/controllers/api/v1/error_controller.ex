@@ -5,6 +5,8 @@ defmodule FFWeb.Api.V1.ErrorController do
   alias FF.Tracking
   alias FF.Tracking.Error
 
+  alias FFWeb.Api.V1.Schemas.Error, as: ErrorSchemas
+
   plug FFWeb.Plugs.ApiAuth,
        {:require_scope, "errors:read"} when action in [:index, :show, :search]
 
@@ -20,7 +22,7 @@ defmodule FFWeb.Api.V1.ErrorController do
     parameters: [
       status: [
         in: :query,
-        schema: %OpenApiSpex.Schema{type: :string, enum: ["resolved", "unresolved"]},
+        schema: ErrorSchemas.ErrorStatus,
         description: "Filter by status"
       ],
       muted: [
@@ -40,7 +42,7 @@ defmodule FFWeb.Api.V1.ErrorController do
       ]
     ],
     responses: [
-      ok: {"Error list", "application/json", %OpenApiSpex.Schema{type: :object}},
+      ok: {"Error list", "application/json", ErrorSchemas.ErrorListResponse},
       unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON}
     ]
   )
@@ -96,7 +98,7 @@ defmodule FFWeb.Api.V1.ErrorController do
       ]
     ],
     responses: [
-      ok: {"Error with occurrences", "application/json", %OpenApiSpex.Schema{type: :object}},
+      ok: {"Error with occurrences", "application/json", ErrorSchemas.ErrorResponse},
       not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
       unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON}
     ]
@@ -118,10 +120,10 @@ defmodule FFWeb.Api.V1.ErrorController do
     summary: "Report error",
     description:
       "Reports an error. If fingerprint matches existing error, adds occurrence. Otherwise creates new issue and error.",
-    request_body: {"Error params", "application/json", %OpenApiSpex.Schema{type: :object}},
+    request_body: {"Error params", "application/json", ErrorSchemas.ErrorReportRequest},
     responses: [
-      created: {"Error created", "application/json", %OpenApiSpex.Schema{type: :object}},
-      ok: {"Occurrence added", "application/json", %OpenApiSpex.Schema{type: :object}},
+      created: {"Error created", "application/json", ErrorSchemas.ErrorResponse},
+      ok: {"Occurrence added", "application/json", ErrorSchemas.ErrorResponse},
       unprocessable_entity: {"Validation error", "application/json", FFWeb.ChangesetJSON},
       unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON},
       forbidden: {"Forbidden", "application/json", FFWeb.ErrorJSON}
@@ -199,9 +201,9 @@ defmodule FFWeb.Api.V1.ErrorController do
         required: true
       ]
     ],
-    request_body: {"Error params", "application/json", %OpenApiSpex.Schema{type: :object}},
+    request_body: {"Error params", "application/json", ErrorSchemas.ErrorUpdateRequest},
     responses: [
-      ok: {"Error updated", "application/json", %OpenApiSpex.Schema{type: :object}},
+      ok: {"Error updated", "application/json", ErrorSchemas.ErrorResponse},
       not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
       unprocessable_entity: {"Validation error", "application/json", FFWeb.ChangesetJSON},
       unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON},
@@ -259,7 +261,7 @@ defmodule FFWeb.Api.V1.ErrorController do
       ]
     ],
     responses: [
-      ok: {"Error list", "application/json", %OpenApiSpex.Schema{type: :object}},
+      ok: {"Error list", "application/json", ErrorSchemas.ErrorListResponse},
       unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON}
     ]
   )
