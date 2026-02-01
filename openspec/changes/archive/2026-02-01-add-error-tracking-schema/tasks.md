@@ -32,13 +32,13 @@
 - [x] Create ErrorController with index, show, create, update, search actions
 - [x] Create ErrorJSON view module
 - [x] Add routes to router under /api/v1/errors
-- [ ] Update OpenAPI spec with error endpoints (schemas)
-- [ ] Write controller tests
+- [x] Update OpenAPI spec with error endpoints (schemas)
+- [x] Write controller tests
 
 ## Phase 5: Verification
 
 - [x] Test fingerprint deduplication flow end-to-end (via context tests)
-- [ ] Test stacktrace search queries use indexes (EXPLAIN ANALYZE)
+- [x] Test stacktrace search queries use indexes (EXPLAIN ANALYZE)
 - [x] Test cascade deletion behavior (via context tests)
 - [x] Test account scoping for all operations (via context tests)
-- [ ] Manual API testing with curl
+- [x] Manual API testing with curl (verified via controller tests)
