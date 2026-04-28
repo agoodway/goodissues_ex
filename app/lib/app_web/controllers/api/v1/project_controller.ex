@@ -18,15 +18,37 @@ defmodule FFWeb.Api.V1.ProjectController do
   operation(:index,
     summary: "List projects",
     description: "Returns all projects for the authenticated user's account",
+    parameters: [
+      page: [
+        in: :query,
+        schema: %OpenApiSpex.Schema{type: :integer, minimum: 1},
+        description: "Page number"
+      ],
+      per_page: [
+        in: :query,
+        schema: %OpenApiSpex.Schema{type: :integer, minimum: 1, maximum: 100},
+        description: "Results per page"
+      ]
+    ],
     responses: [
       ok: {"Project list", "application/json", ProjectSchemas.ProjectListResponse},
+      bad_request: {"Bad request", "application/json", FFWeb.ErrorJSON},
       unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON}
     ]
   )
 
-  def index(conn, _params) do
-    projects = Tracking.list_projects(conn.assigns.current_account)
-    render(conn, :index, projects: projects)
+  def index(conn, params) do
+    with :ok <- FFWeb.Api.V1.PaginationHelpers.validate_pagination(params) do
+      result = Tracking.list_projects_paginated(conn.assigns.current_account, params)
+
+      render(conn, :index,
+        projects: result.projects,
+        page: result.page,
+        per_page: result.per_page,
+        total: result.total,
+        total_pages: result.total_pages
+      )
+    end
   end
 
   operation(:show,

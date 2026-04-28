@@ -57,29 +57,31 @@ defmodule FFWeb.Api.V1.Schemas.Project do
 
   defmodule ProjectListResponse do
     @moduledoc false
-    OpenApiSpex.schema(%{
-      title: "ProjectListResponse",
-      description: "List of projects",
-      type: :object,
-      properties: %{
-        data: %Schema{
-          type: :array,
-          items: ProjectResponse,
-          description: "List of projects"
-        }
-      },
-      required: [:data],
-      example: %{
-        "data" => [
-          %{
-            "id" => "550e8400-e29b-41d4-a716-446655440000",
-            "name" => "My Project",
-            "description" => "A description of the project",
-            "inserted_at" => "2024-01-15T10:30:00Z",
-            "updated_at" => "2024-01-15T10:30:00Z"
+    alias FFWeb.Api.V1.Schemas.Pagination
+
+    OpenApiSpex.schema(
+      Map.merge(
+        Pagination.paginated_list("Project", ProjectResponse),
+        %{
+          example: %{
+            "data" => [
+              %{
+                "id" => "550e8400-e29b-41d4-a716-446655440000",
+                "name" => "My Project",
+                "description" => "A description of the project",
+                "inserted_at" => "2024-01-15T10:30:00Z",
+                "updated_at" => "2024-01-15T10:30:00Z"
+              }
+            ],
+            "meta" => %{
+              "page" => 1,
+              "per_page" => 20,
+              "total" => 1,
+              "total_pages" => 1
+            }
           }
-        ]
-      }
-    })
+        }
+      )
+    )
   end
 end

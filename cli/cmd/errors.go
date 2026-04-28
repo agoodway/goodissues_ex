@@ -198,6 +198,10 @@ func runErrorsSearch(cmd *cobra.Command, args []string) {
 			truncateID(e.ID), e.Kind, source, e.Status, e.LastOccurrenceAt)
 	}
 	w.Flush()
+
+	if resp.Meta.TotalPages > 1 {
+		fmt.Printf("\nPage %d of %d (total: %d)\n", resp.Meta.Page, resp.Meta.TotalPages, resp.Meta.Total)
+	}
 }
 
 func runErrorsUpdate(cmd *cobra.Command, args []string) {

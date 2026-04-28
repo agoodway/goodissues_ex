@@ -5,8 +5,22 @@ defmodule FFWeb.Api.V1.ProjectJSON do
 
   alias FF.Tracking.Project
 
-  def index(%{projects: projects}) do
-    %{data: for(project <- projects, do: data(project))}
+  def index(%{
+        projects: projects,
+        page: page,
+        per_page: per_page,
+        total: total,
+        total_pages: total_pages
+      }) do
+    %{
+      data: for(project <- projects, do: data(project)),
+      meta: %{
+        page: page,
+        per_page: per_page,
+        total: total,
+        total_pages: total_pages
+      }
+    }
   end
 
   def show(%{project: project}) do

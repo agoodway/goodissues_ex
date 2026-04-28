@@ -289,68 +289,42 @@ defmodule FFWeb.Api.V1.Schemas.Error do
     })
   end
 
-  defmodule PaginationMeta do
-    @moduledoc false
-    OpenApiSpex.schema(%{
-      title: "PaginationMeta",
-      description: "Pagination metadata",
-      type: :object,
-      properties: %{
-        page: %Schema{type: :integer, description: "Current page number"},
-        per_page: %Schema{type: :integer, description: "Items per page"},
-        total: %Schema{type: :integer, description: "Total number of items"},
-        total_pages: %Schema{type: :integer, description: "Total number of pages"}
-      },
-      required: [:page, :per_page, :total, :total_pages],
-      example: %{
-        "page" => 1,
-        "per_page" => 20,
-        "total" => 42,
-        "total_pages" => 3
-      }
-    })
-  end
-
   defmodule ErrorListResponse do
     @moduledoc false
-    OpenApiSpex.schema(%{
-      title: "ErrorListResponse",
-      description: "Paginated list of errors",
-      type: :object,
-      properties: %{
-        data: %Schema{
-          type: :array,
-          items: ErrorSchema,
-          description: "List of errors"
-        },
-        meta: PaginationMeta
-      },
-      required: [:data, :meta],
-      example: %{
-        "data" => [
-          %{
-            "id" => "550e8400-e29b-41d4-a716-446655440010",
-            "issue_id" => "550e8400-e29b-41d4-a716-446655440001",
-            "kind" => "Elixir.RuntimeError",
-            "reason" => "something went wrong",
-            "source_line" => "-",
-            "source_function" => "-",
-            "status" => "unresolved",
-            "fingerprint" => "a1b2c3d4e5f6789012345678901234567890123456789012345678901234abcd",
-            "muted" => false,
-            "last_occurrence_at" => "2024-01-15T10:30:00Z",
-            "inserted_at" => "2024-01-15T10:30:00Z",
-            "updated_at" => "2024-01-15T10:30:00Z"
+    alias FFWeb.Api.V1.Schemas.Pagination
+
+    OpenApiSpex.schema(
+      Map.merge(
+        Pagination.paginated_list("Error", ErrorSchema),
+        %{
+          example: %{
+            "data" => [
+              %{
+                "id" => "550e8400-e29b-41d4-a716-446655440010",
+                "issue_id" => "550e8400-e29b-41d4-a716-446655440001",
+                "kind" => "Elixir.RuntimeError",
+                "reason" => "something went wrong",
+                "source_line" => "-",
+                "source_function" => "-",
+                "status" => "unresolved",
+                "fingerprint" =>
+                  "a1b2c3d4e5f6789012345678901234567890123456789012345678901234abcd",
+                "muted" => false,
+                "last_occurrence_at" => "2024-01-15T10:30:00Z",
+                "inserted_at" => "2024-01-15T10:30:00Z",
+                "updated_at" => "2024-01-15T10:30:00Z"
+              }
+            ],
+            "meta" => %{
+              "page" => 1,
+              "per_page" => 20,
+              "total" => 1,
+              "total_pages" => 1
+            }
           }
-        ],
-        "meta" => %{
-          "page" => 1,
-          "per_page" => 20,
-          "total" => 1,
-          "total_pages" => 1
         }
-      }
-    })
+      )
+    )
   end
 
   defmodule ErrorReportRequest do

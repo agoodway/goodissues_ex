@@ -93,7 +93,8 @@ type Project struct {
 }
 
 type ProjectListResponse struct {
-	Data []Project `json:"data"`
+	Data []Project     `json:"data"`
+	Meta PaginationMeta `json:"meta"`
 }
 
 type ProjectResponse struct {
@@ -124,7 +125,8 @@ type Issue struct {
 }
 
 type IssueListResponse struct {
-	Data []Issue `json:"data"`
+	Data []Issue        `json:"data"`
+	Meta PaginationMeta `json:"meta"`
 }
 
 type IssueResponse struct {
@@ -151,12 +153,12 @@ type IssueUpdateRequest struct {
 }
 
 // Project methods
-func (c *Client) ListProjects() ([]Project, error) {
+func (c *Client) ListProjects() (*ProjectListResponse, error) {
 	var resp ProjectListResponse
 	if err := c.do("GET", "/api/v1/projects", nil, &resp); err != nil {
 		return nil, err
 	}
-	return resp.Data, nil
+	return &resp, nil
 }
 
 func (c *Client) GetProject(id string) (*Project, error) {
@@ -194,7 +196,7 @@ type ListIssuesOptions struct {
 	Type      string
 }
 
-func (c *Client) ListIssues(opts *ListIssuesOptions) ([]Issue, error) {
+func (c *Client) ListIssues(opts *ListIssuesOptions) (*IssueListResponse, error) {
 	path := "/api/v1/issues"
 	if opts != nil {
 		params := url.Values{}
@@ -216,7 +218,7 @@ func (c *Client) ListIssues(opts *ListIssuesOptions) ([]Issue, error) {
 	if err := c.do("GET", path, nil, &resp); err != nil {
 		return nil, err
 	}
-	return resp.Data, nil
+	return &resp, nil
 }
 
 func (c *Client) GetIssue(id string) (*Issue, error) {

@@ -36,6 +36,42 @@ defmodule FF.Tracking do
   end
 
   @doc """
+  Lists projects for the given account with pagination metadata.
+
+  Returns a map with:
+    * `:projects` - List of projects
+    * `:page` - Current page number
+    * `:per_page` - Results per page
+    * `:total` - Total count of projects
+    * `:total_pages` - Total number of pages
+  """
+  def list_projects_paginated(%Account{id: account_id}, filters \\ %{}) do
+    {page, per_page} = extract_pagination(filters)
+
+    base_query =
+      Project
+      |> where([p], p.account_id == ^account_id)
+
+    total = Repo.aggregate(base_query, :count)
+    total_pages = max(ceil(total / per_page), 1)
+
+    projects =
+      base_query
+      |> order_by([p], asc: p.name)
+      |> limit(^per_page)
+      |> offset(^((page - 1) * per_page))
+      |> Repo.all()
+
+    %{
+      projects: projects,
+      page: page,
+      per_page: per_page,
+      total: total,
+      total_pages: total_pages
+    }
+  end
+
+  @doc """
   Gets a project by ID, scoped to the given account.
   Returns `nil` if the project doesn't exist or belongs to a different account.
 
@@ -1055,19 +1091,35 @@ defmodule FF.Tracking do
   def search_errors_by_stacktrace(%Account{id: account_id}, filters \\ %{}) do
     {page, per_page} = extract_pagination(filters)
 
-    Error
-    |> join(:inner, [e], i in Issue, on: e.issue_id == i.id)
-    |> join(:inner, [e, i], p in Project, on: i.project_id == p.id)
-    |> join(:inner, [e, i, p], o in Occurrence, on: o.error_id == e.id)
-    |> join(:inner, [e, i, p, o], s in StacktraceLine, on: s.occurrence_id == o.id)
-    |> where([e, i, p, o, s], p.account_id == ^account_id)
-    |> apply_stacktrace_filters(filters)
-    |> distinct([e], e.id)
-    |> order_by([e], desc: e.last_occurrence_at)
-    |> limit(^per_page)
-    |> offset(^((page - 1) * per_page))
-    |> preload(:issue)
-    |> Repo.all()
+    base_query =
+      Error
+      |> join(:inner, [e], i in Issue, on: e.issue_id == i.id)
+      |> join(:inner, [e, i], p in Project, on: i.project_id == p.id)
+      |> join(:inner, [e, i, p], o in Occurrence, on: o.error_id == e.id)
+      |> join(:inner, [e, i, p, o], s in StacktraceLine, on: s.occurrence_id == o.id)
+      |> where([e, i, p, o, s], p.account_id == ^account_id)
+      |> apply_stacktrace_filters(filters)
+      |> distinct([e], e.id)
+
+    count_query = base_query |> subquery() |> select([e], count(e.id))
+    total = Repo.one(count_query)
+    total_pages = max(ceil(total / per_page), 1)
+
+    errors =
+      base_query
+      |> order_by([e], desc: e.last_occurrence_at)
+      |> limit(^per_page)
+      |> offset(^((page - 1) * per_page))
+      |> preload(:issue)
+      |> Repo.all()
+
+    %{
+      errors: errors,
+      page: page,
+      per_page: per_page,
+      total: total,
+      total_pages: total_pages
+    }
   end
 
   defp apply_stacktrace_filters(query, filters) do

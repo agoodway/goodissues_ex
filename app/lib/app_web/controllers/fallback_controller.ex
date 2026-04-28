@@ -25,6 +25,13 @@ defmodule FFWeb.FallbackController do
     |> render(:"401")
   end
 
+  def call(conn, {:error, :bad_request, message}) do
+    conn
+    |> put_status(:bad_request)
+    |> put_view(json: FFWeb.ErrorJSON)
+    |> render("400.json", message: message)
+  end
+
   def call(conn, {:error, %Ecto.Changeset{} = changeset}) do
     conn
     |> put_status(:unprocessable_entity)

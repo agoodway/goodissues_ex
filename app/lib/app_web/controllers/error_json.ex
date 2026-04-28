@@ -28,6 +28,10 @@ defmodule FFWeb.ErrorJSON do
     }
   })
 
+  def render("400.json", %{message: message}) do
+    %{errors: %{detail: message}}
+  end
+
   def render("401.json", _assigns) do
     %{errors: %{detail: "Unauthorized - valid API key required"}}
   end

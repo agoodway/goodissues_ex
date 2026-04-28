@@ -104,20 +104,20 @@ func runIssuesList(cmd *cobra.Command, args []string) {
 		Type:      filterType,
 	}
 
-	issues, err := c.ListIssues(opts)
+	resp, err := c.ListIssues(opts)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 
-	if len(issues) == 0 {
+	if len(resp.Data) == 0 {
 		fmt.Println("No issues found.")
 		return
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	fmt.Fprintln(w, "KEY\tTITLE\tTYPE\tSTATUS\tPRIORITY")
-	for _, i := range issues {
+	for _, i := range resp.Data {
 		key := i.ID
 		if i.Key != nil {
 			key = *i.Key
@@ -125,6 +125,10 @@ func runIssuesList(cmd *cobra.Command, args []string) {
 		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", key, i.Title, i.Type, i.Status, i.Priority)
 	}
 	w.Flush()
+
+	if resp.Meta.TotalPages > 1 {
+		fmt.Printf("\nPage %d of %d (total: %d)\n", resp.Meta.Page, resp.Meta.TotalPages, resp.Meta.Total)
+	}
 }
 
 func runIssuesGet(cmd *cobra.Command, args []string) {

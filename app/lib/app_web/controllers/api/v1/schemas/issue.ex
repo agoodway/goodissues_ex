@@ -207,37 +207,39 @@ defmodule FFWeb.Api.V1.Schemas.Issue do
 
   defmodule IssueListResponse do
     @moduledoc false
-    OpenApiSpex.schema(%{
-      title: "IssueListResponse",
-      description: "List of issues",
-      type: :object,
-      properties: %{
-        data: %Schema{
-          type: :array,
-          items: IssueSchema,
-          description: "List of issues"
-        }
-      },
-      required: [:data],
-      example: %{
-        "data" => [
-          %{
-            "id" => "550e8400-e29b-41d4-a716-446655440001",
-            "title" => "Login button not working",
-            "description" => "When clicking the login button, nothing happens",
-            "type" => "bug",
-            "status" => "new",
-            "priority" => "high",
-            "project_id" => "550e8400-e29b-41d4-a716-446655440000",
-            "submitter_id" => "550e8400-e29b-41d4-a716-446655440002",
-            "submitter_email" => nil,
-            "archived_at" => nil,
-            "inserted_at" => "2024-01-15T10:30:00Z",
-            "updated_at" => "2024-01-15T10:30:00Z"
+    alias FFWeb.Api.V1.Schemas.Pagination
+
+    OpenApiSpex.schema(
+      Map.merge(
+        Pagination.paginated_list("Issue", IssueSchema),
+        %{
+          example: %{
+            "data" => [
+              %{
+                "id" => "550e8400-e29b-41d4-a716-446655440001",
+                "title" => "Login button not working",
+                "description" => "When clicking the login button, nothing happens",
+                "type" => "bug",
+                "status" => "new",
+                "priority" => "high",
+                "project_id" => "550e8400-e29b-41d4-a716-446655440000",
+                "submitter_id" => "550e8400-e29b-41d4-a716-446655440002",
+                "submitter_email" => nil,
+                "archived_at" => nil,
+                "inserted_at" => "2024-01-15T10:30:00Z",
+                "updated_at" => "2024-01-15T10:30:00Z"
+              }
+            ],
+            "meta" => %{
+              "page" => 1,
+              "per_page" => 20,
+              "total" => 1,
+              "total_pages" => 1
+            }
           }
-        ]
-      }
-    })
+        }
+      )
+    )
   end
 
   defmodule IssueFilterParams do

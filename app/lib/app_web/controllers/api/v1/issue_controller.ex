@@ -33,18 +33,38 @@ defmodule FFWeb.Api.V1.IssueController do
         in: :query,
         schema: IssueSchemas.IssueType,
         description: "Filter by type"
+      ],
+      page: [
+        in: :query,
+        schema: %OpenApiSpex.Schema{type: :integer, minimum: 1},
+        description: "Page number"
+      ],
+      per_page: [
+        in: :query,
+        schema: %OpenApiSpex.Schema{type: :integer, minimum: 1, maximum: 100},
+        description: "Results per page"
       ]
     ],
     responses: [
       ok: {"Issue list", "application/json", IssueSchemas.IssueListResponse},
+      bad_request: {"Bad request", "application/json", FFWeb.ErrorJSON},
       unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON}
     ]
   )
 
   def index(conn, params) do
-    filters = build_filters(params)
-    result = Tracking.list_issues_paginated(conn.assigns.current_account, filters)
-    render(conn, :index, issues: result.issues)
+    with :ok <- FFWeb.Api.V1.PaginationHelpers.validate_pagination(params) do
+      filters = build_filters(params)
+      result = Tracking.list_issues_paginated(conn.assigns.current_account, filters)
+
+      render(conn, :index,
+        issues: result.issues,
+        page: result.page,
+        per_page: result.per_page,
+        total: result.total,
+        total_pages: result.total_pages
+      )
+    end
   end
 
   defp build_filters(params) do
@@ -52,6 +72,8 @@ defmodule FFWeb.Api.V1.IssueController do
     |> maybe_add_filter(:project_id, params["project_id"])
     |> maybe_add_filter(:status, params["status"])
     |> maybe_add_filter(:type, params["type"])
+    |> maybe_add_filter(:page, params["page"])
+    |> maybe_add_filter(:per_page, params["per_page"])
   end
 
   defp maybe_add_filter(filters, _key, nil), do: filters

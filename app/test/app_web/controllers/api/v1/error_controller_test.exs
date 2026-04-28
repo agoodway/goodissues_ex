@@ -28,14 +28,22 @@ defmodule FFWeb.Api.V1.ErrorControllerTest do
       error = error_fixture(issue)
 
       conn = get(conn, ~p"/api/v1/errors")
-      assert %{"data" => [error_json]} = json_response(conn, 200)
+
+      assert %{"data" => [error_json], "meta" => meta} = json_response(conn, 200)
       assert error_json["id"] == error.id
       assert error_json["kind"] == error.kind
+      assert meta["page"] == 1
+      assert meta["per_page"] == 20
+      assert meta["total"] == 1
+      assert meta["total_pages"] == 1
     end
 
     test "returns empty list when no errors exist", %{conn: conn} do
       conn = get(conn, ~p"/api/v1/errors")
-      assert %{"data" => []} = json_response(conn, 200)
+
+      assert %{"data" => [], "meta" => meta} = json_response(conn, 200)
+      assert meta["page"] == 1
+      assert meta["total"] == 0
     end
 
     test "filters by status", %{conn: conn, account: account, user: user, project: project} do
@@ -334,8 +342,13 @@ defmodule FFWeb.Api.V1.ErrorControllerTest do
         })
 
       conn = get(conn, ~p"/api/v1/errors/search?module=MyApp.SpecificWorker")
-      assert %{"data" => [error_json]} = json_response(conn, 200)
+
+      assert %{"data" => [error_json], "meta" => meta} = json_response(conn, 200)
       assert error_json != nil
+      assert meta["page"] == 1
+      assert meta["per_page"] == 20
+      assert meta["total"] == 1
+      assert meta["total_pages"] == 1
     end
 
     test "returns empty for non-matching search", %{
@@ -348,7 +361,10 @@ defmodule FFWeb.Api.V1.ErrorControllerTest do
       _error = error_fixture(issue)
 
       conn = get(conn, ~p"/api/v1/errors/search?module=NonExistent.Module")
-      assert %{"data" => []} = json_response(conn, 200)
+
+      assert %{"data" => [], "meta" => meta} = json_response(conn, 200)
+      assert meta["page"] == 1
+      assert meta["total"] == 0
     end
   end
 end

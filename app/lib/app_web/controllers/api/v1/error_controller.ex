@@ -48,16 +48,18 @@ defmodule FFWeb.Api.V1.ErrorController do
   )
 
   def index(conn, params) do
-    filters = build_filters(params)
-    result = Tracking.list_errors_paginated(conn.assigns.current_account, filters)
+    with :ok <- FFWeb.Api.V1.PaginationHelpers.validate_pagination(params) do
+      filters = build_filters(params)
+      result = Tracking.list_errors_paginated(conn.assigns.current_account, filters)
 
-    render(conn, :index,
-      errors: result.errors,
-      page: result.page,
-      per_page: result.per_page,
-      total: result.total,
-      total_pages: result.total_pages
-    )
+      render(conn, :index,
+        errors: result.errors,
+        page: result.page,
+        per_page: result.per_page,
+        total: result.total,
+        total_pages: result.total_pages
+      )
+    end
   end
 
   defp build_filters(params) do
@@ -267,26 +269,30 @@ defmodule FFWeb.Api.V1.ErrorController do
   )
 
   def search(conn, params) do
-    filters = %{}
-    filters = if params["module"], do: Map.put(filters, :module, params["module"]), else: filters
+    with :ok <- FFWeb.Api.V1.PaginationHelpers.validate_pagination(params) do
+      filters = %{}
 
-    filters =
-      if params["function"], do: Map.put(filters, :function, params["function"]), else: filters
+      filters =
+        if params["module"], do: Map.put(filters, :module, params["module"]), else: filters
 
-    filters = if params["file"], do: Map.put(filters, :file, params["file"]), else: filters
-    filters = if params["page"], do: Map.put(filters, :page, params["page"]), else: filters
+      filters =
+        if params["function"], do: Map.put(filters, :function, params["function"]), else: filters
 
-    filters =
-      if params["per_page"], do: Map.put(filters, :per_page, params["per_page"]), else: filters
+      filters = if params["file"], do: Map.put(filters, :file, params["file"]), else: filters
+      filters = if params["page"], do: Map.put(filters, :page, params["page"]), else: filters
 
-    errors = Tracking.search_errors_by_stacktrace(conn.assigns.current_account, filters)
+      filters =
+        if params["per_page"], do: Map.put(filters, :per_page, params["per_page"]), else: filters
 
-    render(conn, :index,
-      errors: errors,
-      page: 1,
-      per_page: 20,
-      total: length(errors),
-      total_pages: 1
-    )
+      result = Tracking.search_errors_by_stacktrace(conn.assigns.current_account, filters)
+
+      render(conn, :index,
+        errors: result.errors,
+        page: result.page,
+        per_page: result.per_page,
+        total: result.total,
+        total_pages: result.total_pages
+      )
+    end
   end
 end

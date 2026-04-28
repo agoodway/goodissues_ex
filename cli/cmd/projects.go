@@ -89,20 +89,20 @@ func getClient() *client.Client {
 func runProjectsList(cmd *cobra.Command, args []string) {
 	c := getClient()
 
-	projects, err := c.ListProjects()
+	resp, err := c.ListProjects()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 
-	if len(projects) == 0 {
+	if len(resp.Data) == 0 {
 		fmt.Println("No projects found.")
 		return
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	fmt.Fprintln(w, "ID\tNAME\tDESCRIPTION\tCREATED")
-	for _, p := range projects {
+	for _, p := range resp.Data {
 		desc := ""
 		if p.Description != nil {
 			desc = *p.Description
@@ -110,6 +110,10 @@ func runProjectsList(cmd *cobra.Command, args []string) {
 		fmt.Fprintf(w, "%s\t%s\t%s\t%s\n", p.ID, p.Name, desc, p.InsertedAt)
 	}
 	w.Flush()
+
+	if resp.Meta.TotalPages > 1 {
+		fmt.Printf("\nPage %d of %d (total: %d)\n", resp.Meta.Page, resp.Meta.TotalPages, resp.Meta.Total)
+	}
 }
 
 func runProjectsGet(cmd *cobra.Command, args []string) {

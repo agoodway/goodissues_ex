@@ -1059,9 +1059,13 @@ defmodule FF.TrackingTest do
           stacktrace_lines: [%{module: "OtherApp.Handler", function: "handle", arity: 1}]
         })
 
-      errors = Tracking.search_errors_by_stacktrace(account, %{module: "MyApp.Worker"})
+      result = Tracking.search_errors_by_stacktrace(account, %{module: "MyApp.Worker"})
 
-      assert length(errors) == 1
+      assert length(result.errors) == 1
+      assert result.page == 1
+      assert result.per_page == 20
+      assert result.total == 1
+      assert result.total_pages == 1
     end
 
     test "finds errors by function name" do
@@ -1074,9 +1078,9 @@ defmodule FF.TrackingTest do
           stacktrace_lines: [%{module: "MyApp.Worker", function: "perform", arity: 2}]
         })
 
-      errors = Tracking.search_errors_by_stacktrace(account, %{function: "perform"})
+      result = Tracking.search_errors_by_stacktrace(account, %{function: "perform"})
 
-      assert length(errors) == 1
+      assert length(result.errors) == 1
     end
 
     test "finds errors by file path" do
@@ -1091,9 +1095,9 @@ defmodule FF.TrackingTest do
           ]
         })
 
-      errors = Tracking.search_errors_by_stacktrace(account, %{file: "lib/my_app/worker.ex"})
+      result = Tracking.search_errors_by_stacktrace(account, %{file: "lib/my_app/worker.ex"})
 
-      assert length(errors) == 1
+      assert length(result.errors) == 1
     end
 
     test "returns distinct errors when multiple occurrences match" do
@@ -1111,11 +1115,11 @@ defmodule FF.TrackingTest do
         stacktrace_lines: [%{module: "SharedModule", function: "other", arity: 1}]
       })
 
-      errors = Tracking.search_errors_by_stacktrace(account, %{module: "SharedModule"})
+      result = Tracking.search_errors_by_stacktrace(account, %{module: "SharedModule"})
 
       # Should return just one error, not duplicates
-      assert length(errors) == 1
-      assert hd(errors).id == error.id
+      assert length(result.errors) == 1
+      assert hd(result.errors).id == error.id
     end
   end
 

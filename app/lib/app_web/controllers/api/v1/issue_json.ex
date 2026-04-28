@@ -5,8 +5,22 @@ defmodule FFWeb.Api.V1.IssueJSON do
 
   alias FF.Tracking.Issue
 
-  def index(%{issues: issues}) do
-    %{data: for(issue <- issues, do: data(issue))}
+  def index(%{
+        issues: issues,
+        page: page,
+        per_page: per_page,
+        total: total,
+        total_pages: total_pages
+      }) do
+    %{
+      data: for(issue <- issues, do: data(issue)),
+      meta: %{
+        page: page,
+        per_page: per_page,
+        total: total,
+        total_pages: total_pages
+      }
+    }
   end
 
   def show(%{issue: issue}) do

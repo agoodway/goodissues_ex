@@ -27,14 +27,23 @@ defmodule FFWeb.Api.V1.IssueControllerTest do
       issue = issue_fixture(account, user, project)
 
       conn = get(conn, ~p"/api/v1/issues")
-      assert %{"data" => [issue_json]} = json_response(conn, 200)
+
+      assert %{"data" => [issue_json], "meta" => meta} = json_response(conn, 200)
       assert issue_json["id"] == issue.id
       assert issue_json["title"] == issue.title
+      assert meta["page"] == 1
+      assert meta["per_page"] == 20
+      assert meta["total"] == 1
+      assert meta["total_pages"] == 1
     end
 
     test "returns empty list when no issues exist", %{conn: conn} do
       conn = get(conn, ~p"/api/v1/issues")
-      assert %{"data" => []} = json_response(conn, 200)
+
+      assert %{"data" => [], "meta" => meta} = json_response(conn, 200)
+      assert meta["page"] == 1
+      assert meta["total"] == 0
+      assert meta["total_pages"] == 1
     end
 
     test "does not list issues from other accounts", %{conn: conn} do
