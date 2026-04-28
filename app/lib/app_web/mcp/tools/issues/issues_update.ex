@@ -14,7 +14,7 @@ defmodule FFWeb.MCP.Tools.Issues.IssuesUpdate do
     field :description, :string, doc: "New description"
     field :status, :string, doc: "New status: new, in_progress, archived"
     field :priority, :string, doc: "New priority: low, medium, high, critical"
-    field :type, :string, doc: "New type: bug, feature_request"
+    field :type, :string, doc: "New type: bug, incident, feature_request"
   end
 
   @impl true
@@ -28,19 +28,21 @@ defmodule FFWeb.MCP.Tools.Issues.IssuesUpdate do
           {:reply, Base.error_response("Resource not found"), frame.assigns}
 
         issue ->
-          attrs = build_attrs(params)
-
-          case Tracking.update_issue(issue, attrs) do
-            {:ok, updated_issue} ->
-              updated_issue = FF.Repo.preload(updated_issue, :project)
-              {:reply, Base.success_response(serialize_issue(updated_issue)), frame.assigns}
-
-            {:error, changeset} ->
-              {:reply, Base.changeset_error_response(changeset), frame.assigns}
-          end
+          issue
+          |> Tracking.update_issue(build_attrs(params))
+          |> update_issue_response(frame)
       end
     end)
     |> wrap_frame(frame)
+  end
+
+  defp update_issue_response({:ok, updated_issue}, frame) do
+    updated_issue = FF.Repo.preload(updated_issue, :project)
+    {:reply, Base.success_response(serialize_issue(updated_issue)), frame.assigns}
+  end
+
+  defp update_issue_response({:error, changeset}, frame) do
+    {:reply, Base.changeset_error_response(changeset), frame.assigns}
   end
 
   defp build_attrs(params) do
@@ -70,6 +72,7 @@ defmodule FFWeb.MCP.Tools.Issues.IssuesUpdate do
 
   defp parse_type(nil), do: nil
   defp parse_type("bug"), do: :bug
+  defp parse_type("incident"), do: :incident
   defp parse_type("feature_request"), do: :feature_request
   defp parse_type(other), do: other
 

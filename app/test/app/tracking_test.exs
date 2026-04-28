@@ -276,6 +276,18 @@ defmodule FF.TrackingTest do
       assert hd(issues).id == issue_bug.id
     end
 
+    test "filters by incident type" do
+      {user, account} = user_with_account_fixture()
+      project = project_fixture(account)
+      incident_issue = issue_fixture(account, user, project, %{type: :incident})
+      _issue_bug = issue_fixture(account, user, project, %{type: :bug})
+
+      issues = Tracking.list_issues(account, %{type: :incident})
+
+      assert length(issues) == 1
+      assert hd(issues).id == incident_issue.id
+    end
+
     test "filters by multiple criteria" do
       {user, account} = user_with_account_fixture()
       project1 = project_fixture(account)

@@ -216,6 +216,7 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
   defp status_label(:archived), do: "ARCHIVED"
 
   defp type_label(:bug), do: "BUG"
+  defp type_label(:incident), do: "INCIDENT"
   defp type_label(:feature_request), do: "FEATURE"
 
   defp priority_label(:critical), do: "CRITICAL"
@@ -228,6 +229,7 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
 
   # New styling helper functions
   defp type_pill_class(:bug), do: "issue-type-pill-bug"
+  defp type_pill_class(:incident), do: "issue-type-pill-incident"
   defp type_pill_class(:feature_request), do: "issue-type-pill-feature"
 
   defp status_indicator_class(:new), do: "issue-status-new"
@@ -240,7 +242,12 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
   defp priority_indicator_class(:low), do: "issue-priority-low"
 
   defp type_detail_class(:bug), do: "issue-type-detail-bug"
+  defp type_detail_class(:incident), do: "issue-type-detail-incident"
   defp type_detail_class(:feature_request), do: "issue-type-detail-feature"
+
+  defp type_icon(:bug), do: "hero-bug-ant"
+  defp type_icon(:incident), do: "hero-exclamation-triangle"
+  defp type_icon(:feature_request), do: "hero-sparkles"
 
   defp status_detail_class(:new), do: "issue-status-detail-new"
   defp status_detail_class(:in_progress), do: "issue-status-detail-progress"
@@ -388,10 +395,7 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
                 <div class="flex items-center gap-3 mb-2">
                   <div class="issue-key-badge">
                     <span class="issue-key-icon">
-                      <.icon
-                        name={if @issue.type == :bug, do: "hero-bug-ant", else: "hero-sparkles"}
-                        class="size-4"
-                      />
+                      <.icon name={type_icon(@issue.type)} class="size-4" />
                     </span>
                     <span class="issue-key-text">{Issue.issue_key(@issue)}</span>
                   </div>
@@ -454,7 +458,7 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
                     <div class="issue-card-header-icon">
                       <.icon name="hero-document-text" class="size-4" />
                     </div>
-                    <span>Description</span>
+                    <span>DESCRIPTION</span>
                   </div>
                   <div class="issue-card-body">
                     <div :if={@issue.description} class="issue-description">
@@ -473,7 +477,8 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
                     <div class="issue-card-header-icon issue-card-header-icon-error">
                       <.icon name="hero-exclamation-triangle" class="size-4" />
                     </div>
-                    <span>Error Details</span>
+                    <span>ERROR DATA</span>
+                    <span class="sr-only">Error Details</span>
                     <div class="issue-card-header-actions">
                       <div :if={@can_manage} class="flex items-center gap-2">
                         <button
@@ -491,7 +496,7 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
                             }
                             class="size-3.5"
                           />
-                          <span>{if @issue.error.muted, do: "Muted", else: "Mute"}</span>
+                          <span>{if @issue.error.muted, do: "MUTED", else: "MUTE"}</span>
                         </button>
                         <button
                           phx-click="toggle_status"
@@ -509,7 +514,7 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
                             class="size-3.5"
                           />
                           <span>
-                            {if @issue.error.status == :resolved, do: "Resolved", else: "Resolve"}
+                            {if @issue.error.status == :resolved, do: "UNRESOLVE", else: "RESOLVE"}
                           </span>
                         </button>
                       </div>
@@ -522,7 +527,7 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
                         <span class="issue-error-stat-value">
                           {@issue.error.occurrence_count || 0}
                         </span>
-                        <span class="issue-error-stat-label">Occurrences</span>
+                        <span class="issue-error-stat-label">OCCURRENCES</span>
                       </div>
                       <div class="issue-error-stat-divider"></div>
                       <div class="issue-error-stat">
@@ -574,7 +579,7 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
                           }
                           class="size-4 transition-transform"
                         />
-                        <span>Stack Trace</span>
+                        <span>STACKTRACE</span>
                         <span class="issue-stacktrace-count">
                           {length(hd(@issue.error.occurrences).stacktrace_lines)} frames
                         </span>
@@ -695,7 +700,7 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
                 <div class="issue-sidebar-card">
                   <div class="issue-sidebar-header">
                     <.icon name="hero-information-circle" class="size-4" />
-                    <span>Details</span>
+                    <span>DETAILS</span>
                   </div>
                   <div class="issue-sidebar-body">
                     <div class="issue-detail-row">
@@ -713,10 +718,7 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
                     <div class="issue-detail-row">
                       <span class="issue-detail-label">Type</span>
                       <span class={["issue-detail-badge", type_detail_class(@issue.type)]}>
-                        <.icon
-                          name={if @issue.type == :bug, do: "hero-bug-ant", else: "hero-sparkles"}
-                          class="size-3.5"
-                        />
+                        <.icon name={type_icon(@issue.type)} class="size-3.5" />
                         {type_label(@issue.type)}
                       </span>
                     </div>

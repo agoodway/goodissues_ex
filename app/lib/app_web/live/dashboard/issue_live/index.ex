@@ -179,6 +179,7 @@ defmodule FFWeb.Dashboard.IssueLive.Index do
   defp status_label(:archived), do: "ARCHIVED"
 
   defp type_label(:bug), do: "BUG"
+  defp type_label(:incident), do: "INCIDENT"
   defp type_label(:feature_request), do: "FEATURE"
 
   defp priority_indicator(:critical), do: {"!", "text-error"}
@@ -247,6 +248,9 @@ defmodule FFWeb.Dashboard.IssueLive.Index do
               >
                 <option value="" selected={@type_filter == ""}>--type=*</option>
                 <option value="bug" selected={@type_filter == "bug"}>--type=bug</option>
+                <option value="incident" selected={@type_filter == "incident"}>
+                  --type=incident
+                </option>
                 <option value="feature_request" selected={@type_filter == "feature_request"}>
                   --type=feature
                 </option>
@@ -300,6 +304,7 @@ defmodule FFWeb.Dashboard.IssueLive.Index do
                     <span class={[
                       "status-badge",
                       issue.type == :bug && "status-badge-error",
+                      issue.type == :incident && "status-badge-warning",
                       issue.type == :feature_request && "status-badge-active"
                     ]}>
                       {type_label(issue.type)}
@@ -348,6 +353,7 @@ defmodule FFWeb.Dashboard.IssueLive.Index do
                   <span class={[
                     "status-badge",
                     issue.type == :bug && "status-badge-error",
+                    issue.type == :incident && "status-badge-warning",
                     issue.type == :feature_request && "status-badge-active"
                   ]}>
                     {type_label(issue.type)}

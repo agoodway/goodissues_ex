@@ -11,7 +11,7 @@ defmodule FFWeb.MCP.Tools.Issues.IssuesList do
   schema do
     field :project_id, :string, doc: "Filter by project ID (UUID)"
     field :status, :string, doc: "Filter by status: new, in_progress, archived"
-    field :type, :string, doc: "Filter by type: bug, feature_request"
+    field :type, :string, doc: "Filter by type: bug, incident, feature_request"
     field :page, :integer, doc: "Page number (1-indexed)"
     field :per_page, :integer, doc: "Results per page (max 100)"
   end

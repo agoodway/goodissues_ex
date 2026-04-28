@@ -483,6 +483,25 @@ defmodule FF.Accounts do
     Repo.get_by(AccountUser, user_id: user.id, account_id: account.id)
   end
 
+  @doc "Get or create the system bot user for an account"
+  def get_or_create_bot_user!(%Account{} = account) do
+    email = bot_user_email(account.id)
+
+    Repo.transact(fn ->
+      user =
+        email
+        |> find_or_create_bot_user!()
+        |> ensure_safe_bot_user!(account)
+
+      ensure_account_membership!(account, user)
+      {:ok, user}
+    end)
+    |> case do
+      {:ok, user} -> user
+      {:error, reason} -> raise reason
+    end
+  end
+
   @doc "Get account_user by ID with preloads"
   def get_account_user!(id) do
     AccountUser
@@ -500,6 +519,50 @@ defmodule FF.Accounts do
     })
     |> Repo.insert()
   end
+
+  defp ensure_account_membership!(%Account{} = account, %User{} = user) do
+    %AccountUser{}
+    |> AccountUser.changeset(%{account_id: account.id, user_id: user.id, role: :member})
+    |> Repo.insert(on_conflict: :nothing, conflict_target: [:user_id, :account_id])
+    |> case do
+      {:ok, _account_user} -> :ok
+      {:error, changeset} -> raise changeset
+    end
+  end
+
+  defp find_or_create_bot_user!(email) do
+    case Repo.get_by(User, email: email) do
+      %User{} = user ->
+        user
+
+      nil ->
+        %User{}
+        |> User.email_changeset(%{email: email}, allow_internal_email: true)
+        |> Repo.insert(on_conflict: :nothing, conflict_target: :email, returning: true)
+        |> case do
+          {:ok, %User{id: nil}} -> Repo.get_by!(User, email: email)
+          {:ok, %User{} = user} -> user
+          {:error, changeset} -> raise changeset
+        end
+    end
+  end
+
+  defp ensure_safe_bot_user!(%User{} = user, %Account{} = account) do
+    other_membership_exists? =
+      Repo.exists?(
+        from account_user in AccountUser,
+          where: account_user.user_id == ^user.id and account_user.account_id != ^account.id
+      )
+
+    if user.hashed_password || other_membership_exists? do
+      raise ArgumentError,
+            "internal bot user collision for account #{account.id} and email #{user.email}"
+    end
+
+    user
+  end
+
+  defp bot_user_email(account_id), do: "bot@#{account_id}.fruitfly.internal"
 
   @doc "Remove a user from an account"
   def remove_user_from_account(account, user) do

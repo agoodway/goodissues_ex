@@ -83,6 +83,16 @@ defmodule FFWeb.Api.V1.IssueControllerTest do
       assert issue_json["id"] == issue_bug.id
     end
 
+    test "filters by incident type", %{conn: conn, user: user, account: account, project: project} do
+      incident_issue = issue_fixture(account, user, project, %{type: :incident})
+      _issue_bug = issue_fixture(account, user, project, %{type: :bug})
+
+      conn = get(conn, ~p"/api/v1/issues?type=incident")
+      assert %{"data" => [issue_json]} = json_response(conn, 200)
+      assert issue_json["id"] == incident_issue.id
+      assert issue_json["type"] == "incident"
+    end
+
     test "filters by multiple criteria", %{
       conn: conn,
       user: user,
@@ -268,6 +278,26 @@ defmodule FFWeb.Api.V1.IssueControllerTest do
       assert issue.type == :bug
       assert issue.status == :new
       assert issue.priority == :medium
+    end
+
+    test "creates incident issue with valid params", %{
+      conn: conn,
+      account: account,
+      project: project
+    } do
+      params = %{
+        title: "Outage detected",
+        type: "incident",
+        priority: "critical",
+        project_id: project.id
+      }
+
+      conn = post(conn, ~p"/api/v1/issues", params)
+      assert %{"data" => %{"id" => id, "type" => "incident"}} = json_response(conn, 201)
+
+      issue = FF.Tracking.get_issue(account, id)
+      assert issue.type == :incident
+      assert issue.priority == :critical
     end
 
     test "creates issue with submitter_email", %{conn: conn, account: account, project: project} do

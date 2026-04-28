@@ -12,6 +12,7 @@ defmodule FF.Accounts.ApiKey do
 
   @valid_scopes ~w(
     projects:read projects:write
+    checks:read checks:write
     issues:read issues:write
     errors:read errors:write
     events:read events:write

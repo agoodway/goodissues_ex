@@ -11,7 +11,7 @@ defmodule FFWeb.MCP.Tools.Issues.IssuesCreate do
   schema do
     field :project_id, :string, required: true, doc: "Project ID (UUID)"
     field :title, :string, required: true, doc: "Issue title"
-    field :type, :string, required: true, doc: "Issue type: bug or feature_request"
+    field :type, :string, required: true, doc: "Issue type: bug, incident, or feature_request"
     field :description, :string, doc: "Issue description"
     field :priority, :string, doc: "Priority: low, medium, high, critical (default: medium)"
   end
@@ -42,6 +42,7 @@ defmodule FFWeb.MCP.Tools.Issues.IssuesCreate do
   end
 
   defp parse_type("bug"), do: :bug
+  defp parse_type("incident"), do: :incident
   defp parse_type("feature_request"), do: :feature_request
   defp parse_type(other), do: other
 

@@ -100,7 +100,7 @@ defmodule FFWeb.Dashboard.ProjectLiveTest do
         |> follow_redirect(conn)
 
       assert html =~ "Clickable Project"
-      assert html =~ "DESCRIPTION"
+      assert html =~ "A test project description"
     end
   end
 
@@ -151,6 +151,20 @@ defmodule FFWeb.Dashboard.ProjectLiveTest do
 
       assert html =~ "Recent Issue Title"
       assert html =~ "#{project.prefix}-#{issue.number}"
+    end
+
+    test "renders incident styling for recent incident issues", %{
+      conn: conn,
+      user: user,
+      account: account
+    } do
+      project = project_fixture(account, %{name: "Incident Project"})
+      issue_fixture(account, user, project, %{title: "Service incident", type: :incident})
+
+      {:ok, show_live, _html} = live(conn, ~p"/dashboard/#{account.slug}/projects/#{project.id}")
+
+      assert has_element?(show_live, ".project-issue-type-incident")
+      assert render(show_live) =~ "hero-exclamation-triangle"
     end
 
     test "redirects when project belongs to different account", %{conn: conn, account: account} do

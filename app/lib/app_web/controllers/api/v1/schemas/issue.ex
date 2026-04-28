@@ -11,7 +11,7 @@ defmodule FFWeb.Api.V1.Schemas.Issue do
       title: "IssueType",
       description: "Type of issue",
       type: :string,
-      enum: ["bug", "feature_request"]
+      enum: ["bug", "incident", "feature_request"]
     })
   end
 

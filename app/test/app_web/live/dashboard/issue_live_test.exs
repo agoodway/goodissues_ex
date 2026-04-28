@@ -102,6 +102,28 @@ defmodule FFWeb.Dashboard.IssueLiveTest do
       refute html =~ feature_issue.title
     end
 
+    test "filters incident issues by type", %{conn: conn, user: user, account: account} do
+      project = project_fixture(account)
+
+      incident_issue =
+        issue_fixture(account, user, project, %{title: "Incident Issue", type: :incident})
+
+      _bug_issue = issue_fixture(account, user, project, %{title: "Bug Issue", type: :bug})
+
+      {:ok, index_live, _html} = live(conn, ~p"/dashboard/#{account.slug}/issues")
+
+      index_live
+      |> form("form[phx-change='filter_type']", %{type: "incident"})
+      |> render_change()
+
+      assert_patch(index_live, ~p"/dashboard/#{account.slug}/issues?type=incident")
+
+      html = render(index_live)
+      assert html =~ incident_issue.title
+      assert html =~ "INCIDENT"
+      refute html =~ "Bug Issue"
+    end
+
     test "displays issue attributes correctly", %{conn: conn, user: user, account: account} do
       project = project_fixture(account, %{name: "Test Project", prefix: "TST"})
 
@@ -268,6 +290,24 @@ defmodule FFWeb.Dashboard.IssueLiveTest do
       assert html =~ "BUG"
       assert html =~ "IN PROGRESS"
       assert html =~ "HIGH"
+    end
+
+    test "displays incident issue details", %{conn: conn, user: user, account: account} do
+      project = project_fixture(account, %{name: "Incident Project"})
+
+      issue =
+        issue_fixture(account, user, project, %{
+          title: "Database outage",
+          type: :incident,
+          status: :in_progress,
+          priority: :critical
+        })
+
+      {:ok, _show_live, html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
+
+      assert html =~ "Database outage"
+      assert html =~ "INCIDENT"
+      assert html =~ "CRITICAL"
     end
 
     test "redirects when issue belongs to different account", %{conn: conn, account: account} do
@@ -451,6 +491,7 @@ defmodule FFWeb.Dashboard.IssueLiveTest do
       assert html =~ "Project"
       assert html =~ "Type"
       assert html =~ "Project for New Issue"
+      refute html =~ ~s(value="incident")
     end
 
     test "shows empty state when no projects exist", %{conn: conn, account: account} do

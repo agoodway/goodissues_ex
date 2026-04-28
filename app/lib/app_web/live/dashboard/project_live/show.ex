@@ -149,11 +149,13 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
   defp status_label(:in_progress), do: "IN PROGRESS"
   defp status_label(:archived), do: "ARCHIVED"
 
-  defp type_label(:bug), do: "BUG"
-  defp type_label(:feature_request), do: "FEATURE"
-
   defp issue_type_class(:bug), do: "project-issue-type-bug"
+  defp issue_type_class(:incident), do: "project-issue-type-incident"
   defp issue_type_class(:feature_request), do: "project-issue-type-feature"
+
+  defp issue_type_icon(:bug), do: "hero-bug-ant"
+  defp issue_type_icon(:incident), do: "hero-exclamation-triangle"
+  defp issue_type_icon(:feature_request), do: "hero-sparkles"
 
   defp issue_status_class(:new), do: "project-issue-status-new"
   defp issue_status_class(:in_progress), do: "project-issue-status-progress"
@@ -166,8 +168,8 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
     cond do
       diff < 60 -> "just now"
       diff < 3600 -> "#{div(diff, 60)}m ago"
-      diff < 86400 -> "#{div(diff, 3600)}h ago"
-      diff < 604_800 -> "#{div(diff, 86400)}d ago"
+      diff < 86_400 -> "#{div(diff, 3600)}h ago"
+      diff < 604_800 -> "#{div(diff, 86_400)}d ago"
       true -> Calendar.strftime(datetime, "%b %d")
     end
   end
@@ -324,12 +326,7 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
                         >
                           <div class="project-issue-row-left">
                             <div class={["project-issue-type", issue_type_class(issue.type)]}>
-                              <.icon
-                                name={
-                                  if issue.type == :bug, do: "hero-bug-ant", else: "hero-sparkles"
-                                }
-                                class="size-3"
-                              />
+                              <.icon name={issue_type_icon(issue.type)} class="size-3" />
                             </div>
                             <span class="project-issue-key">{Issue.issue_key(issue)}</span>
                             <span class="project-issue-title">{issue.title}</span>

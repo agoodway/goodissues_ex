@@ -77,6 +77,12 @@ defmodule FF.AccountsTest do
       assert "has already been taken" in errors_on(changeset).email
     end
 
+    test "rejects reserved internal email addresses" do
+      {:error, changeset} = Accounts.register_user(%{email: "bot@example.fruitfly.internal"})
+
+      assert "is reserved for internal use" in errors_on(changeset).email
+    end
+
     test "registers users without password" do
       email = unique_user_email()
       {:ok, user} = Accounts.register_user(valid_user_attributes(email: email))
@@ -852,7 +858,115 @@ defmodule FF.AccountsTest do
     end
   end
 
+  describe "get_or_create_bot_user!/1" do
+    test "creates a passwordless bot user and membership on first use" do
+      owner = user_fixture()
+      account = account_fixture(owner)
+
+      bot_user = Accounts.get_or_create_bot_user!(account)
+
+      assert bot_user.email == "bot@#{account.id}.fruitfly.internal"
+      assert is_nil(bot_user.hashed_password)
+
+      account_user = Accounts.get_account_user(bot_user, account)
+      assert account_user.role == :member
+    end
+
+    test "returns the existing bot user on repeated calls" do
+      owner = user_fixture()
+      account = account_fixture(owner)
+
+      first_bot_user = Accounts.get_or_create_bot_user!(account)
+      second_bot_user = Accounts.get_or_create_bot_user!(account)
+
+      assert first_bot_user.id == second_bot_user.id
+    end
+
+    test "repairs a missing membership for an existing bot user" do
+      owner = user_fixture()
+      account = account_fixture(owner)
+      bot_user = Accounts.get_or_create_bot_user!(account)
+
+      Accounts.remove_user_from_account(account, bot_user)
+
+      repaired_bot_user = Accounts.get_or_create_bot_user!(account)
+
+      assert repaired_bot_user.id == bot_user.id
+      assert Accounts.get_account_user(repaired_bot_user, account).role == :member
+    end
+
+    test "does not adopt a pre-existing internal email owned by another account" do
+      owner = user_fixture()
+      account = account_fixture(owner)
+      attacker = user_fixture()
+      attacker_account = account_fixture(attacker)
+      now = DateTime.utc_now(:second)
+
+      {1, _} =
+        Repo.insert_all(User, [
+          %{
+            id: Ecto.UUID.generate(),
+            email: "bot@#{account.id}.fruitfly.internal",
+            inserted_at: now,
+            updated_at: now
+          }
+        ])
+
+      malicious_user = Repo.get_by!(User, email: "bot@#{account.id}.fruitfly.internal")
+
+      Repo.insert!(%FF.Accounts.AccountUser{
+        account_id: attacker_account.id,
+        user_id: malicious_user.id,
+        role: :owner
+      })
+
+      assert_raise ArgumentError, ~r/internal bot user collision/, fn ->
+        Accounts.get_or_create_bot_user!(account)
+      end
+
+      assert Accounts.get_account_user(malicious_user, account) == nil
+    end
+
+    test "concurrent calls return the same bot user" do
+      owner = user_fixture()
+      account = account_fixture(owner)
+
+      bot_users =
+        1..4
+        |> Task.async_stream(fn _ -> Accounts.get_or_create_bot_user!(account) end,
+          max_concurrency: 4,
+          timeout: 5_000
+        )
+        |> Enum.map(fn {:ok, bot_user} -> bot_user end)
+
+      assert Enum.uniq_by(bot_users, & &1.id) |> length() == 1
+      assert Accounts.get_account_user(hd(bot_users), account).role == :member
+    end
+
+    test "bot user cannot authenticate" do
+      owner = user_fixture()
+      account = account_fixture(owner)
+      bot_user = Accounts.get_or_create_bot_user!(account)
+
+      refute Accounts.get_user_by_email_and_password(bot_user.email, valid_user_password())
+    end
+  end
+
   describe "update_api_key/4" do
+    test "accepts uptime check scopes" do
+      user = user_fixture()
+      account = account_fixture(user)
+      account_user = Accounts.get_account_user(user, account)
+      {_token, api_key} = api_key_fixture(user, account)
+
+      {:ok, updated_key} =
+        Accounts.update_api_key(account, account_user, api_key.id, %{
+          scopes: ["checks:read", "checks:write"]
+        })
+
+      assert Enum.sort(updated_key.scopes) == ["checks:read", "checks:write"]
+    end
+
     test "owner can update API key scopes" do
       user = user_fixture()
       account = account_fixture(user)

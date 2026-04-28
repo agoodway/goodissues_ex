@@ -20,6 +20,16 @@ defmodule FF.Tracking.IssueTest do
       assert changeset.valid?
     end
 
+    test "accepts incident type" do
+      changeset =
+        Issue.create_changeset(
+          %Issue{project_id: Ecto.UUID.generate(), submitter_id: Ecto.UUID.generate()},
+          %{title: "Incident report", type: :incident}
+        )
+
+      assert changeset.valid?
+    end
+
     test "requires title" do
       changeset =
         Issue.create_changeset(
@@ -275,6 +285,21 @@ defmodule FF.Tracking.IssueTest do
 
       assert changeset.valid?
       assert get_change(changeset, :type) == :feature_request
+    end
+
+    test "can update type to incident" do
+      issue = %Issue{
+        id: Ecto.UUID.generate(),
+        title: "Original",
+        type: :bug,
+        project_id: Ecto.UUID.generate(),
+        submitter_id: Ecto.UUID.generate()
+      }
+
+      changeset = Issue.update_changeset(issue, %{type: :incident})
+
+      assert changeset.valid?
+      assert get_change(changeset, :type) == :incident
     end
 
     test "can update priority" do

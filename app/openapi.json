@@ -659,6 +659,7 @@
         "description": "Type of issue",
         "enum": [
           "bug",
+          "incident",
           "feature_request"
         ],
         "title": "IssueType",

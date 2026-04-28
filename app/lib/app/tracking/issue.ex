@@ -1,7 +1,7 @@
 defmodule FF.Tracking.Issue do
   @moduledoc """
   Schema for issues within projects.
-  Issues track bugs and feature requests.
+  Issues track bugs, incidents, and feature requests.
   """
   use Ecto.Schema
   import Ecto.Changeset
@@ -9,7 +9,7 @@ defmodule FF.Tracking.Issue do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
-  @type_values [:bug, :feature_request]
+  @type_values [:bug, :incident, :feature_request]
   @status_values [:new, :in_progress, :archived]
   @priority_values [:low, :medium, :high, :critical]
 

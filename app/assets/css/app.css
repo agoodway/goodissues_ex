@@ -1604,6 +1604,12 @@ button, a, input, select, textarea, .nav-item, .data-row {
   border: 1px solid oklch(70% 0.22 25 / 0.3);
 }
 
+.issue-type-pill-incident {
+  background: oklch(82% 0.17 85 / 0.18);
+  color: oklch(82% 0.17 85);
+  border: 1px solid oklch(82% 0.17 85 / 0.35);
+}
+
 .issue-type-pill-feature {
   background: oklch(75% 0.15 200 / 0.15);
   color: oklch(75% 0.15 200);
@@ -1614,6 +1620,12 @@ button, a, input, select, textarea, .nav-item, .data-row {
   background: oklch(55% 0.25 25 / 0.1);
   color: oklch(50% 0.25 25);
   border-color: oklch(55% 0.25 25 / 0.25);
+}
+
+[data-theme="light"] .issue-type-pill-incident {
+  background: oklch(70% 0.17 85 / 0.14);
+  color: oklch(52% 0.17 85);
+  border-color: oklch(70% 0.17 85 / 0.28);
 }
 
 [data-theme="light"] .issue-type-pill-feature {
@@ -2656,6 +2668,11 @@ button, a, input, select, textarea, .nav-item, .data-row {
   color: oklch(70% 0.22 25);
 }
 
+.issue-type-detail-incident {
+  background: oklch(82% 0.17 85 / 0.16);
+  color: oklch(82% 0.17 85);
+}
+
 .issue-type-detail-feature {
   background: oklch(75% 0.15 200 / 0.15);
   color: oklch(75% 0.15 200);
@@ -2679,6 +2696,11 @@ button, a, input, select, textarea, .nav-item, .data-row {
 [data-theme="light"] .issue-type-detail-bug {
   background: oklch(55% 0.25 25 / 0.1);
   color: oklch(50% 0.25 25);
+}
+
+[data-theme="light"] .issue-type-detail-incident {
+  background: oklch(70% 0.17 85 / 0.12);
+  color: oklch(52% 0.17 85);
 }
 
 [data-theme="light"] .issue-type-detail-feature {
@@ -3358,6 +3380,11 @@ button, a, input, select, textarea, .nav-item, .data-row {
   color: oklch(70% 0.15 25);
 }
 
+.project-issue-type-incident {
+  background: oklch(24% 0.05 85);
+  color: oklch(82% 0.14 85);
+}
+
 .project-issue-type-feature {
   background: oklch(20% 0.04 280);
   color: oklch(70% 0.12 280);
@@ -3366,6 +3393,11 @@ button, a, input, select, textarea, .nav-item, .data-row {
 [data-theme="light"] .project-issue-type-bug {
   background: oklch(92% 0.06 25);
   color: oklch(55% 0.18 25);
+}
+
+[data-theme="light"] .project-issue-type-incident {
+  background: oklch(93% 0.05 85);
+  color: oklch(55% 0.15 85);
 }
 
 [data-theme="light"] .project-issue-type-feature {

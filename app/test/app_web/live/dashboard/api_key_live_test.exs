@@ -319,6 +319,8 @@ defmodule FFWeb.Dashboard.ApiKeyLiveTest do
 
       assert html =~ "Edit API Key Scopes"
       assert html =~ "Key with Scopes"
+      assert html =~ "checks:read"
+      assert html =~ "checks:write"
       assert html =~ "projects:read"
       assert html =~ "issues:write"
     end

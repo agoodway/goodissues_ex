@@ -61,6 +61,7 @@ defmodule FF.Accounts.User do
         message: "must have the @ sign and no spaces"
       )
       |> validate_length(:email, max: 160)
+      |> validate_reserved_internal_email(opts)
 
     if Keyword.get(opts, :validate_unique, true) do
       changeset
@@ -77,6 +78,22 @@ defmodule FF.Accounts.User do
       add_error(changeset, :email, "did not change")
     else
       changeset
+    end
+  end
+
+  defp validate_reserved_internal_email(changeset, opts) do
+    if Keyword.get(opts, :allow_internal_email, false) do
+      changeset
+    else
+      validate_change(changeset, :email, &reserved_internal_email_error/2)
+    end
+  end
+
+  defp reserved_internal_email_error(:email, email) do
+    if String.ends_with?(String.downcase(email), ".fruitfly.internal") do
+      [email: "is reserved for internal use"]
+    else
+      []
     end
   end
 

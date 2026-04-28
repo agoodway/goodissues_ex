@@ -62,9 +62,6 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Show do
     Calendar.strftime(dt, "%Y-%m-%d %H:%M:%S UTC")
   end
 
-  defp format_scopes([]), do: "All scopes"
-  defp format_scopes(scopes), do: Enum.join(scopes, ", ")
-
   defp relative_time(nil), do: nil
 
   defp relative_time(datetime) do
@@ -74,8 +71,8 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Show do
     cond do
       diff < 60 -> "just now"
       diff < 3600 -> "#{div(diff, 60)}m ago"
-      diff < 86400 -> "#{div(diff, 3600)}h ago"
-      diff < 604_800 -> "#{div(diff, 86400)}d ago"
+      diff < 86_400 -> "#{div(diff, 3600)}h ago"
+      diff < 604_800 -> "#{div(diff, 86_400)}d ago"
       true -> nil
     end
   end

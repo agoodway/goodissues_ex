@@ -13,6 +13,8 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Edit do
   @available_scopes [
     {"projects:read", "Read access to projects"},
     {"projects:write", "Write access to projects"},
+    {"checks:read", "Read access to uptime checks"},
+    {"checks:write", "Write access to uptime checks"},
     {"issues:read", "Read access to issues"},
     {"issues:write", "Write access to issues"},
     {"errors:read", "Read access to errors"},
@@ -125,6 +127,7 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Edit do
   defp scope_icon(scope) do
     case scope_resource(scope) do
       "projects" -> "hero-folder"
+      "checks" -> "hero-globe-alt"
       "issues" -> "hero-exclamation-triangle"
       "errors" -> "hero-bug-ant"
       _ -> "hero-key"
@@ -421,7 +424,7 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Edit do
             <.icon name="hero-shield-check" class="size-4 sm:size-5" />
           </div>
           <div class="min-w-0">
-            <h1 class="text-lg sm:text-xl font-semibold tracking-tight">Edit Permissions</h1>
+            <h1 class="text-lg sm:text-xl font-semibold tracking-tight">Edit API Key Scopes</h1>
             <p class="text-xs sm:text-sm text-muted">Configure API access scopes for this key</p>
           </div>
         </div>

@@ -197,7 +197,7 @@ defmodule FF.Tracking do
 
     * `:project_id` - Filter by project ID
     * `:status` - Filter by status (new, in_progress, archived)
-    * `:type` - Filter by type (bug, feature_request)
+    * `:type` - Filter by type (bug, incident, feature_request)
     * `:page` - Page number (default: 1)
     * `:per_page` - Results per page (default: #{@default_per_page}, max: #{@max_per_page})
 
@@ -237,7 +237,7 @@ defmodule FF.Tracking do
 
     * `:project_id` - Filter by project ID
     * `:status` - Filter by status (new, in_progress, archived)
-    * `:type` - Filter by type (bug, feature_request)
+    * `:type` - Filter by type (bug, incident, feature_request)
     * `:page` - Page number (default: 1)
     * `:per_page` - Results per page (default: #{@default_per_page}, max: #{@max_per_page})
 
@@ -289,7 +289,7 @@ defmodule FF.Tracking do
   defp parse_positive_int(_, default), do: default
 
   @valid_statuses ~w(new in_progress archived)
-  @valid_types ~w(bug feature_request)
+  @valid_types ~w(bug incident feature_request)
 
   defp apply_issue_filters(query, filters) do
     Enum.reduce(filters, query, fn
@@ -310,7 +310,7 @@ defmodule FF.Tracking do
           query
         end
 
-      {:type, type}, query when type in [:bug, :feature_request] ->
+      {:type, type}, query when type in [:bug, :incident, :feature_request] ->
         where(query, [i], i.type == ^type)
 
       {:type, type}, query when is_binary(type) ->
