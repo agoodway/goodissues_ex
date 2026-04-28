@@ -14,6 +14,18 @@ mix phx.server
 
 Visit [`localhost:4000`](http://localhost:4000) from your browser.
 
+## Seed Users
+
+Run `mix run priv/repo/seeds.exs` to create seed users. The script is idempotent.
+
+| Email | Password | Account | Project |
+|-------|----------|---------|---------|
+| `admin@fruitfly.dev` | `password123456` | FruitFly | FruitFly Core (FF) |
+| `dev@fruitfly.dev` | `password123456` | Dev Team | API Service (API) |
+| `demo@fruitfly.dev` | `password123456` | Demo Corp | — |
+
+Each user also gets a Personal account (created automatically on registration) and a private API key (`sk_*`) printed to the console on first run.
+
 ## API Authentication
 
 FruitFly uses API keys for programmatic access. There are two types:

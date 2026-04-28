@@ -32,6 +32,9 @@ config :app, FF.Mailer, adapter: Swoosh.Adapters.Test
 # Disable swoosh api client as it is only required for production adapters
 config :swoosh, :api_client, false
 
+# Disable Oban job execution in tests
+config :app, Oban, testing: :inline
+
 # Print only warnings and errors during test
 config :logger, level: :warning
 

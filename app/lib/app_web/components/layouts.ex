@@ -286,6 +286,14 @@ defmodule FFWeb.Layouts do
             <.icon name="hero-key" class="size-5" />
             <span>API Keys</span>
           </.link>
+
+          <.link
+            navigate={~p"/dashboard/#{@current_scope.account.slug}/subscriptions"}
+            class={["nav-item", @active_nav == :subscriptions && "active"]}
+          >
+            <.icon name="hero-bell" class="size-5" />
+            <span>Subscriptions</span>
+          </.link>
         </nav>
 
         <%!-- Account switcher at bottom --%>

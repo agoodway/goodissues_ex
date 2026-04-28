@@ -21,6 +21,7 @@ config :app, :scopes,
   ]
 
 config :app,
+  env: config_env(),
   namespace: FF,
   ecto_repos: [FF.Repo],
   generators: [timestamp_type: :utc_datetime, binary_id: true]
@@ -78,6 +79,15 @@ config :phoenix, :json_library, Jason
 config :anubis_mcp, :session_store,
   enabled: true,
   adapter: FFWeb.MCP.SessionStore
+
+# Configure Oban
+config :app, Oban,
+  repo: FF.Repo,
+  queues: [
+    default: 10,
+    notifications_email: 10,
+    notifications_webhook: 5
+  ]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

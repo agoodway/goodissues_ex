@@ -13,18 +13,25 @@ defmodule FFWeb.MCP.Supervisor do
 
   @impl true
   def init(_init_arg) do
-    children = [
-      # Session store must start first for state persistence
-      FFWeb.MCP.SessionStore,
+    children =
+      maybe_start_session_store() ++
+        [
+          # Registry must start before the server
+          Anubis.Server.Registry,
 
-      # Registry must start before the server
-      Anubis.Server.Registry,
-
-      # Then the MCP server
-      {FFWeb.MCP.Server, transport: :streamable_http, name: FFWeb.MCP.Server}
-    ]
+          # Then the MCP server
+          {FFWeb.MCP.Server, transport: :streamable_http, name: FFWeb.MCP.Server}
+        ]
 
     Supervisor.init(children, strategy: :rest_for_one)
+  end
+
+  # Skip starting SessionStore if already running (e.g. started by Tidewave)
+  defp maybe_start_session_store do
+    case GenServer.whereis(FFWeb.MCP.SessionStore) do
+      nil -> [FFWeb.MCP.SessionStore]
+      _pid -> []
+    end
   end
 
   @doc "Restart only the MCP server"
