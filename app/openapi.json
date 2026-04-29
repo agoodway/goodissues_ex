@@ -2,6 +2,574 @@
   "components": {
     "responses": {},
     "schemas": {
+      "StacktraceLineSchema": {
+        "description": "A single line in a stacktrace",
+        "example": {
+          "application": "my_app",
+          "arity": 2,
+          "file": "lib/my_app/some_module.ex",
+          "function": "do_something",
+          "line": 42,
+          "module": "MyApp.SomeModule"
+        },
+        "properties": {
+          "application": {
+            "description": "Application name",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "arity": {
+            "description": "Function arity",
+            "nullable": true,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "file": {
+            "description": "Source file path",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "function": {
+            "description": "Function name",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "line": {
+            "description": "Line number",
+            "nullable": true,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "module": {
+            "description": "Module name",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "title": "StacktraceLineSchema",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Error.StacktraceLineSchema",
+        "x-validate": null
+      },
+      "CheckResultListResponse": {
+        "description": "Paginated list of checkresults",
+        "properties": {
+          "data": {
+            "description": "List of checkresults",
+            "items": {
+              "$ref": "#/components/schemas/CheckResult"
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "CheckResultListResponse",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Check.CheckResultListResponse",
+        "x-validate": null
+      },
+      "CheckUpdateRequest": {
+        "description": "Request body for updating a check; all fields optional.",
+        "example": {
+          "interval_seconds": 60,
+          "paused": false
+        },
+        "properties": {
+          "expected_status": {
+            "maximum": 599,
+            "minimum": 100,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "failure_threshold": {
+            "minimum": 1,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "interval_seconds": {
+            "maximum": 3600,
+            "minimum": 30,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "keyword": {
+            "maxLength": 255,
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "keyword_absence": {
+            "type": "boolean",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "method": {
+            "$ref": "#/components/schemas/CheckMethod"
+          },
+          "name": {
+            "maxLength": 255,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "paused": {
+            "type": "boolean",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "reopen_window_hours": {
+            "minimum": 1,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "url": {
+            "maxLength": 2048,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "title": "CheckUpdateRequest",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Check.CheckUpdateRequest",
+        "x-validate": null
+      },
+      "CheckResult": {
+        "description": "A single check execution result",
+        "properties": {
+          "check_id": {
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "checked_at": {
+            "format": "date-time",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "error": {
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "issue_id": {
+            "format": "uuid",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "response_ms": {
+            "nullable": true,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "status": {
+            "enum": [
+              "up",
+              "down"
+            ],
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "status_code": {
+            "nullable": true,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "checked_at",
+          "check_id"
+        ],
+        "title": "CheckResult",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Check.CheckResultResource",
+        "x-validate": null
+      },
+      "CheckRequest": {
+        "description": "Request body for creating a check",
+        "example": {
+          "expected_status": 200,
+          "interval_seconds": 300,
+          "method": "get",
+          "name": "API Health",
+          "url": "https://api.example.com/health"
+        },
+        "properties": {
+          "expected_status": {
+            "maximum": 599,
+            "minimum": 100,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "failure_threshold": {
+            "minimum": 1,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "interval_seconds": {
+            "maximum": 3600,
+            "minimum": 30,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "keyword": {
+            "maxLength": 255,
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "keyword_absence": {
+            "type": "boolean",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "method": {
+            "$ref": "#/components/schemas/CheckMethod"
+          },
+          "name": {
+            "maxLength": 255,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "paused": {
+            "type": "boolean",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "reopen_window_hours": {
+            "minimum": 1,
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "url": {
+            "maxLength": 2048,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": [
+          "name",
+          "url"
+        ],
+        "title": "CheckRequest",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Check.CheckRequest",
+        "x-validate": null
+      },
+      "IssueSchema": {
+        "description": "An issue resource",
+        "example": {
+          "archived_at": null,
+          "description": "When clicking the login button, nothing happens",
+          "id": "550e8400-e29b-41d4-a716-446655440001",
+          "inserted_at": "2024-01-15T10:30:00Z",
+          "key": "FF-142",
+          "number": 142,
+          "priority": "high",
+          "project_id": "550e8400-e29b-41d4-a716-446655440000",
+          "status": "new",
+          "submitter_email": "user@example.com",
+          "submitter_id": "550e8400-e29b-41d4-a716-446655440002",
+          "title": "Login button not working",
+          "type": "bug",
+          "updated_at": "2024-01-15T10:30:00Z"
+        },
+        "properties": {
+          "archived_at": {
+            "description": "Archive timestamp",
+            "format": "date-time",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "description": {
+            "description": "Issue description",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "id": {
+            "description": "Issue ID",
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "inserted_at": {
+            "description": "Creation timestamp",
+            "format": "date-time",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "key": {
+            "description": "Human-readable issue key (e.g., FF-123)",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "number": {
+            "description": "Issue number within its project",
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "priority": {
+            "$ref": "#/components/schemas/IssuePriority"
+          },
+          "project_id": {
+            "description": "Project ID",
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "status": {
+            "$ref": "#/components/schemas/IssueStatus"
+          },
+          "submitter_email": {
+            "description": "Submitter email",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "submitter_id": {
+            "description": "Submitter user ID",
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "title": {
+            "description": "Issue title",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "type": {
+            "$ref": "#/components/schemas/IssueType"
+          },
+          "updated_at": {
+            "description": "Last update timestamp",
+            "format": "date-time",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "title",
+          "type",
+          "status",
+          "priority",
+          "project_id",
+          "submitter_id",
+          "inserted_at",
+          "updated_at"
+        ],
+        "title": "IssueSchema",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Issue.IssueSchema",
+        "x-validate": null
+      },
+      "StacktraceSchema": {
+        "description": "Stacktrace containing lines",
+        "example": {
+          "lines": [
+            {
+              "application": "my_app",
+              "arity": 2,
+              "file": "lib/my_app/some_module.ex",
+              "function": "do_something",
+              "line": 42,
+              "module": "MyApp.SomeModule"
+            }
+          ]
+        },
+        "properties": {
+          "lines": {
+            "description": "Stacktrace lines ordered by position",
+            "items": {
+              "$ref": "#/components/schemas/StacktraceLineSchema"
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": [
+          "lines"
+        ],
+        "title": "StacktraceSchema",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Error.StacktraceSchema",
+        "x-validate": null
+      },
+      "ProjectResponse": {
+        "description": "A project resource",
+        "example": {
+          "description": "A description of the project",
+          "id": "550e8400-e29b-41d4-a716-446655440000",
+          "inserted_at": "2024-01-15T10:30:00Z",
+          "name": "My Project",
+          "updated_at": "2024-01-15T10:30:00Z"
+        },
+        "properties": {
+          "description": {
+            "description": "Project description",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "id": {
+            "description": "Project ID",
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "inserted_at": {
+            "description": "Creation timestamp",
+            "format": "date-time",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "name": {
+            "description": "Project name",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "updated_at": {
+            "description": "Last update timestamp",
+            "format": "date-time",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "inserted_at",
+          "updated_at"
+        ],
+        "title": "ProjectResponse",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Project.ProjectResponse",
+        "x-validate": null
+      },
+      "IssueType": {
+        "description": "Type of issue",
+        "enum": [
+          "bug",
+          "incident",
+          "feature_request"
+        ],
+        "title": "IssueType",
+        "type": "string",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Issue.IssueType",
+        "x-validate": null
+      },
+      "PaginationMeta": {
+        "description": "Pagination metadata",
+        "example": {
+          "page": 1,
+          "per_page": 20,
+          "total": 42,
+          "total_pages": 3
+        },
+        "properties": {
+          "page": {
+            "description": "Current page number",
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "per_page": {
+            "description": "Items per page",
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "total": {
+            "description": "Total number of items",
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "total_pages": {
+            "description": "Total number of pages",
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": [
+          "page",
+          "per_page",
+          "total",
+          "total_pages"
+        ],
+        "title": "PaginationMeta",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Pagination.PaginationMeta",
+        "x-validate": null
+      },
       "Error": {
         "description": "Error response",
         "example": {
@@ -14,20 +582,422 @@
             "properties": {
               "detail": {
                 "description": "Error message",
-                "type": "string"
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
               }
             },
             "required": [
               "detail"
             ],
-            "type": "object"
+            "type": "object",
+            "x-struct": null,
+            "x-validate": null
           }
         },
         "required": [
           "errors"
         ],
         "title": "Error",
-        "type": "object"
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.ErrorJSON",
+        "x-validate": null
+      },
+      "CheckListResponse": {
+        "description": "Paginated list of checks",
+        "properties": {
+          "data": {
+            "description": "List of checks",
+            "items": {
+              "$ref": "#/components/schemas/Check"
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "CheckListResponse",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Check.CheckListResponse",
+        "x-validate": null
+      },
+      "ProjectListResponse": {
+        "description": "Paginated list of projects",
+        "example": {
+          "data": [
+            {
+              "description": "A description of the project",
+              "id": "550e8400-e29b-41d4-a716-446655440000",
+              "inserted_at": "2024-01-15T10:30:00Z",
+              "name": "My Project",
+              "updated_at": "2024-01-15T10:30:00Z"
+            }
+          ],
+          "meta": {
+            "page": 1,
+            "per_page": 20,
+            "total": 1,
+            "total_pages": 1
+          }
+        },
+        "properties": {
+          "data": {
+            "description": "List of projects",
+            "items": {
+              "$ref": "#/components/schemas/ProjectResponse"
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "ProjectListResponse",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Project.ProjectListResponse",
+        "x-validate": null
+      },
+      "IssueResponse": {
+        "description": "Single issue response wrapper",
+        "example": {
+          "data": {
+            "archived_at": null,
+            "description": "When clicking the login button, nothing happens",
+            "id": "550e8400-e29b-41d4-a716-446655440001",
+            "inserted_at": "2024-01-15T10:30:00Z",
+            "priority": "high",
+            "project_id": "550e8400-e29b-41d4-a716-446655440000",
+            "status": "new",
+            "submitter_email": "user@example.com",
+            "submitter_id": "550e8400-e29b-41d4-a716-446655440002",
+            "title": "Login button not working",
+            "type": "bug",
+            "updated_at": "2024-01-15T10:30:00Z"
+          }
+        },
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/IssueSchema"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "IssueResponse",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Issue.IssueResponse",
+        "x-validate": null
+      },
+      "IssueUpdateRequest": {
+        "description": "Request body for updating an issue",
+        "example": {
+          "priority": "critical",
+          "status": "in_progress",
+          "title": "Login button not working"
+        },
+        "properties": {
+          "description": {
+            "description": "Issue description",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "priority": {
+            "$ref": "#/components/schemas/IssuePriority"
+          },
+          "status": {
+            "$ref": "#/components/schemas/IssueStatus"
+          },
+          "submitter_email": {
+            "description": "Optional submitter email",
+            "maxLength": 255,
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "title": {
+            "description": "Issue title",
+            "maxLength": 255,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "type": {
+            "$ref": "#/components/schemas/IssueType"
+          }
+        },
+        "title": "IssueUpdateRequest",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Issue.IssueUpdateRequest",
+        "x-validate": null
+      },
+      "Check": {
+        "description": "An uptime check resource",
+        "properties": {
+          "consecutive_failures": {
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "current_issue_id": {
+            "format": "uuid",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "expected_status": {
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "failure_threshold": {
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "inserted_at": {
+            "format": "date-time",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "interval_seconds": {
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "keyword": {
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "keyword_absence": {
+            "type": "boolean",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "last_checked_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "method": {
+            "$ref": "#/components/schemas/CheckMethod"
+          },
+          "name": {
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "paused": {
+            "type": "boolean",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "project_id": {
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "reopen_window_hours": {
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "status": {
+            "$ref": "#/components/schemas/CheckStatus"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "url": {
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "url",
+          "method",
+          "status",
+          "project_id",
+          "inserted_at",
+          "updated_at"
+        ],
+        "title": "Check",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Check.CheckResource",
+        "x-validate": null
+      },
+      "ProjectRequest": {
+        "description": "Request body for creating or updating a project",
+        "example": {
+          "description": "A description of the project",
+          "name": "My Project"
+        },
+        "properties": {
+          "description": {
+            "description": "Project description",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "name": {
+            "description": "Project name",
+            "maxLength": 255,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "ProjectRequest",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Project.ProjectRequest",
+        "x-validate": null
+      },
+      "ErrorSchema": {
+        "description": "An error resource",
+        "example": {
+          "fingerprint": "a1b2c3d4e5f6789012345678901234567890123456789012345678901234abcd",
+          "id": "550e8400-e29b-41d4-a716-446655440010",
+          "inserted_at": "2024-01-15T10:30:00Z",
+          "issue_id": "550e8400-e29b-41d4-a716-446655440001",
+          "kind": "Elixir.DBConnection.ConnectionError",
+          "last_occurrence_at": "2024-01-15T10:30:00Z",
+          "muted": false,
+          "reason": "connection not available and request was dropped from queue after 2000ms",
+          "source_function": "MyApp.Repo.query/2",
+          "source_line": "lib/my_app/repo.ex:42",
+          "status": "unresolved",
+          "updated_at": "2024-01-15T10:30:00Z"
+        },
+        "properties": {
+          "fingerprint": {
+            "description": "64-character fingerprint for deduplication",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "id": {
+            "description": "Error ID",
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "inserted_at": {
+            "description": "Creation timestamp",
+            "format": "date-time",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "issue_id": {
+            "description": "Associated issue ID",
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "kind": {
+            "description": "Error type/exception name",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "last_occurrence_at": {
+            "description": "When the error last occurred",
+            "format": "date-time",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "muted": {
+            "description": "Whether notifications are muted",
+            "type": "boolean",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "reason": {
+            "description": "Error message",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "source_function": {
+            "description": "Function where error occurred",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "source_line": {
+            "description": "Source line where error occurred",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "status": {
+            "$ref": "#/components/schemas/ErrorStatus"
+          },
+          "updated_at": {
+            "description": "Last update timestamp",
+            "format": "date-time",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": [
+          "id",
+          "issue_id",
+          "kind",
+          "reason",
+          "status",
+          "fingerprint",
+          "muted",
+          "last_occurrence_at",
+          "inserted_at",
+          "updated_at"
+        ],
+        "title": "ErrorSchema",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Error.ErrorSchema",
+        "x-validate": null
       },
       "ErrorListResponse": {
         "description": "Paginated list of errors",
@@ -61,7 +1031,9 @@
             "items": {
               "$ref": "#/components/schemas/ErrorSchema"
             },
-            "type": "array"
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
           },
           "meta": {
             "$ref": "#/components/schemas/PaginationMeta"
@@ -72,241 +1044,61 @@
           "meta"
         ],
         "title": "ErrorListResponse",
-        "type": "object"
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Error.ErrorListResponse",
+        "x-validate": null
       },
-      "ErrorReportRequest": {
-        "description": "Request body for reporting an error",
-        "example": {
-          "context": {
-            "request_path": "/api/v1/users",
-            "user_id": 12345
-          },
-          "fingerprint": "a1b2c3d4e5f6789012345678901234567890123456789012345678901234abcd",
-          "kind": "Elixir.DBConnection.ConnectionError",
-          "project_id": "550e8400-e29b-41d4-a716-446655440000",
-          "reason": "connection not available and request was dropped from queue after 2000ms",
-          "stacktrace": [
-            {
-              "arity": 2,
-              "file": "lib/my_app/repo.ex",
-              "function": "query",
-              "line": 15,
-              "module": "MyApp.Repo"
-            }
-          ]
-        },
-        "properties": {
-          "breadcrumbs": {
-            "description": "Breadcrumb trail leading to error",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true,
-            "type": "array"
-          },
-          "context": {
-            "additionalProperties": true,
-            "description": "Contextual data captured at time of error",
-            "nullable": true,
-            "type": "object"
-          },
-          "fingerprint": {
-            "description": "64-character fingerprint for deduplication",
-            "maxLength": 64,
-            "minLength": 64,
-            "type": "string"
-          },
-          "kind": {
-            "description": "Error type/exception name",
-            "maxLength": 255,
-            "type": "string"
-          },
-          "project_id": {
-            "description": "Project ID where error occurred",
-            "format": "uuid",
-            "type": "string"
-          },
-          "reason": {
-            "description": "Error message",
-            "type": "string"
-          },
-          "source_function": {
-            "description": "Function where error occurred",
-            "nullable": true,
-            "type": "string"
-          },
-          "source_line": {
-            "description": "Source line where error occurred",
-            "nullable": true,
-            "type": "string"
-          },
-          "stacktrace": {
-            "description": "Stacktrace lines",
-            "items": {
-              "properties": {
-                "application": {
-                  "nullable": true,
-                  "type": "string"
-                },
-                "arity": {
-                  "nullable": true,
-                  "type": "integer"
-                },
-                "file": {
-                  "nullable": true,
-                  "type": "string"
-                },
-                "function": {
-                  "nullable": true,
-                  "type": "string"
-                },
-                "line": {
-                  "nullable": true,
-                  "type": "integer"
-                },
-                "module": {
-                  "nullable": true,
-                  "type": "string"
-                }
-              },
-              "type": "object"
-            },
-            "type": "array"
-          }
-        },
-        "required": [
-          "project_id",
-          "kind",
-          "reason",
-          "fingerprint"
-        ],
-        "title": "ErrorReportRequest",
-        "type": "object"
-      },
-      "ErrorResponse": {
-        "description": "Single error response wrapper",
+      "CheckResponse": {
         "properties": {
           "data": {
-            "$ref": "#/components/schemas/ErrorWithOccurrencesSchema"
+            "$ref": "#/components/schemas/Check"
           }
         },
         "required": [
           "data"
         ],
-        "title": "ErrorResponse",
-        "type": "object"
+        "title": "CheckResponse",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Check.CheckResponse",
+        "x-validate": null
       },
-      "ErrorSchema": {
-        "description": "An error resource",
+      "ValidationError": {
+        "description": "Validation error response",
         "example": {
-          "fingerprint": "a1b2c3d4e5f6789012345678901234567890123456789012345678901234abcd",
-          "id": "550e8400-e29b-41d4-a716-446655440010",
-          "inserted_at": "2024-01-15T10:30:00Z",
-          "issue_id": "550e8400-e29b-41d4-a716-446655440001",
-          "kind": "Elixir.DBConnection.ConnectionError",
-          "last_occurrence_at": "2024-01-15T10:30:00Z",
-          "muted": false,
-          "reason": "connection not available and request was dropped from queue after 2000ms",
-          "source_function": "MyApp.Repo.query/2",
-          "source_line": "lib/my_app/repo.ex:42",
-          "status": "unresolved",
-          "updated_at": "2024-01-15T10:30:00Z"
+          "errors": {
+            "email": [
+              "has invalid format"
+            ],
+            "name": [
+              "can't be blank"
+            ]
+          }
         },
         "properties": {
-          "fingerprint": {
-            "description": "64-character fingerprint for deduplication",
-            "type": "string"
-          },
-          "id": {
-            "description": "Error ID",
-            "format": "uuid",
-            "type": "string"
-          },
-          "inserted_at": {
-            "description": "Creation timestamp",
-            "format": "date-time",
-            "type": "string"
-          },
-          "issue_id": {
-            "description": "Associated issue ID",
-            "format": "uuid",
-            "type": "string"
-          },
-          "kind": {
-            "description": "Error type/exception name",
-            "type": "string"
-          },
-          "last_occurrence_at": {
-            "description": "When the error last occurred",
-            "format": "date-time",
-            "type": "string"
-          },
-          "muted": {
-            "description": "Whether notifications are muted",
-            "type": "boolean"
-          },
-          "reason": {
-            "description": "Error message",
-            "type": "string"
-          },
-          "source_function": {
-            "description": "Function where error occurred",
-            "type": "string"
-          },
-          "source_line": {
-            "description": "Source line where error occurred",
-            "type": "string"
-          },
-          "status": {
-            "$ref": "#/components/schemas/ErrorStatus"
-          },
-          "updated_at": {
-            "description": "Last update timestamp",
-            "format": "date-time",
-            "type": "string"
+          "errors": {
+            "additionalProperties": {
+              "items": {
+                "type": "string",
+                "x-struct": null,
+                "x-validate": null
+              },
+              "type": "array",
+              "x-struct": null,
+              "x-validate": null
+            },
+            "description": "Map of field names to error messages",
+            "type": "object",
+            "x-struct": null,
+            "x-validate": null
           }
         },
         "required": [
-          "id",
-          "issue_id",
-          "kind",
-          "reason",
-          "status",
-          "fingerprint",
-          "muted",
-          "last_occurrence_at",
-          "inserted_at",
-          "updated_at"
+          "errors"
         ],
-        "title": "ErrorSchema",
-        "type": "object"
-      },
-      "ErrorStatus": {
-        "description": "Status of error",
-        "enum": [
-          "resolved",
-          "unresolved"
-        ],
-        "title": "ErrorStatus",
-        "type": "string"
-      },
-      "ErrorUpdateRequest": {
-        "description": "Request body for updating an error",
-        "example": {
-          "muted": true,
-          "status": "resolved"
-        },
-        "properties": {
-          "muted": {
-            "description": "Whether to mute notifications",
-            "type": "boolean"
-          },
-          "status": {
-            "$ref": "#/components/schemas/ErrorStatus"
-          }
-        },
-        "title": "ErrorUpdateRequest",
-        "type": "object"
+        "title": "ValidationError",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.ChangesetJSON",
+        "x-validate": null
       },
       "ErrorWithOccurrencesSchema": {
         "description": "An error resource with occurrences",
@@ -342,58 +1134,82 @@
         "properties": {
           "fingerprint": {
             "description": "64-character fingerprint for deduplication",
-            "type": "string"
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
           },
           "id": {
             "description": "Error ID",
             "format": "uuid",
-            "type": "string"
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
           },
           "inserted_at": {
             "description": "Creation timestamp",
             "format": "date-time",
-            "type": "string"
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
           },
           "issue_id": {
             "description": "Associated issue ID",
             "format": "uuid",
-            "type": "string"
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
           },
           "kind": {
             "description": "Error type/exception name",
-            "type": "string"
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
           },
           "last_occurrence_at": {
             "description": "When the error last occurred",
             "format": "date-time",
-            "type": "string"
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
           },
           "muted": {
             "description": "Whether notifications are muted",
-            "type": "boolean"
+            "type": "boolean",
+            "x-struct": null,
+            "x-validate": null
           },
           "occurrence_count": {
             "description": "Total number of occurrences",
-            "type": "integer"
+            "type": "integer",
+            "x-struct": null,
+            "x-validate": null
           },
           "occurrences": {
             "description": "List of occurrences (paginated)",
             "items": {
               "$ref": "#/components/schemas/OccurrenceSchema"
             },
-            "type": "array"
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
           },
           "reason": {
             "description": "Error message",
-            "type": "string"
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
           },
           "source_function": {
             "description": "Function where error occurred",
-            "type": "string"
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
           },
           "source_line": {
             "description": "Source line where error occurred",
-            "type": "string"
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
           },
           "status": {
             "$ref": "#/components/schemas/ErrorStatus"
@@ -401,7 +1217,9 @@
           "updated_at": {
             "description": "Last update timestamp",
             "format": "date-time",
-            "type": "string"
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
           }
         },
         "required": [
@@ -419,288 +1237,9 @@
           "updated_at"
         ],
         "title": "ErrorWithOccurrencesSchema",
-        "type": "object"
-      },
-      "IssueListResponse": {
-        "description": "List of issues",
-        "example": {
-          "data": [
-            {
-              "archived_at": null,
-              "description": "When clicking the login button, nothing happens",
-              "id": "550e8400-e29b-41d4-a716-446655440001",
-              "inserted_at": "2024-01-15T10:30:00Z",
-              "priority": "high",
-              "project_id": "550e8400-e29b-41d4-a716-446655440000",
-              "status": "new",
-              "submitter_email": null,
-              "submitter_id": "550e8400-e29b-41d4-a716-446655440002",
-              "title": "Login button not working",
-              "type": "bug",
-              "updated_at": "2024-01-15T10:30:00Z"
-            }
-          ]
-        },
-        "properties": {
-          "data": {
-            "description": "List of issues",
-            "items": {
-              "$ref": "#/components/schemas/IssueSchema"
-            },
-            "type": "array"
-          }
-        },
-        "required": [
-          "data"
-        ],
-        "title": "IssueListResponse",
-        "type": "object"
-      },
-      "IssuePriority": {
-        "description": "Priority of issue",
-        "enum": [
-          "low",
-          "medium",
-          "high",
-          "critical"
-        ],
-        "title": "IssuePriority",
-        "type": "string"
-      },
-      "IssueRequest": {
-        "description": "Request body for creating or updating an issue",
-        "example": {
-          "description": "When clicking the login button, nothing happens",
-          "priority": "high",
-          "project_id": "550e8400-e29b-41d4-a716-446655440000",
-          "status": "new",
-          "submitter_email": "user@example.com",
-          "title": "Login button not working",
-          "type": "bug"
-        },
-        "properties": {
-          "description": {
-            "description": "Issue description",
-            "nullable": true,
-            "type": "string"
-          },
-          "priority": {
-            "$ref": "#/components/schemas/IssuePriority"
-          },
-          "project_id": {
-            "description": "Project ID (required for creation)",
-            "format": "uuid",
-            "type": "string"
-          },
-          "status": {
-            "$ref": "#/components/schemas/IssueStatus"
-          },
-          "submitter_email": {
-            "description": "Optional submitter email",
-            "maxLength": 255,
-            "nullable": true,
-            "type": "string"
-          },
-          "title": {
-            "description": "Issue title",
-            "maxLength": 255,
-            "type": "string"
-          },
-          "type": {
-            "$ref": "#/components/schemas/IssueType"
-          }
-        },
-        "required": [
-          "title",
-          "type",
-          "project_id"
-        ],
-        "title": "IssueRequest",
-        "type": "object"
-      },
-      "IssueResponse": {
-        "description": "Single issue response wrapper",
-        "example": {
-          "data": {
-            "archived_at": null,
-            "description": "When clicking the login button, nothing happens",
-            "id": "550e8400-e29b-41d4-a716-446655440001",
-            "inserted_at": "2024-01-15T10:30:00Z",
-            "priority": "high",
-            "project_id": "550e8400-e29b-41d4-a716-446655440000",
-            "status": "new",
-            "submitter_email": "user@example.com",
-            "submitter_id": "550e8400-e29b-41d4-a716-446655440002",
-            "title": "Login button not working",
-            "type": "bug",
-            "updated_at": "2024-01-15T10:30:00Z"
-          }
-        },
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/IssueSchema"
-          }
-        },
-        "required": [
-          "data"
-        ],
-        "title": "IssueResponse",
-        "type": "object"
-      },
-      "IssueSchema": {
-        "description": "An issue resource",
-        "example": {
-          "archived_at": null,
-          "description": "When clicking the login button, nothing happens",
-          "id": "550e8400-e29b-41d4-a716-446655440001",
-          "inserted_at": "2024-01-15T10:30:00Z",
-          "key": "FF-142",
-          "number": 142,
-          "priority": "high",
-          "project_id": "550e8400-e29b-41d4-a716-446655440000",
-          "status": "new",
-          "submitter_email": "user@example.com",
-          "submitter_id": "550e8400-e29b-41d4-a716-446655440002",
-          "title": "Login button not working",
-          "type": "bug",
-          "updated_at": "2024-01-15T10:30:00Z"
-        },
-        "properties": {
-          "archived_at": {
-            "description": "Archive timestamp",
-            "format": "date-time",
-            "nullable": true,
-            "type": "string"
-          },
-          "description": {
-            "description": "Issue description",
-            "nullable": true,
-            "type": "string"
-          },
-          "id": {
-            "description": "Issue ID",
-            "format": "uuid",
-            "type": "string"
-          },
-          "inserted_at": {
-            "description": "Creation timestamp",
-            "format": "date-time",
-            "type": "string"
-          },
-          "key": {
-            "description": "Human-readable issue key (e.g., FF-123)",
-            "nullable": true,
-            "type": "string"
-          },
-          "number": {
-            "description": "Issue number within its project",
-            "type": "integer"
-          },
-          "priority": {
-            "$ref": "#/components/schemas/IssuePriority"
-          },
-          "project_id": {
-            "description": "Project ID",
-            "format": "uuid",
-            "type": "string"
-          },
-          "status": {
-            "$ref": "#/components/schemas/IssueStatus"
-          },
-          "submitter_email": {
-            "description": "Submitter email",
-            "nullable": true,
-            "type": "string"
-          },
-          "submitter_id": {
-            "description": "Submitter user ID",
-            "format": "uuid",
-            "type": "string"
-          },
-          "title": {
-            "description": "Issue title",
-            "type": "string"
-          },
-          "type": {
-            "$ref": "#/components/schemas/IssueType"
-          },
-          "updated_at": {
-            "description": "Last update timestamp",
-            "format": "date-time",
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "number",
-          "title",
-          "type",
-          "status",
-          "priority",
-          "project_id",
-          "submitter_id",
-          "inserted_at",
-          "updated_at"
-        ],
-        "title": "IssueSchema",
-        "type": "object"
-      },
-      "IssueStatus": {
-        "description": "Status of issue",
-        "enum": [
-          "new",
-          "in_progress",
-          "archived"
-        ],
-        "title": "IssueStatus",
-        "type": "string"
-      },
-      "IssueType": {
-        "description": "Type of issue",
-        "enum": [
-          "bug",
-          "incident",
-          "feature_request"
-        ],
-        "title": "IssueType",
-        "type": "string"
-      },
-      "IssueUpdateRequest": {
-        "description": "Request body for updating an issue",
-        "example": {
-          "priority": "critical",
-          "status": "in_progress",
-          "title": "Login button not working"
-        },
-        "properties": {
-          "description": {
-            "description": "Issue description",
-            "nullable": true,
-            "type": "string"
-          },
-          "priority": {
-            "$ref": "#/components/schemas/IssuePriority"
-          },
-          "status": {
-            "$ref": "#/components/schemas/IssueStatus"
-          },
-          "submitter_email": {
-            "description": "Optional submitter email",
-            "maxLength": 255,
-            "nullable": true,
-            "type": "string"
-          },
-          "title": {
-            "description": "Issue title",
-            "maxLength": 255,
-            "type": "string"
-          },
-          "type": {
-            "$ref": "#/components/schemas/IssueType"
-          }
-        },
-        "title": "IssueUpdateRequest",
-        "type": "object"
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Error.ErrorWithOccurrencesSchema",
+        "x-validate": null
       },
       "OccurrenceSchema": {
         "description": "An error occurrence with context and stacktrace",
@@ -733,29 +1272,41 @@
           "breadcrumbs": {
             "description": "Breadcrumb trail leading to error",
             "items": {
-              "type": "string"
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
             },
-            "type": "array"
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
           },
           "context": {
             "additionalProperties": true,
             "description": "Contextual data captured at time of error",
-            "type": "object"
+            "type": "object",
+            "x-struct": null,
+            "x-validate": null
           },
           "id": {
             "description": "Occurrence ID",
             "format": "uuid",
-            "type": "string"
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
           },
           "inserted_at": {
             "description": "When the occurrence was recorded",
             "format": "date-time",
-            "type": "string"
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
           },
           "reason": {
             "description": "Error reason/message",
             "nullable": true,
-            "type": "string"
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
           },
           "stacktrace": {
             "$ref": "#/components/schemas/StacktraceSchema"
@@ -766,242 +1317,359 @@
           "inserted_at"
         ],
         "title": "OccurrenceSchema",
-        "type": "object"
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Error.OccurrenceSchema",
+        "x-validate": null
       },
-      "PaginationMeta": {
-        "description": "Pagination metadata",
+      "ErrorReportRequest": {
+        "description": "Request body for reporting an error",
         "example": {
-          "page": 1,
-          "per_page": 20,
-          "total": 42,
-          "total_pages": 3
-        },
-        "properties": {
-          "page": {
-            "description": "Current page number",
-            "type": "integer"
+          "context": {
+            "request_path": "/api/v1/users",
+            "user_id": 12345
           },
-          "per_page": {
-            "description": "Items per page",
-            "type": "integer"
-          },
-          "total": {
-            "description": "Total number of items",
-            "type": "integer"
-          },
-          "total_pages": {
-            "description": "Total number of pages",
-            "type": "integer"
-          }
-        },
-        "required": [
-          "page",
-          "per_page",
-          "total",
-          "total_pages"
-        ],
-        "title": "PaginationMeta",
-        "type": "object"
-      },
-      "ProjectListResponse": {
-        "description": "List of projects",
-        "example": {
-          "data": [
+          "fingerprint": "a1b2c3d4e5f6789012345678901234567890123456789012345678901234abcd",
+          "kind": "Elixir.DBConnection.ConnectionError",
+          "project_id": "550e8400-e29b-41d4-a716-446655440000",
+          "reason": "connection not available and request was dropped from queue after 2000ms",
+          "stacktrace": [
             {
-              "description": "A description of the project",
-              "id": "550e8400-e29b-41d4-a716-446655440000",
-              "inserted_at": "2024-01-15T10:30:00Z",
-              "name": "My Project",
-              "updated_at": "2024-01-15T10:30:00Z"
+              "arity": 2,
+              "file": "lib/my_app/repo.ex",
+              "function": "query",
+              "line": 15,
+              "module": "MyApp.Repo"
             }
           ]
         },
         "properties": {
-          "data": {
-            "description": "List of projects",
+          "breadcrumbs": {
+            "description": "Breadcrumb trail leading to error",
             "items": {
-              "$ref": "#/components/schemas/ProjectResponse"
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
             },
-            "type": "array"
+            "nullable": true,
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "context": {
+            "additionalProperties": true,
+            "description": "Contextual data captured at time of error",
+            "nullable": true,
+            "type": "object",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "fingerprint": {
+            "description": "64-character fingerprint for deduplication",
+            "maxLength": 64,
+            "minLength": 64,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "kind": {
+            "description": "Error type/exception name",
+            "maxLength": 255,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "project_id": {
+            "description": "Project ID where error occurred",
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "reason": {
+            "description": "Error message",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "source_function": {
+            "description": "Function where error occurred",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "source_line": {
+            "description": "Source line where error occurred",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "stacktrace": {
+            "description": "Stacktrace lines",
+            "items": {
+              "properties": {
+                "application": {
+                  "nullable": true,
+                  "type": "string",
+                  "x-struct": null,
+                  "x-validate": null
+                },
+                "arity": {
+                  "nullable": true,
+                  "type": "integer",
+                  "x-struct": null,
+                  "x-validate": null
+                },
+                "file": {
+                  "nullable": true,
+                  "type": "string",
+                  "x-struct": null,
+                  "x-validate": null
+                },
+                "function": {
+                  "nullable": true,
+                  "type": "string",
+                  "x-struct": null,
+                  "x-validate": null
+                },
+                "line": {
+                  "nullable": true,
+                  "type": "integer",
+                  "x-struct": null,
+                  "x-validate": null
+                },
+                "module": {
+                  "nullable": true,
+                  "type": "string",
+                  "x-struct": null,
+                  "x-validate": null
+                }
+              },
+              "type": "object",
+              "x-struct": null,
+              "x-validate": null
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          }
+        },
+        "required": [
+          "project_id",
+          "kind",
+          "reason",
+          "fingerprint"
+        ],
+        "title": "ErrorReportRequest",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Error.ErrorReportRequest",
+        "x-validate": null
+      },
+      "IssueListResponse": {
+        "description": "Paginated list of issues",
+        "example": {
+          "data": [
+            {
+              "archived_at": null,
+              "description": "When clicking the login button, nothing happens",
+              "id": "550e8400-e29b-41d4-a716-446655440001",
+              "inserted_at": "2024-01-15T10:30:00Z",
+              "priority": "high",
+              "project_id": "550e8400-e29b-41d4-a716-446655440000",
+              "status": "new",
+              "submitter_email": null,
+              "submitter_id": "550e8400-e29b-41d4-a716-446655440002",
+              "title": "Login button not working",
+              "type": "bug",
+              "updated_at": "2024-01-15T10:30:00Z"
+            }
+          ],
+          "meta": {
+            "page": 1,
+            "per_page": 20,
+            "total": 1,
+            "total_pages": 1
+          }
+        },
+        "properties": {
+          "data": {
+            "description": "List of issues",
+            "items": {
+              "$ref": "#/components/schemas/IssueSchema"
+            },
+            "type": "array",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "IssueListResponse",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Issue.IssueListResponse",
+        "x-validate": null
+      },
+      "IssuePriority": {
+        "description": "Priority of issue",
+        "enum": [
+          "low",
+          "medium",
+          "high",
+          "critical"
+        ],
+        "title": "IssuePriority",
+        "type": "string",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Issue.IssuePriority",
+        "x-validate": null
+      },
+      "ErrorStatus": {
+        "description": "Status of error",
+        "enum": [
+          "resolved",
+          "unresolved"
+        ],
+        "title": "ErrorStatus",
+        "type": "string",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Error.ErrorStatus",
+        "x-validate": null
+      },
+      "IssueRequest": {
+        "description": "Request body for creating or updating an issue",
+        "example": {
+          "description": "When clicking the login button, nothing happens",
+          "priority": "high",
+          "project_id": "550e8400-e29b-41d4-a716-446655440000",
+          "status": "new",
+          "submitter_email": "user@example.com",
+          "title": "Login button not working",
+          "type": "bug"
+        },
+        "properties": {
+          "description": {
+            "description": "Issue description",
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "priority": {
+            "$ref": "#/components/schemas/IssuePriority"
+          },
+          "project_id": {
+            "description": "Project ID (required for creation)",
+            "format": "uuid",
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "status": {
+            "$ref": "#/components/schemas/IssueStatus"
+          },
+          "submitter_email": {
+            "description": "Optional submitter email",
+            "maxLength": 255,
+            "nullable": true,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "title": {
+            "description": "Issue title",
+            "maxLength": 255,
+            "type": "string",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "type": {
+            "$ref": "#/components/schemas/IssueType"
+          }
+        },
+        "required": [
+          "title",
+          "type",
+          "project_id"
+        ],
+        "title": "IssueRequest",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Issue.IssueRequest",
+        "x-validate": null
+      },
+      "ErrorUpdateRequest": {
+        "description": "Request body for updating an error",
+        "example": {
+          "muted": true,
+          "status": "resolved"
+        },
+        "properties": {
+          "muted": {
+            "description": "Whether to mute notifications",
+            "type": "boolean",
+            "x-struct": null,
+            "x-validate": null
+          },
+          "status": {
+            "$ref": "#/components/schemas/ErrorStatus"
+          }
+        },
+        "title": "ErrorUpdateRequest",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Error.ErrorUpdateRequest",
+        "x-validate": null
+      },
+      "ErrorResponse": {
+        "description": "Single error response wrapper",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ErrorWithOccurrencesSchema"
           }
         },
         "required": [
           "data"
         ],
-        "title": "ProjectListResponse",
-        "type": "object"
+        "title": "ErrorResponse",
+        "type": "object",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Error.ErrorResponse",
+        "x-validate": null
       },
-      "ProjectRequest": {
-        "description": "Request body for creating or updating a project",
-        "example": {
-          "description": "A description of the project",
-          "name": "My Project"
-        },
-        "properties": {
-          "description": {
-            "description": "Project description",
-            "nullable": true,
-            "type": "string"
-          },
-          "name": {
-            "description": "Project name",
-            "maxLength": 255,
-            "type": "string"
-          }
-        },
-        "required": [
-          "name"
+      "IssueStatus": {
+        "description": "Status of issue",
+        "enum": [
+          "new",
+          "in_progress",
+          "archived"
         ],
-        "title": "ProjectRequest",
-        "type": "object"
+        "title": "IssueStatus",
+        "type": "string",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Issue.IssueStatus",
+        "x-validate": null
       },
-      "ProjectResponse": {
-        "description": "A project resource",
-        "example": {
-          "description": "A description of the project",
-          "id": "550e8400-e29b-41d4-a716-446655440000",
-          "inserted_at": "2024-01-15T10:30:00Z",
-          "name": "My Project",
-          "updated_at": "2024-01-15T10:30:00Z"
-        },
-        "properties": {
-          "description": {
-            "description": "Project description",
-            "nullable": true,
-            "type": "string"
-          },
-          "id": {
-            "description": "Project ID",
-            "format": "uuid",
-            "type": "string"
-          },
-          "inserted_at": {
-            "description": "Creation timestamp",
-            "format": "date-time",
-            "type": "string"
-          },
-          "name": {
-            "description": "Project name",
-            "type": "string"
-          },
-          "updated_at": {
-            "description": "Last update timestamp",
-            "format": "date-time",
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "inserted_at",
-          "updated_at"
+      "CheckMethod": {
+        "enum": [
+          "get",
+          "head",
+          "post"
         ],
-        "title": "ProjectResponse",
-        "type": "object"
+        "title": "CheckMethod",
+        "type": "string",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Check.CheckMethod",
+        "x-validate": null
       },
-      "StacktraceLineSchema": {
-        "description": "A single line in a stacktrace",
-        "example": {
-          "application": "my_app",
-          "arity": 2,
-          "file": "lib/my_app/some_module.ex",
-          "function": "do_something",
-          "line": 42,
-          "module": "MyApp.SomeModule"
-        },
-        "properties": {
-          "application": {
-            "description": "Application name",
-            "nullable": true,
-            "type": "string"
-          },
-          "arity": {
-            "description": "Function arity",
-            "nullable": true,
-            "type": "integer"
-          },
-          "file": {
-            "description": "Source file path",
-            "nullable": true,
-            "type": "string"
-          },
-          "function": {
-            "description": "Function name",
-            "nullable": true,
-            "type": "string"
-          },
-          "line": {
-            "description": "Line number",
-            "nullable": true,
-            "type": "integer"
-          },
-          "module": {
-            "description": "Module name",
-            "nullable": true,
-            "type": "string"
-          }
-        },
-        "title": "StacktraceLineSchema",
-        "type": "object"
-      },
-      "StacktraceSchema": {
-        "description": "Stacktrace containing lines",
-        "example": {
-          "lines": [
-            {
-              "application": "my_app",
-              "arity": 2,
-              "file": "lib/my_app/some_module.ex",
-              "function": "do_something",
-              "line": 42,
-              "module": "MyApp.SomeModule"
-            }
-          ]
-        },
-        "properties": {
-          "lines": {
-            "description": "Stacktrace lines ordered by position",
-            "items": {
-              "$ref": "#/components/schemas/StacktraceLineSchema"
-            },
-            "type": "array"
-          }
-        },
-        "required": [
-          "lines"
+      "CheckStatus": {
+        "enum": [
+          "unknown",
+          "up",
+          "down"
         ],
-        "title": "StacktraceSchema",
-        "type": "object"
-      },
-      "ValidationError": {
-        "description": "Validation error response",
-        "example": {
-          "errors": {
-            "email": [
-              "has invalid format"
-            ],
-            "name": [
-              "can't be blank"
-            ]
-          }
-        },
-        "properties": {
-          "errors": {
-            "additionalProperties": {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            "description": "Map of field names to error messages",
-            "type": "object"
-          }
-        },
-        "required": [
-          "errors"
-        ],
-        "title": "ValidationError",
-        "type": "object"
+        "title": "CheckStatus",
+        "type": "string",
+        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Check.CheckStatus",
+        "x-validate": null
       }
     },
     "securitySchemes": {
@@ -1041,7 +1709,9 @@
             "name": "muted",
             "required": false,
             "schema": {
-              "type": "boolean"
+              "type": "boolean",
+              "x-struct": null,
+              "x-validate": null
             }
           },
           {
@@ -1051,7 +1721,9 @@
             "required": false,
             "schema": {
               "minimum": 1,
-              "type": "integer"
+              "type": "integer",
+              "x-struct": null,
+              "x-validate": null
             }
           },
           {
@@ -1062,7 +1734,9 @@
             "schema": {
               "maximum": 100,
               "minimum": 1,
-              "type": "integer"
+              "type": "integer",
+              "x-struct": null,
+              "x-validate": null
             }
           }
         ],
@@ -1179,7 +1853,9 @@
             "name": "module",
             "required": false,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
             }
           },
           {
@@ -1188,7 +1864,9 @@
             "name": "function",
             "required": false,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
             }
           },
           {
@@ -1197,7 +1875,9 @@
             "name": "file",
             "required": false,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
             }
           },
           {
@@ -1207,7 +1887,9 @@
             "required": false,
             "schema": {
               "minimum": 1,
-              "type": "integer"
+              "type": "integer",
+              "x-struct": null,
+              "x-validate": null
             }
           },
           {
@@ -1218,7 +1900,9 @@
             "schema": {
               "maximum": 100,
               "minimum": 1,
-              "type": "integer"
+              "type": "integer",
+              "x-struct": null,
+              "x-validate": null
             }
           }
         ],
@@ -1263,7 +1947,9 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string"
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
             }
           },
           {
@@ -1273,7 +1959,9 @@
             "required": false,
             "schema": {
               "minimum": 1,
-              "type": "integer"
+              "type": "integer",
+              "x-struct": null,
+              "x-validate": null
             }
           },
           {
@@ -1284,7 +1972,9 @@
             "schema": {
               "maximum": 100,
               "minimum": 1,
-              "type": "integer"
+              "type": "integer",
+              "x-struct": null,
+              "x-validate": null
             }
           }
         ],
@@ -1337,7 +2027,9 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string"
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
             }
           }
         ],
@@ -1425,13 +2117,19 @@
                     "items": {
                       "properties": {
                         "context": {
-                          "type": "object"
+                          "type": "object",
+                          "x-struct": null,
+                          "x-validate": null
                         },
                         "duration_ms": {
-                          "type": "number"
+                          "type": "number",
+                          "x-struct": null,
+                          "x-validate": null
                         },
                         "event_name": {
-                          "type": "string"
+                          "type": "string",
+                          "x-struct": null,
+                          "x-validate": null
                         },
                         "event_type": {
                           "enum": [
@@ -1442,24 +2140,36 @@
                             "liveview_event",
                             "ecto_query"
                           ],
-                          "type": "string"
+                          "type": "string",
+                          "x-struct": null,
+                          "x-validate": null
                         },
                         "measurements": {
-                          "type": "object"
+                          "type": "object",
+                          "x-struct": null,
+                          "x-validate": null
                         },
                         "project_id": {
                           "format": "uuid",
-                          "type": "string"
+                          "type": "string",
+                          "x-struct": null,
+                          "x-validate": null
                         },
                         "request_id": {
-                          "type": "string"
+                          "type": "string",
+                          "x-struct": null,
+                          "x-validate": null
                         },
                         "timestamp": {
                           "format": "date-time",
-                          "type": "string"
+                          "type": "string",
+                          "x-struct": null,
+                          "x-validate": null
                         },
                         "trace_id": {
-                          "type": "string"
+                          "type": "string",
+                          "x-struct": null,
+                          "x-validate": null
                         }
                       },
                       "required": [
@@ -1467,15 +2177,21 @@
                         "event_type",
                         "event_name"
                       ],
-                      "type": "object"
+                      "type": "object",
+                      "x-struct": null,
+                      "x-validate": null
                     },
-                    "type": "array"
+                    "type": "array",
+                    "x-struct": null,
+                    "x-validate": null
                   }
                 },
                 "required": [
                   "events"
                 ],
-                "type": "object"
+                "type": "object",
+                "x-struct": null,
+                "x-validate": null
               }
             }
           },
@@ -1493,23 +2209,35 @@
                       "items": {
                         "properties": {
                           "error": {
-                            "type": "string"
+                            "type": "string",
+                            "x-struct": null,
+                            "x-validate": null
                           },
                           "project_id": {
                             "format": "uuid",
-                            "type": "string"
+                            "type": "string",
+                            "x-struct": null,
+                            "x-validate": null
                           }
                         },
-                        "type": "object"
+                        "type": "object",
+                        "x-struct": null,
+                        "x-validate": null
                       },
-                      "type": "array"
+                      "type": "array",
+                      "x-struct": null,
+                      "x-validate": null
                     },
                     "inserted": {
                       "description": "Number of spans created",
-                      "type": "integer"
+                      "type": "integer",
+                      "x-struct": null,
+                      "x-validate": null
                     }
                   },
-                  "type": "object"
+                  "type": "object",
+                  "x-struct": null,
+                  "x-validate": null
                 }
               }
             },
@@ -1565,7 +2293,9 @@
             "required": false,
             "schema": {
               "format": "uuid",
-              "type": "string"
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
             }
           },
           {
@@ -1585,6 +2315,31 @@
             "schema": {
               "$ref": "#/components/schemas/IssueType"
             }
+          },
+          {
+            "description": "Page number",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "x-struct": null,
+              "x-validate": null
+            }
+          },
+          {
+            "description": "Results per page",
+            "in": "query",
+            "name": "per_page",
+            "required": false,
+            "schema": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer",
+              "x-struct": null,
+              "x-validate": null
+            }
           }
         ],
         "responses": {
@@ -1597,6 +2352,16 @@
               }
             },
             "description": "Issue list"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Bad request"
           },
           "401": {
             "content": {
@@ -1691,7 +2456,9 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string"
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
             }
           }
         ],
@@ -1747,7 +2514,9 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string"
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
             }
           }
         ],
@@ -1800,7 +2569,9 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string"
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
             }
           }
         ],
@@ -1878,7 +2649,33 @@
         "callbacks": {},
         "description": "Returns all projects for the authenticated user's account",
         "operationId": "FFWeb.Api.V1.ProjectController.index",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Page number",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "x-struct": null,
+              "x-validate": null
+            }
+          },
+          {
+            "description": "Results per page",
+            "in": "query",
+            "name": "per_page",
+            "required": false,
+            "schema": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer",
+              "x-struct": null,
+              "x-validate": null
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -1889,6 +2686,16 @@
               }
             },
             "description": "Project list"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Bad request"
           },
           "401": {
             "content": {
@@ -1983,7 +2790,9 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string"
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
             }
           }
         ],
@@ -2039,7 +2848,9 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string"
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
             }
           }
         ],
@@ -2092,7 +2903,9 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string"
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
             }
           }
         ],
@@ -2162,6 +2975,519 @@
         "summary": "Update project",
         "tags": [
           "Projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/checks": {
+      "get": {
+        "callbacks": {},
+        "operationId": "FFWeb.Api.V1.CheckController.index",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          },
+          {
+            "description": "",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "x-struct": null,
+              "x-validate": null
+            }
+          },
+          {
+            "description": "",
+            "in": "query",
+            "name": "per_page",
+            "required": false,
+            "schema": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer",
+              "x-struct": null,
+              "x-validate": null
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckListResponse"
+                }
+              }
+            },
+            "description": "Check list"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Bad request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "summary": "List checks for a project",
+        "tags": [
+          "Checks"
+        ]
+      },
+      "post": {
+        "callbacks": {},
+        "operationId": "FFWeb.Api.V1.CheckController.create",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckRequest"
+              }
+            }
+          },
+          "description": "Check params",
+          "required": false
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckResponse"
+                }
+              }
+            },
+            "description": "Check created"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Validation error"
+          }
+        },
+        "summary": "Create a check",
+        "tags": [
+          "Checks"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/checks/{check_id}": {
+      "delete": {
+        "callbacks": {},
+        "operationId": "FFWeb.Api.V1.CheckController.delete",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          },
+          {
+            "description": "",
+            "in": "path",
+            "name": "check_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Check deleted"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "summary": "Delete a check",
+        "tags": [
+          "Checks"
+        ]
+      },
+      "get": {
+        "callbacks": {},
+        "operationId": "FFWeb.Api.V1.CheckController.show",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          },
+          {
+            "description": "",
+            "in": "path",
+            "name": "check_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckResponse"
+                }
+              }
+            },
+            "description": "Check"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "summary": "Get a check",
+        "tags": [
+          "Checks"
+        ]
+      },
+      "patch": {
+        "callbacks": {},
+        "operationId": "FFWeb.Api.V1.CheckController.update",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          },
+          {
+            "description": "",
+            "in": "path",
+            "name": "check_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckUpdateRequest"
+              }
+            }
+          },
+          "description": "Check params",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckResponse"
+                }
+              }
+            },
+            "description": "Check updated"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Validation error"
+          }
+        },
+        "summary": "Update a check",
+        "tags": [
+          "Checks"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/checks/{check_id}/results": {
+      "get": {
+        "callbacks": {},
+        "operationId": "FFWeb.Api.V1.CheckResultController.index",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          },
+          {
+            "description": "",
+            "in": "path",
+            "name": "check_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string",
+              "x-struct": null,
+              "x-validate": null
+            }
+          },
+          {
+            "description": "",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "x-struct": null,
+              "x-validate": null
+            }
+          },
+          {
+            "description": "",
+            "in": "query",
+            "name": "per_page",
+            "required": false,
+            "schema": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer",
+              "x-struct": null,
+              "x-validate": null
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckResultListResponse"
+                }
+              }
+            },
+            "description": "Check result list"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Bad request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "summary": "List results for a check",
+        "tags": [
+          "Checks"
         ]
       }
     }

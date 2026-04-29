@@ -115,6 +115,11 @@ defmodule FFWeb.Router do
     get "/errors", ErrorController, :index
     get "/errors/search", ErrorController, :search
     get "/errors/:id", ErrorController, :show
+
+    # Checks (nested under projects)
+    get "/projects/:project_id/checks", CheckController, :index
+    get "/projects/:project_id/checks/:check_id", CheckController, :show
+    get "/projects/:project_id/checks/:check_id/results", CheckResultController, :index
   end
 
   # ============================================
@@ -139,6 +144,11 @@ defmodule FFWeb.Router do
 
     # Events (telemetry)
     post "/events/batch", EventController, :create_batch
+
+    # Checks (nested under projects)
+    post "/projects/:project_id/checks", CheckController, :create
+    patch "/projects/:project_id/checks/:check_id", CheckController, :update
+    delete "/projects/:project_id/checks/:check_id", CheckController, :delete
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

@@ -86,7 +86,8 @@ config :app, Oban,
   queues: [
     default: 10,
     notifications_email: 10,
-    notifications_webhook: 5
+    notifications_webhook: 5,
+    checks: 10
   ]
 
 # Import environment specific config. This must remain at the bottom

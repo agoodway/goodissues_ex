@@ -32,8 +32,12 @@ config :app, FF.Mailer, adapter: Swoosh.Adapters.Test
 # Disable swoosh api client as it is only required for production adapters
 config :swoosh, :api_client, false
 
-# Disable Oban job execution in tests
-config :app, Oban, testing: :inline
+# In tests, jobs are inserted but not executed — call Oban.drain_queue/1
+# (or invoke a worker's perform/1 directly) when test logic needs them
+# to run. The isolated notifier avoids LISTEN/NOTIFY connection pressure.
+config :app, Oban,
+  testing: :manual,
+  notifier: Oban.Notifiers.Isolated
 
 # Print only warnings and errors during test
 config :logger, level: :warning

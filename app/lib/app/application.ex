@@ -5,6 +5,8 @@ defmodule FF.Application do
 
   use Application
 
+  alias FF.Monitoring.Scheduler
+
   @impl true
   def start(_type, _args) do
     # MCP Server - only in dev
@@ -26,7 +28,31 @@ defmodule FF.Application do
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: FF.Supervisor]
-    Supervisor.start_link(children, opts)
+
+    case Supervisor.start_link(children, opts) do
+      {:ok, _pid} = ok ->
+        recover_uptime_checks()
+        ok
+
+      other ->
+        other
+    end
+  end
+
+  defp recover_uptime_checks do
+    # Re-enqueue any active checks that have no pending Oban job. Skipped
+    # in test mode because tests inspect job inserts directly.
+    if Application.get_env(:app, :env) != :test do
+      Task.start(fn ->
+        try do
+          Scheduler.recover_orphaned_jobs()
+        rescue
+          _ -> :ok
+        end
+      end)
+    end
+
+    :ok
   end
 
   defp maybe_start_listener(children) do
