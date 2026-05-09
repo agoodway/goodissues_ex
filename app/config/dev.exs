@@ -65,8 +65,8 @@ config :good_issues, GIWeb.Endpoint,
       # Gettext translations
       ~r"priv/gettext/.*\.po$"E,
       # Router, Controllers, LiveViews and LiveComponents
-      ~r"lib/app_web/router\.ex$"E,
-      ~r"lib/app_web/(controllers|live|components)/.*\.(ex|heex)$"E
+      ~r"lib/good_issues_web/router\.ex$"E,
+      ~r"lib/good_issues_web/(controllers|live|components)/.*\.(ex|heex)$"E
     ]
   ]
 
