@@ -16,50 +16,99 @@
           "application": {
             "description": "Application name",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "arity": {
             "description": "Function arity",
             "nullable": true,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "file": {
             "description": "Source file path",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "function": {
             "description": "Function name",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "line": {
             "description": "Line number",
             "nullable": true,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "module": {
             "description": "Module name",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "title": "StacktraceLineSchema",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Error.StacktraceLineSchema",
-        "x-validate": null
+        "type": "object"
+      },
+      "HeartbeatUpdateRequest": {
+        "description": "Request body for updating a heartbeat; all fields optional.",
+        "example": {
+          "interval_seconds": 3600,
+          "paused": false
+        },
+        "properties": {
+          "alert_rules": {
+            "items": {
+              "$ref": "#/components/schemas/AlertRule"
+            },
+            "type": "array"
+          },
+          "failure_threshold": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "grace_seconds": {
+            "maximum": 86400,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "interval_seconds": {
+            "maximum": 86400,
+            "minimum": 30,
+            "type": "integer"
+          },
+          "name": {
+            "maxLength": 255,
+            "type": "string"
+          },
+          "paused": {
+            "type": "boolean"
+          },
+          "reopen_window_hours": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "title": "HeartbeatUpdateRequest",
+        "type": "object"
+      },
+      "HeartbeatPingListResponse": {
+        "description": "Paginated list of heartbeatpings",
+        "properties": {
+          "data": {
+            "description": "List of heartbeatpings",
+            "items": {
+              "$ref": "#/components/schemas/HeartbeatPing"
+            },
+            "type": "array"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "HeartbeatPingListResponse",
+        "type": "object"
       },
       "CheckResultListResponse": {
         "description": "Paginated list of checkresults",
@@ -69,9 +118,7 @@
             "items": {
               "$ref": "#/components/schemas/CheckResult"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           },
           "meta": {
             "$ref": "#/components/schemas/PaginationMeta"
@@ -82,9 +129,7 @@
           "meta"
         ],
         "title": "CheckResultListResponse",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Check.CheckResultListResponse",
-        "x-validate": null
+        "type": "object"
       },
       "CheckUpdateRequest": {
         "description": "Request body for updating a check; all fields optional.",
@@ -96,121 +141,85 @@
           "expected_status": {
             "maximum": 599,
             "minimum": 100,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "failure_threshold": {
             "minimum": 1,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "interval_seconds": {
             "maximum": 3600,
             "minimum": 30,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "keyword": {
             "maxLength": 255,
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "keyword_absence": {
-            "type": "boolean",
-            "x-struct": null,
-            "x-validate": null
+            "type": "boolean"
           },
           "method": {
             "$ref": "#/components/schemas/CheckMethod"
           },
           "name": {
             "maxLength": 255,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "paused": {
-            "type": "boolean",
-            "x-struct": null,
-            "x-validate": null
+            "type": "boolean"
           },
           "reopen_window_hours": {
             "minimum": 1,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "url": {
             "maxLength": 2048,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "title": "CheckUpdateRequest",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Check.CheckUpdateRequest",
-        "x-validate": null
+        "type": "object"
       },
       "CheckResult": {
         "description": "A single check execution result",
         "properties": {
           "check_id": {
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "checked_at": {
             "format": "date-time",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "error": {
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "id": {
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "issue_id": {
             "format": "uuid",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "response_ms": {
             "nullable": true,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "status": {
             "enum": [
               "up",
               "down"
             ],
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "status_code": {
             "nullable": true,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           }
         },
         "required": [
@@ -220,9 +229,19 @@
           "check_id"
         ],
         "title": "CheckResult",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Check.CheckResultResource",
-        "x-validate": null
+        "type": "object"
+      },
+      "HeartbeatCreateResponseEnvelope": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/HeartbeatCreateResponse"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "HeartbeatCreateResponseEnvelope",
+        "type": "object"
       },
       "CheckRequest": {
         "description": "Request body for creating a check",
@@ -237,60 +256,42 @@
           "expected_status": {
             "maximum": 599,
             "minimum": 100,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "failure_threshold": {
             "minimum": 1,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "interval_seconds": {
             "maximum": 3600,
             "minimum": 30,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "keyword": {
             "maxLength": 255,
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "keyword_absence": {
-            "type": "boolean",
-            "x-struct": null,
-            "x-validate": null
+            "type": "boolean"
           },
           "method": {
             "$ref": "#/components/schemas/CheckMethod"
           },
           "name": {
             "maxLength": 255,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "paused": {
-            "type": "boolean",
-            "x-struct": null,
-            "x-validate": null
+            "type": "boolean"
           },
           "reopen_window_hours": {
             "minimum": 1,
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "url": {
             "maxLength": 2048,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": [
@@ -298,9 +299,16 @@
           "url"
         ],
         "title": "CheckRequest",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Check.CheckRequest",
-        "x-validate": null
+        "type": "object"
+      },
+      "PingKind": {
+        "enum": [
+          "ping",
+          "start",
+          "fail"
+        ],
+        "title": "PingKind",
+        "type": "string"
       },
       "IssueSchema": {
         "description": "An issue resource",
@@ -325,43 +333,31 @@
             "description": "Archive timestamp",
             "format": "date-time",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "description": {
             "description": "Issue description",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "id": {
             "description": "Issue ID",
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "inserted_at": {
             "description": "Creation timestamp",
             "format": "date-time",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "key": {
             "description": "Human-readable issue key (e.g., FF-123)",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "number": {
             "description": "Issue number within its project",
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "priority": {
             "$ref": "#/components/schemas/IssuePriority"
@@ -369,9 +365,7 @@
           "project_id": {
             "description": "Project ID",
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "status": {
             "$ref": "#/components/schemas/IssueStatus"
@@ -379,22 +373,16 @@
           "submitter_email": {
             "description": "Submitter email",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "submitter_id": {
             "description": "Submitter user ID",
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "title": {
             "description": "Issue title",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "type": {
             "$ref": "#/components/schemas/IssueType"
@@ -402,9 +390,7 @@
           "updated_at": {
             "description": "Last update timestamp",
             "format": "date-time",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": [
@@ -420,9 +406,105 @@
           "updated_at"
         ],
         "title": "IssueSchema",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Issue.IssueSchema",
-        "x-validate": null
+        "type": "object"
+      },
+      "PingPayload": {
+        "additionalProperties": true,
+        "description": "Optional JSON payload for ping endpoints",
+        "properties": {
+          "exit_code": {
+            "description": "Reserved field for /ping/fail",
+            "type": "integer"
+          }
+        },
+        "title": "PingPayload",
+        "type": "object"
+      },
+      "HeartbeatCreateResponse": {
+        "description": "Heartbeat resource returned on create (includes full ping URL)",
+        "properties": {
+          "alert_rules": {
+            "items": {
+              "$ref": "#/components/schemas/AlertRule"
+            },
+            "type": "array"
+          },
+          "consecutive_failures": {
+            "type": "integer"
+          },
+          "current_issue_id": {
+            "format": "uuid",
+            "nullable": true,
+            "type": "string"
+          },
+          "failure_threshold": {
+            "type": "integer"
+          },
+          "grace_seconds": {
+            "type": "integer"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "inserted_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "interval_seconds": {
+            "type": "integer"
+          },
+          "last_ping_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "next_due_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "paused": {
+            "type": "boolean"
+          },
+          "ping_token": {
+            "description": "Full 42-character ping token",
+            "type": "string"
+          },
+          "ping_url": {
+            "description": "Full ping URL for provisioning",
+            "type": "string"
+          },
+          "project_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "reopen_window_hours": {
+            "type": "integer"
+          },
+          "status": {
+            "$ref": "#/components/schemas/HeartbeatStatus"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "ping_token",
+          "ping_url",
+          "status",
+          "project_id",
+          "inserted_at",
+          "updated_at"
+        ],
+        "title": "HeartbeatCreateResponse",
+        "type": "object"
       },
       "StacktraceSchema": {
         "description": "Stacktrace containing lines",
@@ -444,18 +526,14 @@
             "items": {
               "$ref": "#/components/schemas/StacktraceLineSchema"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           }
         },
         "required": [
           "lines"
         ],
         "title": "StacktraceSchema",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Error.StacktraceSchema",
-        "x-validate": null
+        "type": "object"
       },
       "ProjectResponse": {
         "description": "A project resource",
@@ -470,36 +548,26 @@
           "description": {
             "description": "Project description",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "id": {
             "description": "Project ID",
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "inserted_at": {
             "description": "Creation timestamp",
             "format": "date-time",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "name": {
             "description": "Project name",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "updated_at": {
             "description": "Last update timestamp",
             "format": "date-time",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": [
@@ -509,9 +577,7 @@
           "updated_at"
         ],
         "title": "ProjectResponse",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Project.ProjectResponse",
-        "x-validate": null
+        "type": "object"
       },
       "IssueType": {
         "description": "Type of issue",
@@ -521,9 +587,7 @@
           "feature_request"
         ],
         "title": "IssueType",
-        "type": "string",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Issue.IssueType",
-        "x-validate": null
+        "type": "string"
       },
       "PaginationMeta": {
         "description": "Pagination metadata",
@@ -536,27 +600,19 @@
         "properties": {
           "page": {
             "description": "Current page number",
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "per_page": {
             "description": "Items per page",
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "total": {
             "description": "Total number of items",
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "total_pages": {
             "description": "Total number of pages",
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           }
         },
         "required": [
@@ -566,9 +622,7 @@
           "total_pages"
         ],
         "title": "PaginationMeta",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Pagination.PaginationMeta",
-        "x-validate": null
+        "type": "object"
       },
       "Error": {
         "description": "Error response",
@@ -582,26 +636,20 @@
             "properties": {
               "detail": {
                 "description": "Error message",
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               }
             },
             "required": [
               "detail"
             ],
-            "type": "object",
-            "x-struct": null,
-            "x-validate": null
+            "type": "object"
           }
         },
         "required": [
           "errors"
         ],
         "title": "Error",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.ErrorJSON",
-        "x-validate": null
+        "type": "object"
       },
       "CheckListResponse": {
         "description": "Paginated list of checks",
@@ -611,9 +659,7 @@
             "items": {
               "$ref": "#/components/schemas/Check"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           },
           "meta": {
             "$ref": "#/components/schemas/PaginationMeta"
@@ -624,9 +670,7 @@
           "meta"
         ],
         "title": "CheckListResponse",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Check.CheckListResponse",
-        "x-validate": null
+        "type": "object"
       },
       "ProjectListResponse": {
         "description": "Paginated list of projects",
@@ -653,9 +697,7 @@
             "items": {
               "$ref": "#/components/schemas/ProjectResponse"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           },
           "meta": {
             "$ref": "#/components/schemas/PaginationMeta"
@@ -666,9 +708,7 @@
           "meta"
         ],
         "title": "ProjectListResponse",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Project.ProjectListResponse",
-        "x-validate": null
+        "type": "object"
       },
       "IssueResponse": {
         "description": "Single issue response wrapper",
@@ -697,9 +737,7 @@
           "data"
         ],
         "title": "IssueResponse",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Issue.IssueResponse",
-        "x-validate": null
+        "type": "object"
       },
       "IssueUpdateRequest": {
         "description": "Request body for updating an issue",
@@ -712,9 +750,7 @@
           "description": {
             "description": "Issue description",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "priority": {
             "$ref": "#/components/schemas/IssuePriority"
@@ -726,123 +762,85 @@
             "description": "Optional submitter email",
             "maxLength": 255,
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "title": {
             "description": "Issue title",
             "maxLength": 255,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "type": {
             "$ref": "#/components/schemas/IssueType"
           }
         },
         "title": "IssueUpdateRequest",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Issue.IssueUpdateRequest",
-        "x-validate": null
+        "type": "object"
       },
       "Check": {
         "description": "An uptime check resource",
         "properties": {
           "consecutive_failures": {
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "current_issue_id": {
             "format": "uuid",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "expected_status": {
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "failure_threshold": {
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "id": {
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "inserted_at": {
             "format": "date-time",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "interval_seconds": {
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "keyword": {
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "keyword_absence": {
-            "type": "boolean",
-            "x-struct": null,
-            "x-validate": null
+            "type": "boolean"
           },
           "last_checked_at": {
             "format": "date-time",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "method": {
             "$ref": "#/components/schemas/CheckMethod"
           },
           "name": {
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "paused": {
-            "type": "boolean",
-            "x-struct": null,
-            "x-validate": null
+            "type": "boolean"
           },
           "project_id": {
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "reopen_window_hours": {
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "status": {
             "$ref": "#/components/schemas/CheckStatus"
           },
           "updated_at": {
             "format": "date-time",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "url": {
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": [
@@ -856,9 +854,16 @@
           "updated_at"
         ],
         "title": "Check",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Check.CheckResource",
-        "x-validate": null
+        "type": "object"
+      },
+      "HeartbeatStatus": {
+        "enum": [
+          "unknown",
+          "up",
+          "down"
+        ],
+        "title": "HeartbeatStatus",
+        "type": "string"
       },
       "ProjectRequest": {
         "description": "Request body for creating or updating a project",
@@ -870,25 +875,140 @@
           "description": {
             "description": "Project description",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "name": {
             "description": "Project name",
             "maxLength": 255,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": [
           "name"
         ],
         "title": "ProjectRequest",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Project.ProjectRequest",
-        "x-validate": null
+        "type": "object"
+      },
+      "HeartbeatPing": {
+        "description": "A heartbeat ping record",
+        "properties": {
+          "duration_ms": {
+            "nullable": true,
+            "type": "integer"
+          },
+          "exit_code": {
+            "nullable": true,
+            "type": "integer"
+          },
+          "heartbeat_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "issue_id": {
+            "format": "uuid",
+            "nullable": true,
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/PingKind"
+          },
+          "payload": {
+            "nullable": true,
+            "type": "object"
+          },
+          "pinged_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "pinged_at",
+          "heartbeat_id"
+        ],
+        "title": "HeartbeatPing",
+        "type": "object"
+      },
+      "Heartbeat": {
+        "description": "A heartbeat monitor resource (token redacted on read)",
+        "properties": {
+          "alert_rules": {
+            "items": {
+              "$ref": "#/components/schemas/AlertRule"
+            },
+            "type": "array"
+          },
+          "consecutive_failures": {
+            "type": "integer"
+          },
+          "current_issue_id": {
+            "format": "uuid",
+            "nullable": true,
+            "type": "string"
+          },
+          "failure_threshold": {
+            "type": "integer"
+          },
+          "grace_seconds": {
+            "type": "integer"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "inserted_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "interval_seconds": {
+            "type": "integer"
+          },
+          "last_ping_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "next_due_at": {
+            "format": "date-time",
+            "nullable": true,
+            "type": "string"
+          },
+          "paused": {
+            "type": "boolean"
+          },
+          "project_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "reopen_window_hours": {
+            "type": "integer"
+          },
+          "status": {
+            "$ref": "#/components/schemas/HeartbeatStatus"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "status",
+          "project_id",
+          "inserted_at",
+          "updated_at"
+        ],
+        "title": "Heartbeat",
+        "type": "object"
       },
       "ErrorSchema": {
         "description": "An error resource",
@@ -909,67 +1029,47 @@
         "properties": {
           "fingerprint": {
             "description": "64-character fingerprint for deduplication",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "id": {
             "description": "Error ID",
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "inserted_at": {
             "description": "Creation timestamp",
             "format": "date-time",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "issue_id": {
             "description": "Associated issue ID",
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "kind": {
             "description": "Error type/exception name",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "last_occurrence_at": {
             "description": "When the error last occurred",
             "format": "date-time",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "muted": {
             "description": "Whether notifications are muted",
-            "type": "boolean",
-            "x-struct": null,
-            "x-validate": null
+            "type": "boolean"
           },
           "reason": {
             "description": "Error message",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "source_function": {
             "description": "Function where error occurred",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "source_line": {
             "description": "Source line where error occurred",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "status": {
             "$ref": "#/components/schemas/ErrorStatus"
@@ -977,9 +1077,7 @@
           "updated_at": {
             "description": "Last update timestamp",
             "format": "date-time",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": [
@@ -995,9 +1093,28 @@
           "updated_at"
         ],
         "title": "ErrorSchema",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Error.ErrorSchema",
-        "x-validate": null
+        "type": "object"
+      },
+      "HeartbeatListResponse": {
+        "description": "Paginated list of heartbeats",
+        "properties": {
+          "data": {
+            "description": "List of heartbeats",
+            "items": {
+              "$ref": "#/components/schemas/Heartbeat"
+            },
+            "type": "array"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "HeartbeatListResponse",
+        "type": "object"
       },
       "ErrorListResponse": {
         "description": "Paginated list of errors",
@@ -1031,9 +1148,7 @@
             "items": {
               "$ref": "#/components/schemas/ErrorSchema"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           },
           "meta": {
             "$ref": "#/components/schemas/PaginationMeta"
@@ -1044,9 +1159,53 @@
           "meta"
         ],
         "title": "ErrorListResponse",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Error.ErrorListResponse",
-        "x-validate": null
+        "type": "object"
+      },
+      "HeartbeatRequest": {
+        "description": "Request body for creating a heartbeat",
+        "example": {
+          "grace_seconds": 1800,
+          "interval_seconds": 86400,
+          "name": "nightly-backup"
+        },
+        "properties": {
+          "alert_rules": {
+            "items": {
+              "$ref": "#/components/schemas/AlertRule"
+            },
+            "type": "array"
+          },
+          "failure_threshold": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "grace_seconds": {
+            "maximum": 86400,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "interval_seconds": {
+            "maximum": 86400,
+            "minimum": 30,
+            "type": "integer"
+          },
+          "name": {
+            "maxLength": 255,
+            "type": "string"
+          },
+          "paused": {
+            "type": "boolean"
+          },
+          "reopen_window_hours": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "HeartbeatRequest",
+        "type": "object"
       },
       "CheckResponse": {
         "properties": {
@@ -1058,9 +1217,7 @@
           "data"
         ],
         "title": "CheckResponse",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Check.CheckResponse",
-        "x-validate": null
+        "type": "object"
       },
       "ValidationError": {
         "description": "Validation error response",
@@ -1078,27 +1235,19 @@
           "errors": {
             "additionalProperties": {
               "items": {
-                "type": "string",
-                "x-struct": null,
-                "x-validate": null
+                "type": "string"
               },
-              "type": "array",
-              "x-struct": null,
-              "x-validate": null
+              "type": "array"
             },
             "description": "Map of field names to error messages",
-            "type": "object",
-            "x-struct": null,
-            "x-validate": null
+            "type": "object"
           }
         },
         "required": [
           "errors"
         ],
         "title": "ValidationError",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.ChangesetJSON",
-        "x-validate": null
+        "type": "object"
       },
       "ErrorWithOccurrencesSchema": {
         "description": "An error resource with occurrences",
@@ -1134,82 +1283,58 @@
         "properties": {
           "fingerprint": {
             "description": "64-character fingerprint for deduplication",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "id": {
             "description": "Error ID",
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "inserted_at": {
             "description": "Creation timestamp",
             "format": "date-time",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "issue_id": {
             "description": "Associated issue ID",
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "kind": {
             "description": "Error type/exception name",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "last_occurrence_at": {
             "description": "When the error last occurred",
             "format": "date-time",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "muted": {
             "description": "Whether notifications are muted",
-            "type": "boolean",
-            "x-struct": null,
-            "x-validate": null
+            "type": "boolean"
           },
           "occurrence_count": {
             "description": "Total number of occurrences",
-            "type": "integer",
-            "x-struct": null,
-            "x-validate": null
+            "type": "integer"
           },
           "occurrences": {
             "description": "List of occurrences (paginated)",
             "items": {
               "$ref": "#/components/schemas/OccurrenceSchema"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           },
           "reason": {
             "description": "Error message",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "source_function": {
             "description": "Function where error occurred",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "source_line": {
             "description": "Source line where error occurred",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "status": {
             "$ref": "#/components/schemas/ErrorStatus"
@@ -1217,9 +1342,7 @@
           "updated_at": {
             "description": "Last update timestamp",
             "format": "date-time",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           }
         },
         "required": [
@@ -1237,9 +1360,65 @@
           "updated_at"
         ],
         "title": "ErrorWithOccurrencesSchema",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Error.ErrorWithOccurrencesSchema",
-        "x-validate": null
+        "type": "object"
+      },
+      "AlertRule": {
+        "description": "A single alert rule evaluated against ping payloads",
+        "properties": {
+          "field": {
+            "description": "Flat top-level payload field name",
+            "type": "string"
+          },
+          "op": {
+            "description": "Comparison operator",
+            "enum": [
+              "eq",
+              "neq",
+              "gt",
+              "gte",
+              "lt",
+              "lte"
+            ],
+            "type": "string"
+          },
+          "value": {
+            "description": "JSON scalar value to compare against",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "nullable": true,
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "required": [
+          "field",
+          "op",
+          "value"
+        ],
+        "title": "AlertRule",
+        "type": "object"
+      },
+      "HeartbeatResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Heartbeat"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "HeartbeatResponse",
+        "type": "object"
       },
       "OccurrenceSchema": {
         "description": "An error occurrence with context and stacktrace",
@@ -1272,41 +1451,29 @@
           "breadcrumbs": {
             "description": "Breadcrumb trail leading to error",
             "items": {
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           },
           "context": {
             "additionalProperties": true,
             "description": "Contextual data captured at time of error",
-            "type": "object",
-            "x-struct": null,
-            "x-validate": null
+            "type": "object"
           },
           "id": {
             "description": "Occurrence ID",
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "inserted_at": {
             "description": "When the occurrence was recorded",
             "format": "date-time",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "reason": {
             "description": "Error reason/message",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "stacktrace": {
             "$ref": "#/components/schemas/StacktraceSchema"
@@ -1317,9 +1484,7 @@
           "inserted_at"
         ],
         "title": "OccurrenceSchema",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Error.OccurrenceSchema",
-        "x-validate": null
+        "type": "object"
       },
       "ErrorReportRequest": {
         "description": "Request body for reporting an error",
@@ -1346,64 +1511,46 @@
           "breadcrumbs": {
             "description": "Breadcrumb trail leading to error",
             "items": {
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             },
             "nullable": true,
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           },
           "context": {
             "additionalProperties": true,
             "description": "Contextual data captured at time of error",
             "nullable": true,
-            "type": "object",
-            "x-struct": null,
-            "x-validate": null
+            "type": "object"
           },
           "fingerprint": {
             "description": "64-character fingerprint for deduplication",
             "maxLength": 64,
             "minLength": 64,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "kind": {
             "description": "Error type/exception name",
             "maxLength": 255,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "project_id": {
             "description": "Project ID where error occurred",
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "reason": {
             "description": "Error message",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "source_function": {
             "description": "Function where error occurred",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "source_line": {
             "description": "Source line where error occurred",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "stacktrace": {
             "description": "Stacktrace lines",
@@ -1411,48 +1558,32 @@
               "properties": {
                 "application": {
                   "nullable": true,
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
+                  "type": "string"
                 },
                 "arity": {
                   "nullable": true,
-                  "type": "integer",
-                  "x-struct": null,
-                  "x-validate": null
+                  "type": "integer"
                 },
                 "file": {
                   "nullable": true,
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
+                  "type": "string"
                 },
                 "function": {
                   "nullable": true,
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
+                  "type": "string"
                 },
                 "line": {
                   "nullable": true,
-                  "type": "integer",
-                  "x-struct": null,
-                  "x-validate": null
+                  "type": "integer"
                 },
                 "module": {
                   "nullable": true,
-                  "type": "string",
-                  "x-struct": null,
-                  "x-validate": null
+                  "type": "string"
                 }
               },
-              "type": "object",
-              "x-struct": null,
-              "x-validate": null
+              "type": "object"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           }
         },
         "required": [
@@ -1462,9 +1593,7 @@
           "fingerprint"
         ],
         "title": "ErrorReportRequest",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Error.ErrorReportRequest",
-        "x-validate": null
+        "type": "object"
       },
       "IssueListResponse": {
         "description": "Paginated list of issues",
@@ -1498,9 +1627,7 @@
             "items": {
               "$ref": "#/components/schemas/IssueSchema"
             },
-            "type": "array",
-            "x-struct": null,
-            "x-validate": null
+            "type": "array"
           },
           "meta": {
             "$ref": "#/components/schemas/PaginationMeta"
@@ -1511,9 +1638,7 @@
           "meta"
         ],
         "title": "IssueListResponse",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Issue.IssueListResponse",
-        "x-validate": null
+        "type": "object"
       },
       "IssuePriority": {
         "description": "Priority of issue",
@@ -1524,9 +1649,7 @@
           "critical"
         ],
         "title": "IssuePriority",
-        "type": "string",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Issue.IssuePriority",
-        "x-validate": null
+        "type": "string"
       },
       "ErrorStatus": {
         "description": "Status of error",
@@ -1535,9 +1658,7 @@
           "unresolved"
         ],
         "title": "ErrorStatus",
-        "type": "string",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Error.ErrorStatus",
-        "x-validate": null
+        "type": "string"
       },
       "IssueRequest": {
         "description": "Request body for creating or updating an issue",
@@ -1554,9 +1675,7 @@
           "description": {
             "description": "Issue description",
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "priority": {
             "$ref": "#/components/schemas/IssuePriority"
@@ -1564,9 +1683,7 @@
           "project_id": {
             "description": "Project ID (required for creation)",
             "format": "uuid",
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "status": {
             "$ref": "#/components/schemas/IssueStatus"
@@ -1575,16 +1692,12 @@
             "description": "Optional submitter email",
             "maxLength": 255,
             "nullable": true,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "title": {
             "description": "Issue title",
             "maxLength": 255,
-            "type": "string",
-            "x-struct": null,
-            "x-validate": null
+            "type": "string"
           },
           "type": {
             "$ref": "#/components/schemas/IssueType"
@@ -1596,9 +1709,7 @@
           "project_id"
         ],
         "title": "IssueRequest",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Issue.IssueRequest",
-        "x-validate": null
+        "type": "object"
       },
       "ErrorUpdateRequest": {
         "description": "Request body for updating an error",
@@ -1609,18 +1720,14 @@
         "properties": {
           "muted": {
             "description": "Whether to mute notifications",
-            "type": "boolean",
-            "x-struct": null,
-            "x-validate": null
+            "type": "boolean"
           },
           "status": {
             "$ref": "#/components/schemas/ErrorStatus"
           }
         },
         "title": "ErrorUpdateRequest",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Error.ErrorUpdateRequest",
-        "x-validate": null
+        "type": "object"
       },
       "ErrorResponse": {
         "description": "Single error response wrapper",
@@ -1633,9 +1740,7 @@
           "data"
         ],
         "title": "ErrorResponse",
-        "type": "object",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Error.ErrorResponse",
-        "x-validate": null
+        "type": "object"
       },
       "IssueStatus": {
         "description": "Status of issue",
@@ -1645,9 +1750,7 @@
           "archived"
         ],
         "title": "IssueStatus",
-        "type": "string",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Issue.IssueStatus",
-        "x-validate": null
+        "type": "string"
       },
       "CheckMethod": {
         "enum": [
@@ -1656,9 +1759,7 @@
           "post"
         ],
         "title": "CheckMethod",
-        "type": "string",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Check.CheckMethod",
-        "x-validate": null
+        "type": "string"
       },
       "CheckStatus": {
         "enum": [
@@ -1667,9 +1768,7 @@
           "down"
         ],
         "title": "CheckStatus",
-        "type": "string",
-        "x-struct": "Elixir.FFWeb.Api.V1.Schemas.Check.CheckStatus",
-        "x-validate": null
+        "type": "string"
       }
     },
     "securitySchemes": {
@@ -1682,7 +1781,7 @@
     }
   },
   "info": {
-    "description": "FruitFly API documentation.\n\n## Authentication\nAll API endpoints require authentication using API keys.\n\n### API Key Types\n- **Public Keys** (`pk_...`): Read-only access\n- **Private Keys** (`sk_...`): Full read/write access\n\n### How to Authenticate\n1. Log in to your account and create an API key\n2. Click the \"Authorize\" button in Swagger UI\n3. Enter your API key: `Bearer <your_api_key>`\n\nAll requests must include the `Authorization` header.\n\n### Multi-tenant Access\nAPI keys are scoped to your membership in a specific account.\nTo access multiple accounts, create separate API keys for each.\n",
+    "description": "FruitFly API documentation.\n\n## Authentication\nAll API endpoints require authentication using API keys.\n\n### API Key Types\n- **Public Keys** (`pk_...`): Read-only access\n- **Private Keys** (`sk_...`): Full read/write access\n\n### How to Authenticate\n1. Log in to your account and create an API key\n2. Click the \"Authorize\" button in Swagger UI\n3. Enter your API key: `Bearer <your_api_key>`\n\nAll management requests must include the `Authorization` header.\n\n### Public Ping Endpoints\nHeartbeat ping endpoints (`/ping`, `/ping/start`, `/ping/fail`) authenticate\nvia the heartbeat token embedded in the URL and do **not** require a Bearer token.\n\n### Multi-tenant Access\nAPI keys are scoped to your membership in a specific account.\nTo access multiple accounts, create separate API keys for each.\n",
     "title": "FruitFly API",
     "version": "1.0.0"
   },
@@ -1709,9 +1808,7 @@
             "name": "muted",
             "required": false,
             "schema": {
-              "type": "boolean",
-              "x-struct": null,
-              "x-validate": null
+              "type": "boolean"
             }
           },
           {
@@ -1721,9 +1818,7 @@
             "required": false,
             "schema": {
               "minimum": 1,
-              "type": "integer",
-              "x-struct": null,
-              "x-validate": null
+              "type": "integer"
             }
           },
           {
@@ -1734,9 +1829,7 @@
             "schema": {
               "maximum": 100,
               "minimum": 1,
-              "type": "integer",
-              "x-struct": null,
-              "x-validate": null
+              "type": "integer"
             }
           }
         ],
@@ -1853,9 +1946,7 @@
             "name": "module",
             "required": false,
             "schema": {
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           },
           {
@@ -1864,9 +1955,7 @@
             "name": "function",
             "required": false,
             "schema": {
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           },
           {
@@ -1875,9 +1964,7 @@
             "name": "file",
             "required": false,
             "schema": {
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           },
           {
@@ -1887,9 +1974,7 @@
             "required": false,
             "schema": {
               "minimum": 1,
-              "type": "integer",
-              "x-struct": null,
-              "x-validate": null
+              "type": "integer"
             }
           },
           {
@@ -1900,9 +1985,7 @@
             "schema": {
               "maximum": 100,
               "minimum": 1,
-              "type": "integer",
-              "x-struct": null,
-              "x-validate": null
+              "type": "integer"
             }
           }
         ],
@@ -1947,9 +2030,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           },
           {
@@ -1959,9 +2040,7 @@
             "required": false,
             "schema": {
               "minimum": 1,
-              "type": "integer",
-              "x-struct": null,
-              "x-validate": null
+              "type": "integer"
             }
           },
           {
@@ -1972,9 +2051,7 @@
             "schema": {
               "maximum": 100,
               "minimum": 1,
-              "type": "integer",
-              "x-struct": null,
-              "x-validate": null
+              "type": "integer"
             }
           }
         ],
@@ -2027,9 +2104,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -2117,19 +2192,13 @@
                     "items": {
                       "properties": {
                         "context": {
-                          "type": "object",
-                          "x-struct": null,
-                          "x-validate": null
+                          "type": "object"
                         },
                         "duration_ms": {
-                          "type": "number",
-                          "x-struct": null,
-                          "x-validate": null
+                          "type": "number"
                         },
                         "event_name": {
-                          "type": "string",
-                          "x-struct": null,
-                          "x-validate": null
+                          "type": "string"
                         },
                         "event_type": {
                           "enum": [
@@ -2140,36 +2209,24 @@
                             "liveview_event",
                             "ecto_query"
                           ],
-                          "type": "string",
-                          "x-struct": null,
-                          "x-validate": null
+                          "type": "string"
                         },
                         "measurements": {
-                          "type": "object",
-                          "x-struct": null,
-                          "x-validate": null
+                          "type": "object"
                         },
                         "project_id": {
                           "format": "uuid",
-                          "type": "string",
-                          "x-struct": null,
-                          "x-validate": null
+                          "type": "string"
                         },
                         "request_id": {
-                          "type": "string",
-                          "x-struct": null,
-                          "x-validate": null
+                          "type": "string"
                         },
                         "timestamp": {
                           "format": "date-time",
-                          "type": "string",
-                          "x-struct": null,
-                          "x-validate": null
+                          "type": "string"
                         },
                         "trace_id": {
-                          "type": "string",
-                          "x-struct": null,
-                          "x-validate": null
+                          "type": "string"
                         }
                       },
                       "required": [
@@ -2177,21 +2234,15 @@
                         "event_type",
                         "event_name"
                       ],
-                      "type": "object",
-                      "x-struct": null,
-                      "x-validate": null
+                      "type": "object"
                     },
-                    "type": "array",
-                    "x-struct": null,
-                    "x-validate": null
+                    "type": "array"
                   }
                 },
                 "required": [
                   "events"
                 ],
-                "type": "object",
-                "x-struct": null,
-                "x-validate": null
+                "type": "object"
               }
             }
           },
@@ -2209,35 +2260,23 @@
                       "items": {
                         "properties": {
                           "error": {
-                            "type": "string",
-                            "x-struct": null,
-                            "x-validate": null
+                            "type": "string"
                           },
                           "project_id": {
                             "format": "uuid",
-                            "type": "string",
-                            "x-struct": null,
-                            "x-validate": null
+                            "type": "string"
                           }
                         },
-                        "type": "object",
-                        "x-struct": null,
-                        "x-validate": null
+                        "type": "object"
                       },
-                      "type": "array",
-                      "x-struct": null,
-                      "x-validate": null
+                      "type": "array"
                     },
                     "inserted": {
                       "description": "Number of spans created",
-                      "type": "integer",
-                      "x-struct": null,
-                      "x-validate": null
+                      "type": "integer"
                     }
                   },
-                  "type": "object",
-                  "x-struct": null,
-                  "x-validate": null
+                  "type": "object"
                 }
               }
             },
@@ -2293,9 +2332,7 @@
             "required": false,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           },
           {
@@ -2323,9 +2360,7 @@
             "required": false,
             "schema": {
               "minimum": 1,
-              "type": "integer",
-              "x-struct": null,
-              "x-validate": null
+              "type": "integer"
             }
           },
           {
@@ -2336,9 +2371,7 @@
             "schema": {
               "maximum": 100,
               "minimum": 1,
-              "type": "integer",
-              "x-struct": null,
-              "x-validate": null
+              "type": "integer"
             }
           }
         ],
@@ -2456,9 +2489,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -2514,9 +2545,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -2569,9 +2598,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -2657,9 +2684,7 @@
             "required": false,
             "schema": {
               "minimum": 1,
-              "type": "integer",
-              "x-struct": null,
-              "x-validate": null
+              "type": "integer"
             }
           },
           {
@@ -2670,9 +2695,7 @@
             "schema": {
               "maximum": 100,
               "minimum": 1,
-              "type": "integer",
-              "x-struct": null,
-              "x-validate": null
+              "type": "integer"
             }
           }
         ],
@@ -2790,9 +2813,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -2848,9 +2869,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -2903,9 +2922,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -2990,9 +3007,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           },
           {
@@ -3002,9 +3017,7 @@
             "required": false,
             "schema": {
               "minimum": 1,
-              "type": "integer",
-              "x-struct": null,
-              "x-validate": null
+              "type": "integer"
             }
           },
           {
@@ -3015,9 +3028,7 @@
             "schema": {
               "maximum": 100,
               "minimum": 1,
-              "type": "integer",
-              "x-struct": null,
-              "x-validate": null
+              "type": "integer"
             }
           }
         ],
@@ -3079,9 +3090,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -3166,9 +3175,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           },
           {
@@ -3178,9 +3185,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -3235,9 +3240,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           },
           {
@@ -3247,9 +3250,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -3301,9 +3302,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           },
           {
@@ -3313,9 +3312,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           }
         ],
@@ -3400,9 +3397,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           },
           {
@@ -3412,9 +3407,7 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string",
-              "x-struct": null,
-              "x-validate": null
+              "type": "string"
             }
           },
           {
@@ -3424,9 +3417,7 @@
             "required": false,
             "schema": {
               "minimum": 1,
-              "type": "integer",
-              "x-struct": null,
-              "x-validate": null
+              "type": "integer"
             }
           },
           {
@@ -3437,9 +3428,7 @@
             "schema": {
               "maximum": 100,
               "minimum": 1,
-              "type": "integer",
-              "x-struct": null,
-              "x-validate": null
+              "type": "integer"
             }
           }
         ],
@@ -3490,6 +3479,668 @@
           "Checks"
         ]
       }
+    },
+    "/api/v1/projects/{project_id}/heartbeats": {
+      "get": {
+        "callbacks": {},
+        "operationId": "FFWeb.Api.V1.HeartbeatController.index",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "",
+            "in": "query",
+            "name": "per_page",
+            "required": false,
+            "schema": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HeartbeatListResponse"
+                }
+              }
+            },
+            "description": "Heartbeat list"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Bad request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "summary": "List heartbeats for a project",
+        "tags": [
+          "Heartbeats"
+        ]
+      },
+      "post": {
+        "callbacks": {},
+        "operationId": "FFWeb.Api.V1.HeartbeatController.create",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HeartbeatRequest"
+              }
+            }
+          },
+          "description": "Heartbeat params",
+          "required": false
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HeartbeatCreateResponseEnvelope"
+                }
+              }
+            },
+            "description": "Heartbeat created"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Validation error"
+          }
+        },
+        "summary": "Create a heartbeat",
+        "tags": [
+          "Heartbeats"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/heartbeats/{heartbeat_id}": {
+      "delete": {
+        "callbacks": {},
+        "operationId": "FFWeb.Api.V1.HeartbeatController.delete",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "",
+            "in": "path",
+            "name": "heartbeat_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Heartbeat deleted"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "summary": "Delete a heartbeat",
+        "tags": [
+          "Heartbeats"
+        ]
+      },
+      "get": {
+        "callbacks": {},
+        "operationId": "FFWeb.Api.V1.HeartbeatController.show",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "",
+            "in": "path",
+            "name": "heartbeat_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HeartbeatResponse"
+                }
+              }
+            },
+            "description": "Heartbeat"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "summary": "Get a heartbeat",
+        "tags": [
+          "Heartbeats"
+        ]
+      },
+      "patch": {
+        "callbacks": {},
+        "operationId": "FFWeb.Api.V1.HeartbeatController.update",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "",
+            "in": "path",
+            "name": "heartbeat_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HeartbeatUpdateRequest"
+              }
+            }
+          },
+          "description": "Heartbeat params",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HeartbeatResponse"
+                }
+              }
+            },
+            "description": "Heartbeat updated"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Validation error"
+          }
+        },
+        "summary": "Update a heartbeat",
+        "tags": [
+          "Heartbeats"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/heartbeats/{heartbeat_id}/pings": {
+      "get": {
+        "callbacks": {},
+        "operationId": "FFWeb.Api.V1.HeartbeatPingHistoryController.index",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "",
+            "in": "path",
+            "name": "heartbeat_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "",
+            "in": "query",
+            "name": "per_page",
+            "required": false,
+            "schema": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HeartbeatPingListResponse"
+                }
+              }
+            },
+            "description": "Heartbeat ping list"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Bad request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "summary": "List pings for a heartbeat",
+        "tags": [
+          "Heartbeats"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/heartbeats/{heartbeat_token}/ping": {
+      "post": {
+        "callbacks": {},
+        "description": "Signal that the monitored job completed. No Bearer auth required — the token in the URL authenticates.",
+        "operationId": "FFWeb.Api.V1.HeartbeatPingController.ping",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "",
+            "in": "path",
+            "name": "heartbeat_token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PingPayload"
+              }
+            }
+          },
+          "description": "Optional JSON payload",
+          "required": false
+        },
+        "responses": {
+          "204": {
+            "description": "Ping received"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [],
+        "summary": "Send a success ping",
+        "tags": [
+          "Heartbeat Pings"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/heartbeats/{heartbeat_token}/ping/fail": {
+      "post": {
+        "callbacks": {},
+        "description": "Signal that the monitored job failed. No Bearer auth required. `exit_code` is a reserved field persisted separately.",
+        "operationId": "FFWeb.Api.V1.HeartbeatPingController.fail",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "",
+            "in": "path",
+            "name": "heartbeat_token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PingPayload"
+              }
+            }
+          },
+          "description": "Optional JSON payload with exit_code",
+          "required": false
+        },
+        "responses": {
+          "204": {
+            "description": "Fail ping received"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [],
+        "summary": "Send a failure ping",
+        "tags": [
+          "Heartbeat Pings"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/heartbeats/{heartbeat_token}/ping/start": {
+      "post": {
+        "callbacks": {},
+        "description": "Signal that the monitored job has started. No Bearer auth required.",
+        "operationId": "FFWeb.Api.V1.HeartbeatPingController.start",
+        "parameters": [
+          {
+            "description": "",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "",
+            "in": "path",
+            "name": "heartbeat_token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PingPayload"
+              }
+            }
+          },
+          "description": "Optional JSON payload",
+          "required": false
+        },
+        "responses": {
+          "204": {
+            "description": "Start ping received"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "Not found"
+          }
+        },
+        "security": [],
+        "summary": "Send a start ping",
+        "tags": [
+          "Heartbeat Pings"
+        ]
+      }
     }
   },
   "security": [
@@ -3499,7 +4150,7 @@
   ],
   "servers": [
     {
-      "url": "http://localhost:8383",
+      "url": "http://localhost",
       "variables": {}
     }
   ],

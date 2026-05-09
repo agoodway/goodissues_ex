@@ -35,6 +35,7 @@ config :swoosh, :api_client, false
 # In tests, jobs are inserted but not executed — call Oban.drain_queue/1
 # (or invoke a worker's perform/1 directly) when test logic needs them
 # to run. The isolated notifier avoids LISTEN/NOTIFY connection pressure.
+# No plugins in test — cron plugin lives in dev.exs / prod.exs only.
 config :app, Oban,
   testing: :manual,
   notifier: Oban.Notifiers.Isolated

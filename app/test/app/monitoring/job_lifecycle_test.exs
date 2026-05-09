@@ -115,7 +115,7 @@ defmodule FF.Monitoring.JobLifecycleTest do
       Scheduler.cancel_jobs(check)
       assert pending_jobs_for(check.id) == []
 
-      :ok = Scheduler.recover_orphaned_jobs()
+      Scheduler.recover_orphaned_jobs()
       assert [_job] = pending_jobs_for(check.id)
     end
 
@@ -126,7 +126,7 @@ defmodule FF.Monitoring.JobLifecycleTest do
     } do
       check = check_fixture(account, user, project, %{paused: true})
 
-      :ok = Scheduler.recover_orphaned_jobs()
+      Scheduler.recover_orphaned_jobs()
       assert pending_jobs_for(check.id) == []
     end
   end

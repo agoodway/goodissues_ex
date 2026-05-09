@@ -15,6 +15,8 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Edit do
     {"projects:write", "Write access to projects"},
     {"checks:read", "Read access to uptime checks"},
     {"checks:write", "Write access to uptime checks"},
+    {"heartbeats:read", "Read access to heartbeat monitors"},
+    {"heartbeats:write", "Write access to heartbeat monitors"},
     {"issues:read", "Read access to issues"},
     {"issues:write", "Write access to issues"},
     {"errors:read", "Read access to errors"},

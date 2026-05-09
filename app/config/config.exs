@@ -87,8 +87,23 @@ config :app, Oban,
     default: 10,
     notifications_email: 10,
     notifications_webhook: 5,
-    checks: 10
+    checks: 10,
+    heartbeats: 10,
+    maintenance: 2
   ]
+
+# Oban cron plugin for periodic workers (reaper, etc.)
+# Excluded in test — see test.exs.
+if config_env() != :test do
+  config :app, Oban,
+    plugins: [
+      {Oban.Plugins.Cron,
+       crontab: [
+         {"* * * * *", FF.Monitoring.Workers.Reaper},
+         {"* * * * *", FF.Monitoring.Workers.HeartbeatRecovery}
+       ]}
+    ]
+end
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

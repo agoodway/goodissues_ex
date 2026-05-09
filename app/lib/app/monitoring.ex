@@ -12,7 +12,8 @@ defmodule FF.Monitoring do
   import Ecto.Query
 
   alias FF.Accounts.{Account, User}
-  alias FF.Monitoring.{Check, CheckResult, Scheduler}
+  alias FF.Monitoring.{Check, CheckResult, Heartbeat, HeartbeatPing, Scheduler}
+  alias FF.Monitoring.{AlertRuleEvaluator, HeartbeatIncidentLifecycle, HeartbeatScheduler}
   alias FF.Repo
   alias FF.Tracking.{Issue, Project}
 
@@ -87,6 +88,24 @@ defmodule FF.Monitoring do
       consecutive_failures: check.consecutive_failures,
       failure_threshold: check.failure_threshold
     }
+  end
+
+  @doc """
+  Returns the global PubSub topic for reaper events.
+
+  **Internal-only** — this topic exposes system-wide operational state
+  (recovery counts, run durations). It must not be subscribed to from
+  end-user sockets or LiveViews without admin authorization.
+  """
+  def reaper_topic, do: "monitoring:reaper"
+
+  @doc "Broadcasts a reaper run completion event."
+  def broadcast_reaper_run_completed(payload) do
+    Phoenix.PubSub.broadcast(
+      FF.PubSub,
+      reaper_topic(),
+      {:reaper_run_completed, payload}
+    )
   end
 
   # ==========================================================================
@@ -374,26 +393,407 @@ defmodule FF.Monitoring do
     end
   end
 
-  defp classify_incident(%Issue{status: status} = issue, _check, _now)
-       when status in [:new, :in_progress] do
-    {:open, issue}
+  defp classify_incident(issue, %Check{reopen_window_hours: window}, now) do
+    FF.Monitoring.SharedIncidentLifecycle.classify_incident(issue, window, now)
   end
 
-  defp classify_incident(
-         %Issue{status: :archived, archived_at: %DateTime{} = archived_at} = issue,
-         %Check{reopen_window_hours: window},
-         now
-       ) do
-    cutoff = DateTime.add(now, -window * 3600, :second)
+  # ==========================================================================
+  # Heartbeats — CRUD
+  # ==========================================================================
 
-    if DateTime.compare(archived_at, cutoff) != :lt do
-      {:reopen, issue}
-    else
-      :none
+  @doc """
+  Lists heartbeats for a project. Verifies the project belongs to the
+  given account.
+  """
+  def list_heartbeats(%Account{} = account, project_id, filters \\ %{}) do
+    case fetch_project(account, project_id) do
+      nil ->
+        %{heartbeats: [], page: 1, per_page: parse_per_page(filters), total: 0, total_pages: 1}
+
+      %Project{id: pid} ->
+        {page, per_page} = extract_pagination(filters)
+
+        base_query = from(h in Heartbeat, where: h.project_id == ^pid)
+        total = Repo.aggregate(base_query, :count)
+        total_pages = max(ceil(total / per_page), 1)
+
+        heartbeats =
+          base_query
+          |> order_by([h], asc: h.name)
+          |> limit(^per_page)
+          |> offset(^((page - 1) * per_page))
+          |> Repo.all()
+
+        %{
+          heartbeats: heartbeats,
+          page: page,
+          per_page: per_page,
+          total: total,
+          total_pages: total_pages
+        }
     end
   end
 
-  defp classify_incident(_issue, _check, _now), do: :none
+  @doc """
+  Gets a single heartbeat scoped to account and project.
+  Returns `nil` if not found or scope check fails.
+  """
+  def get_heartbeat(%Account{} = account, project_id, heartbeat_id) do
+    cond do
+      not valid_uuid?(project_id) -> nil
+      not valid_uuid?(heartbeat_id) -> nil
+      true -> do_get_heartbeat(account, project_id, heartbeat_id)
+    end
+  end
+
+  defp do_get_heartbeat(account, project_id, heartbeat_id) do
+    case fetch_project(account, project_id) do
+      nil ->
+        nil
+
+      %Project{id: pid} ->
+        Heartbeat
+        |> where([h], h.id == ^heartbeat_id and h.project_id == ^pid)
+        |> Repo.one()
+    end
+  end
+
+  @doc "Bang variant of `get_heartbeat/3`."
+  def get_heartbeat!(%Account{} = account, project_id, heartbeat_id) do
+    case get_heartbeat(account, project_id, heartbeat_id) do
+      nil -> raise Ecto.NoResultsError, queryable: Heartbeat
+      heartbeat -> heartbeat
+    end
+  end
+
+  @doc """
+  Looks up a heartbeat by project_id and ping_token.
+  Used by public ping endpoints. Returns `nil` on mismatch.
+  """
+  def get_heartbeat_by_token(project_id, token) do
+    if valid_uuid?(project_id) and valid_ping_token?(token) do
+      token_hash = Heartbeat.hash_token(token)
+
+      Heartbeat
+      |> where([h], h.project_id == ^project_id and h.ping_token_hash == ^token_hash)
+      |> Repo.one()
+    end
+  end
+
+  defp valid_ping_token?(token) when is_binary(token) do
+    byte_size(token) == Heartbeat.token_length() and
+      Regex.match?(~r/\A[A-Za-z0-9_-]+\z/, token)
+  end
+
+  defp valid_ping_token?(_), do: false
+
+  @doc """
+  Creates a heartbeat within a project. Generates a unique ping token,
+  sets `next_due_at`, and schedules the first deadline unless paused.
+  """
+  def create_heartbeat(%Account{} = account, %User{id: user_id}, attrs) do
+    project_id = attrs[:project_id] || attrs["project_id"]
+
+    case fetch_project(account, project_id) do
+      nil -> {:error, heartbeat_project_not_found_changeset(attrs)}
+      %Project{id: pid} -> insert_heartbeat(pid, user_id, attrs)
+    end
+  end
+
+  defp heartbeat_project_not_found_changeset(attrs) do
+    %Heartbeat{}
+    |> Heartbeat.create_changeset(Map.put(attrs, :ping_token, "x"))
+    |> Ecto.Changeset.add_error(:project_id, "does not exist or belongs to another account")
+  end
+
+  defp insert_heartbeat(project_id, user_id, attrs, attempt \\ 1) do
+    now = DateTime.utc_now(:second)
+    token = Heartbeat.generate_token()
+
+    attrs =
+      attrs
+      |> normalize_attrs()
+      |> Map.put(:project_id, project_id)
+      |> Map.put(:created_by_id, user_id)
+      |> Map.put(:ping_token, token)
+
+    paused = Map.get(attrs, :paused, false)
+
+    interval = Map.get(attrs, :interval_seconds, 300)
+    grace = Map.get(attrs, :grace_seconds, 0)
+
+    attrs =
+      if paused do
+        attrs
+      else
+        Map.put(attrs, :next_due_at, DateTime.add(now, interval + grace, :second))
+      end
+
+    %Heartbeat{}
+    |> Heartbeat.create_changeset(attrs)
+    |> Repo.insert()
+    |> tap_on_ok(&maybe_schedule_heartbeat_deadline/1)
+  rescue
+    e in Ecto.ConstraintError ->
+      if e.constraint == "heartbeats_ping_token_hash_index" and attempt < 3 do
+        insert_heartbeat(project_id, user_id, Map.delete(attrs, :ping_token), attempt + 1)
+      else
+        reraise e, __STACKTRACE__
+      end
+  end
+
+  defp maybe_schedule_heartbeat_deadline(%Heartbeat{paused: true}), do: :noop
+
+  defp maybe_schedule_heartbeat_deadline(%Heartbeat{} = hb),
+    do: HeartbeatScheduler.schedule_deadline(hb)
+
+  @doc """
+  Updates a heartbeat. Manages deadline jobs on pause/resume and
+  interval/grace changes.
+  """
+  def update_heartbeat(%Heartbeat{} = heartbeat, attrs) do
+    was_paused? = heartbeat.paused
+
+    heartbeat
+    |> Heartbeat.update_changeset(attrs)
+    |> Repo.update()
+    |> tap_on_ok(fn updated ->
+      cond do
+        # Resuming from pause
+        was_paused? and not updated.paused ->
+          now = DateTime.utc_now(:second)
+          new_due = DateTime.add(now, updated.interval_seconds + updated.grace_seconds, :second)
+          {:ok, scheduled} = update_heartbeat_runtime(updated, %{next_due_at: new_due})
+          HeartbeatScheduler.schedule_deadline(scheduled)
+
+        # Pausing
+        not was_paused? and updated.paused ->
+          HeartbeatScheduler.cancel_deadline(updated)
+
+        # Interval/grace changed while active
+        not updated.paused and
+            (updated.interval_seconds != heartbeat.interval_seconds or
+               updated.grace_seconds != heartbeat.grace_seconds) ->
+          HeartbeatScheduler.cancel_deadline(updated)
+          now = DateTime.utc_now(:second)
+          new_due = DateTime.add(now, updated.interval_seconds + updated.grace_seconds, :second)
+          {:ok, scheduled} = update_heartbeat_runtime(updated, %{next_due_at: new_due})
+          HeartbeatScheduler.schedule_deadline(scheduled)
+
+        true ->
+          :ok
+      end
+    end)
+  end
+
+  @doc """
+  Deletes a heartbeat and cancels pending deadline jobs. Does NOT
+  auto-archive any existing linked incident.
+  """
+  def delete_heartbeat(%Heartbeat{} = heartbeat) do
+    HeartbeatScheduler.cancel_deadline(heartbeat)
+    Repo.delete(heartbeat)
+  end
+
+  @doc """
+  Updates runtime fields on a heartbeat (status, consecutive_failures,
+  etc.). Used by workers and lifecycle — not exposed via the API.
+  """
+  def update_heartbeat_runtime(%Heartbeat{} = heartbeat, attrs) do
+    heartbeat
+    |> Heartbeat.runtime_changeset(attrs)
+    |> Repo.update()
+  end
+
+  # ==========================================================================
+  # Heartbeat Pings
+  # ==========================================================================
+
+  @doc """
+  Lists pings for a heartbeat in reverse chronological order.
+  """
+  def list_heartbeat_pings(%Heartbeat{id: heartbeat_id}, filters \\ %{}) do
+    {page, per_page} = extract_pagination(filters)
+
+    base_query = from(p in HeartbeatPing, where: p.heartbeat_id == ^heartbeat_id)
+    total = Repo.aggregate(base_query, :count)
+    total_pages = max(ceil(total / per_page), 1)
+
+    pings =
+      base_query
+      |> order_by([p], desc: p.pinged_at, desc: p.id)
+      |> limit(^per_page)
+      |> offset(^((page - 1) * per_page))
+      |> Repo.all()
+
+    %{
+      pings: pings,
+      page: page,
+      per_page: per_page,
+      total: total,
+      total_pages: total_pages
+    }
+  end
+
+  @doc """
+  Receives a ping for a heartbeat. Runs inside a locked transaction that:
+  1. Records the HeartbeatPing
+  2. Mutates heartbeat state
+  3. Performs incident lifecycle actions
+
+  `kind` is one of `:ping`, `:start`, `:fail`.
+  `attrs` may include `:payload`, `:exit_code`.
+  """
+  def receive_ping(%Heartbeat{} = heartbeat, kind, attrs \\ %{}) do
+    result =
+      Repo.transaction(fn ->
+        # Lock the heartbeat row
+        locked =
+          from(h in Heartbeat, where: h.id == ^heartbeat.id, lock: "FOR UPDATE")
+          |> Repo.one!()
+
+        case kind do
+          :start -> handle_start_ping(locked, attrs)
+          :ping -> handle_success_ping(locked, attrs)
+          :fail -> handle_fail_ping(locked, attrs)
+        end
+      end)
+
+    case result do
+      {:ok, {:ok, ping}} -> {:ok, ping}
+      {:ok, {:error, _} = error} -> error
+      {:error, _} = error -> error
+    end
+  end
+
+  defp handle_start_ping(%Heartbeat{} = heartbeat, attrs) do
+    now = DateTime.utc_now()
+    payload = Map.get(attrs, :payload)
+
+    with {:ok, ping} <-
+           insert_heartbeat_ping(heartbeat, :start, %{payload: payload, pinged_at: now}),
+         {:ok, _} <- update_heartbeat_runtime(heartbeat, %{started_at: now}) do
+      {:ok, ping}
+    end
+  end
+
+  defp handle_success_ping(%Heartbeat{} = heartbeat, attrs) do
+    now = DateTime.utc_now()
+    payload = Map.get(attrs, :payload)
+
+    # Compute duration if started_at is set
+    duration_ms =
+      if heartbeat.started_at do
+        DateTime.diff(now, heartbeat.started_at, :millisecond)
+        |> max(0)
+      end
+
+    with {:ok, ping} <-
+           insert_heartbeat_ping(heartbeat, :ping, %{
+             payload: payload,
+             duration_ms: duration_ms,
+             pinged_at: now
+           }) do
+      # Evaluate alert rules
+      eval_payload = AlertRuleEvaluator.inject_duration(payload, duration_ms)
+      rule_result = AlertRuleEvaluator.evaluate(heartbeat.alert_rules, eval_payload)
+
+      new_due_at =
+        DateTime.add(now, heartbeat.interval_seconds + heartbeat.grace_seconds, :second)
+        |> DateTime.truncate(:second)
+
+      HeartbeatScheduler.cancel_deadline(heartbeat)
+
+      case rule_result do
+        :pass ->
+          runtime_attrs = %{
+            last_ping_at: DateTime.truncate(now, :second),
+            started_at: nil,
+            next_due_at: new_due_at,
+            consecutive_failures: 0,
+            status: :up
+          }
+
+          {:ok, updated} = update_heartbeat_runtime(heartbeat, runtime_attrs)
+          HeartbeatScheduler.schedule_deadline(updated)
+
+          if heartbeat.status == :down do
+            HeartbeatIncidentLifecycle.handle_recovery(updated)
+          end
+
+          {:ok, ping}
+
+        :fail ->
+          new_failures = heartbeat.consecutive_failures + 1
+
+          runtime_attrs = %{
+            last_ping_at: DateTime.truncate(now, :second),
+            started_at: nil,
+            next_due_at: new_due_at,
+            consecutive_failures: new_failures,
+            status:
+              if(new_failures >= heartbeat.failure_threshold, do: :down, else: heartbeat.status)
+          }
+
+          {:ok, updated} = update_heartbeat_runtime(heartbeat, runtime_attrs)
+          HeartbeatScheduler.schedule_deadline(updated)
+
+          if new_failures >= heartbeat.failure_threshold do
+            HeartbeatIncidentLifecycle.create_or_reopen_incident(updated, ping)
+          end
+
+          {:ok, ping}
+      end
+    end
+  end
+
+  defp handle_fail_ping(%Heartbeat{} = heartbeat, attrs) do
+    now = DateTime.utc_now()
+    payload = Map.get(attrs, :payload)
+    exit_code = Map.get(attrs, :exit_code)
+
+    with {:ok, ping} <-
+           insert_heartbeat_ping(heartbeat, :fail, %{
+             payload: payload,
+             exit_code: exit_code,
+             pinged_at: now
+           }) do
+      new_failures = heartbeat.consecutive_failures + 1
+
+      new_due_at =
+        DateTime.add(now, heartbeat.interval_seconds + heartbeat.grace_seconds, :second)
+        |> DateTime.truncate(:second)
+
+      HeartbeatScheduler.cancel_deadline(heartbeat)
+
+      runtime_attrs = %{
+        started_at: nil,
+        next_due_at: new_due_at,
+        consecutive_failures: new_failures,
+        status: if(new_failures >= heartbeat.failure_threshold, do: :down, else: heartbeat.status)
+      }
+
+      {:ok, updated} = update_heartbeat_runtime(heartbeat, runtime_attrs)
+      HeartbeatScheduler.schedule_deadline(updated)
+
+      if new_failures >= heartbeat.failure_threshold do
+        HeartbeatIncidentLifecycle.create_or_reopen_incident(updated, ping)
+      end
+
+      {:ok, ping}
+    end
+  end
+
+  defp insert_heartbeat_ping(%Heartbeat{id: heartbeat_id}, kind, attrs) do
+    attrs =
+      attrs
+      |> Map.put(:kind, kind)
+      |> Map.put(:heartbeat_id, heartbeat_id)
+
+    %HeartbeatPing{}
+    |> HeartbeatPing.create_changeset(attrs)
+    |> Repo.insert()
+  end
 
   # ==========================================================================
   # Helpers

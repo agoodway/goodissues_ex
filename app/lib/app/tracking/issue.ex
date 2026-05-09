@@ -25,6 +25,7 @@ defmodule FF.Tracking.Issue do
 
     belongs_to :project, FF.Tracking.Project
     belongs_to :submitter, FF.Accounts.User
+    belongs_to :heartbeat, FF.Monitoring.Heartbeat
     has_one :error, FF.Tracking.Error
 
     timestamps(type: :utc_datetime)
@@ -56,7 +57,7 @@ defmodule FF.Tracking.Issue do
   """
   def create_changeset(issue, attrs) do
     issue
-    |> cast(attrs, [:title, :description, :type, :status, :priority, :submitter_email])
+    |> cast(attrs, [:title, :description, :type, :status, :priority, :submitter_email, :heartbeat_id])
     |> validate_required([:title, :type, :project_id, :submitter_id])
     |> validate_length(:title, max: 255)
     |> validate_length(:description, max: 10_000)
@@ -68,6 +69,7 @@ defmodule FF.Tracking.Issue do
     |> manage_archived_at()
     |> foreign_key_constraint(:project_id)
     |> foreign_key_constraint(:submitter_id)
+    |> foreign_key_constraint(:heartbeat_id)
     |> unique_constraint(:number, name: :issues_project_id_number_index)
   end
 

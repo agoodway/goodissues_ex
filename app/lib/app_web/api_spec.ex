@@ -31,7 +31,11 @@ defmodule FFWeb.ApiSpec do
         2. Click the "Authorize" button in Swagger UI
         3. Enter your API key: `Bearer <your_api_key>`
 
-        All requests must include the `Authorization` header.
+        All management requests must include the `Authorization` header.
+
+        ### Public Ping Endpoints
+        Heartbeat ping endpoints (`/ping`, `/ping/start`, `/ping/fail`) authenticate
+        via the heartbeat token embedded in the URL and do **not** require a Bearer token.
 
         ### Multi-tenant Access
         API keys are scoped to your membership in a specific account.

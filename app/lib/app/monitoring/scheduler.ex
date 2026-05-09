@@ -72,12 +72,68 @@ defmodule FF.Monitoring.Scheduler do
   end
 
   @doc """
-  Re-enqueues any orphaned checks. Called from `FF.Application` after
-  Oban boots.
+  Re-enqueues any orphaned checks, emitting a `:recovered` telemetry
+  event for each one. Called from `FF.Application` after Oban boots
+  and from the Reaper worker.
+
+  Returns the number of orphans recovered.
   """
   def recover_orphaned_jobs do
-    Enum.each(orphaned_checks(), &schedule_initial/1)
-    :ok
+    orphans = orphaned_checks()
+
+    Enum.each(orphans, fn check ->
+      schedule_initial(check)
+
+      :telemetry.execute(
+        [:ff, :monitoring, :reaper, :recovered],
+        %{},
+        %{check_id: check.id, reason: :orphaned}
+      )
+    end)
+
+    length(orphans)
+  end
+
+  @doc """
+  Returns Oban jobs stuck in `:executing` state for non-paused checks
+  where `attempted_at < now - (5 * check.interval_seconds)`.
+
+  Each result is a `{job, check}` tuple so the caller can act in one pass.
+  The explicit `now` argument supports test determinism.
+  """
+  def stuck_executing_jobs(%DateTime{} = now) do
+    from(j in Oban.Job,
+      join: c in Check,
+      on: fragment("(?->>'check_id')::uuid", j.args) == c.id,
+      where: j.queue == "checks",
+      where: j.state == "executing",
+      where: c.paused == false,
+      where:
+        j.attempted_at <
+          fragment(
+            "?::timestamp - make_interval(secs => ?::double precision * 5)",
+            ^now,
+            c.interval_seconds
+          ),
+      select: {j, c}
+    )
+    |> Repo.all()
+  end
+
+  @doc """
+  Cancels a single Oban job, verifying it belongs to the expected check
+  for tenant isolation. Returns `{:ok, n}` where `n` is the number of
+  rows updated (0 or 1).
+  """
+  def cancel_job(%Oban.Job{id: job_id}, %Check{id: check_id}) do
+    {n, _} =
+      from(j in Oban.Job,
+        where: j.id == ^job_id,
+        where: fragment("?->>'check_id' = ?", j.args, ^check_id)
+      )
+      |> Repo.update_all(set: [state: "cancelled"])
+
+    {:ok, n}
   end
 
   defp insert_job(%Check{id: check_id}, opts) do

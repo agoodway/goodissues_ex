@@ -4,6 +4,20 @@ defmodule FF.Monitoring.Workers.CheckRunner do
   for the next run. Self-rescheduling means each job reads the check's
   current `interval_seconds` and `paused` flag at execution time, so
   config changes apply on the next run without external cron updates.
+
+  ## Parallel execution guard
+
+  When the Reaper cancels a stuck job, the BEAM process keeps running —
+  Oban cancel only flips DB state. The reaper then calls `schedule_initial`,
+  which creates a replacement job. To prevent stale completions from the
+  old process, CheckRunner stamps `current_job_id` on the check at the
+  start of `run/1`. Before writing results, it re-reads the check and
+  verifies `current_job_id` still matches. If a newer job has claimed
+  the check, the old runner discards its results.
+
+  This is safe because the Oban unique constraint excludes `:executing`,
+  so the replacement job can be inserted while the old one is still
+  (nominally) executing.
   """
 
   use Oban.Worker,
@@ -23,42 +37,82 @@ defmodule FF.Monitoring.Workers.CheckRunner do
   @default_timeout_ms 30_000
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"check_id" => check_id}}) do
-    case Repo.get(Check, check_id) do
-      nil ->
-        :ok
-
-      %Check{paused: true} ->
-        :ok
-
-      %Check{} = check ->
-        run(check)
+  def perform(%Oban.Job{id: job_id, args: %{"check_id" => check_id}}) do
+    try do
+      run_if_active(check_id, job_id)
+    after
+      reschedule_if_active(check_id)
     end
   end
 
-  defp run(%Check{} = check) do
+  defp run_if_active(check_id, job_id) do
+    case Repo.get(Check, check_id) do
+      nil -> :ok
+      %Check{paused: true} -> :ok
+      %Check{} = check -> run(check, job_id)
+    end
+  end
+
+  defp reschedule_if_active(check_id) do
+    case Repo.get(Check, check_id) do
+      nil -> :ok
+      %Check{paused: true} -> :ok
+      check -> Scheduler.schedule_next(check)
+    end
+  end
+
+  defp run(%Check{} = check, job_id) do
+    # Claim this check by stamping our job_id. If the reaper cancels us
+    # and schedules a replacement, the new runner will overwrite this,
+    # and our post-run verification will detect the mismatch.
+    Monitoring.update_runtime_fields(check, %{current_job_id: job_id})
+
     started_at = System.monotonic_time(:millisecond)
     outcome = execute_request(check)
     elapsed_ms = max(System.monotonic_time(:millisecond) - started_at, 0)
     checked_at = DateTime.utc_now(:second)
 
-    {:ok, %{} = result} =
-      Monitoring.create_check_result(check, build_result_attrs(outcome, elapsed_ms, checked_at))
+    # Re-read the check to verify we still own it. A concurrent reaper
+    # cancel + reschedule may have handed the check to a new job.
+    case Repo.get(Check, check.id) do
+      nil ->
+        :ok
 
-    Monitoring.broadcast_check_result_created(check, result)
+      %Check{current_job_id: ^job_id} = fresh_check ->
+        apply_result(fresh_check, outcome, elapsed_ms, checked_at)
 
-    updated_check = apply_outcome(check, outcome, checked_at)
+      %Check{current_job_id: other_job_id} ->
+        Logger.warning(
+          "CheckRunner stale completion: job #{job_id} lost claim to job #{other_job_id} for check #{check.id}"
+        )
 
-    case outcome do
-      {:up, _} -> IncidentLifecycle.handle_recovery(updated_check)
-      {:down, _, _} -> maybe_open_incident(updated_check, result)
+        :ok
     end
-
-    Scheduler.schedule_next(refresh_check(updated_check))
-    :ok
   end
 
-  defp refresh_check(%Check{id: id}), do: Repo.get(Check, id)
+  defp apply_result(%Check{} = check, outcome, elapsed_ms, checked_at) do
+    case Monitoring.create_check_result(
+           check,
+           build_result_attrs(outcome, elapsed_ms, checked_at)
+         ) do
+      {:ok, %{} = result} ->
+        Monitoring.broadcast_check_result_created(check, result)
+
+        updated_check = apply_outcome(check, outcome, checked_at)
+
+        case outcome do
+          {:up, _} -> IncidentLifecycle.handle_recovery(updated_check)
+          {:down, _, _} -> maybe_open_incident(updated_check, result)
+        end
+
+      {:error, changeset} ->
+        Logger.error(
+          "CheckRunner failed to create result for check #{check.id}: #{inspect(changeset.errors)}"
+        )
+    end
+
+    :ok
+  end
 
   defp maybe_open_incident(%Check{} = check, result) do
     if check.consecutive_failures >= check.failure_threshold do

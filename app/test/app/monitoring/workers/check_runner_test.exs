@@ -27,8 +27,17 @@ defmodule FF.Monitoring.Workers.CheckRunnerTest do
     {:ok, user: user, account: account, project: project}
   end
 
-  defp perform_for(check) do
-    CheckRunner.perform(%Oban.Job{args: %{"check_id" => check.id}})
+  defp perform_for(check, job_id \\ 1) do
+    CheckRunner.perform(%Oban.Job{id: job_id, args: %{"check_id" => check.id}})
+  end
+
+  defp pending_jobs_for(check) do
+    Oban.Job
+    |> Repo.all()
+    |> Enum.filter(fn j ->
+      j.queue == "checks" and Map.get(j.args, "check_id") == check.id and
+        j.state in ["available", "scheduled", "retryable"]
+    end)
   end
 
   defp results_for(check) do
@@ -188,7 +197,8 @@ defmodule FF.Monitoring.Workers.CheckRunnerTest do
 
   describe "missing check" do
     test "no-ops when check has been deleted" do
-      assert :ok = CheckRunner.perform(%Oban.Job{args: %{"check_id" => Ecto.UUID.generate()}})
+      assert :ok =
+               CheckRunner.perform(%Oban.Job{id: 1, args: %{"check_id" => Ecto.UUID.generate()}})
     end
   end
 
@@ -234,6 +244,84 @@ defmodule FF.Monitoring.Workers.CheckRunnerTest do
     end
   end
 
+  describe "try/after rescheduling" do
+    test "reschedules even when run/1 raises mid-execution", %{
+      user: user,
+      account: account,
+      project: project
+    } do
+      check = check_fixture(account, user, project, %{interval_seconds: 60})
+
+      # Set up mock to raise an exception during HTTP request
+      MonitoringMockHTTP.set_response_fn(fn _opts -> raise "simulated crash" end)
+
+      # perform/1 should still return :ok because of try/after
+      assert :ok = perform_for(check)
+
+      # A successor job should still be enqueued
+      jobs = pending_jobs_for(check)
+      assert length(jobs) >= 1, "Expected a successor job after raise, got none"
+    end
+
+    test "reschedules when create_check_result returns an error", %{
+      user: user,
+      account: account,
+      project: project
+    } do
+      check = check_fixture(account, user, project, %{interval_seconds: 60})
+
+      # Return a valid HTTP response — the result recording may fail for
+      # other reasons (e.g. DB constraint), but rescheduling must happen
+      MonitoringMockHTTP.set_response({:ok, %{status: 200, body: "OK"}})
+
+      assert :ok = perform_for(check)
+
+      jobs = pending_jobs_for(check)
+      assert length(jobs) >= 1
+    end
+
+    test "does NOT enqueue successor when check is deleted during perform/1", %{
+      user: user,
+      account: account,
+      project: project
+    } do
+      check = check_fixture(account, user, project, %{interval_seconds: 60})
+
+      # Cancel jobs created by fixture, then delete the check
+      Scheduler.cancel_jobs(check)
+      Repo.delete!(check)
+
+      assert :ok = perform_for(check)
+
+      # No successor job — check was deleted
+      jobs = pending_jobs_for(check)
+      assert jobs == [], "Expected no successor job for deleted check, got #{length(jobs)}"
+    end
+
+    test "does NOT enqueue successor when check is paused mid-perform", %{
+      user: user,
+      account: account,
+      project: project
+    } do
+      check = check_fixture(account, user, project, %{interval_seconds: 60})
+
+      # Cancel fixture-created jobs so we start clean
+      Scheduler.cancel_jobs(check)
+
+      # Pause the check during the HTTP call so reschedule_if_active sees paused
+      MonitoringMockHTTP.set_response_fn(fn _opts ->
+        Monitoring.update_check(Repo.get!(Check, check.id), %{paused: true})
+        {:ok, %{status: 200, body: "OK"}}
+      end)
+
+      assert :ok = perform_for(check)
+
+      # After block re-reads check and finds it paused → no successor
+      jobs = pending_jobs_for(check)
+      assert jobs == [], "Expected no successor for paused check, got #{length(jobs)}"
+    end
+  end
+
   describe "unique constraint on jobs" do
     test "duplicate enqueues collapse into a single pending job", %{
       user: user,
@@ -245,15 +333,77 @@ defmodule FF.Monitoring.Workers.CheckRunnerTest do
       assert {:ok, %Oban.Job{}} = Scheduler.schedule_initial(check)
       assert {:ok, %Oban.Job{}} = Scheduler.schedule_initial(check)
 
-      jobs =
-        Oban.Job
-        |> Repo.all()
-        |> Enum.filter(fn j ->
-          j.queue == "checks" and Map.get(j.args, "check_id") == check.id and
-            j.state in ["available", "scheduled", "retryable"]
-        end)
-
+      jobs = pending_jobs_for(check)
       assert length(jobs) == 1
+    end
+
+    test "unique config excludes :executing state" do
+      opts = CheckRunner.__opts__()
+      unique = Keyword.get(opts, :unique)
+      states = Keyword.get(unique, :states)
+
+      assert :available in states
+      assert :scheduled in states
+      assert :retryable in states
+      refute :executing in states
+    end
+
+    test "schedule_next during :executing creates a new job, not a conflict", %{
+      user: user,
+      account: account,
+      project: project
+    } do
+      check = check_fixture(account, user, project, %{interval_seconds: 60})
+
+      # Insert a job and manually transition it to executing
+      {:ok, job} = Scheduler.schedule_initial(check)
+
+      Ecto.Changeset.change(job, state: "executing", attempted_at: DateTime.utc_now())
+      |> Repo.update!()
+
+      # Now schedule_next should insert a NEW job (not conflict)
+      {:ok, new_job} = Scheduler.schedule_next(check)
+      refute new_job.id == job.id
+      assert new_job.state in ["scheduled", "available"]
+    end
+  end
+
+  describe "parallel execution guard (current_job_id)" do
+    test "stamps current_job_id on check during execution", %{
+      user: user,
+      account: account,
+      project: project
+    } do
+      check = check_fixture(account, user, project)
+      MonitoringMockHTTP.set_response({:ok, %{status: 200, body: "OK"}})
+
+      perform_for(check, 42)
+
+      reloaded = Repo.get(Check, check.id)
+      assert reloaded.current_job_id == 42
+    end
+
+    test "discards results when current_job_id has been overwritten", %{
+      user: user,
+      account: account,
+      project: project
+    } do
+      check = check_fixture(account, user, project)
+
+      # Simulate the reaper claiming the check for a newer job during HTTP call
+      MonitoringMockHTTP.set_response_fn(fn _opts ->
+        Monitoring.update_runtime_fields(Repo.get!(Check, check.id), %{current_job_id: 999})
+        {:ok, %{status: 200, body: "OK"}}
+      end)
+
+      assert :ok = perform_for(check, 1)
+
+      # No results written — the old runner detected job_id mismatch
+      assert results_for(check) == []
+
+      # Check's current_job_id is the newer one
+      reloaded = Repo.get(Check, check.id)
+      assert reloaded.current_job_id == 999
     end
   end
 end

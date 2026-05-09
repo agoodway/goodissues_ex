@@ -32,6 +32,7 @@ defmodule FF.Monitoring.Check do
     field :reopen_window_hours, :integer, default: 24
     field :consecutive_failures, :integer, default: 0
     field :last_checked_at, :utc_datetime
+    field :current_job_id, :integer
 
     belongs_to :project, FF.Tracking.Project
     belongs_to :current_issue, FF.Tracking.Issue
@@ -97,7 +98,8 @@ defmodule FF.Monitoring.Check do
       :status,
       :consecutive_failures,
       :last_checked_at,
-      :current_issue_id
+      :current_issue_id,
+      :current_job_id
     ])
     |> validate_number(:consecutive_failures, greater_than_or_equal_to: 0)
     |> foreign_key_constraint(:current_issue_id)

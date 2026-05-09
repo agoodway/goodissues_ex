@@ -10,6 +10,7 @@ defmodule FF.MonitoringMockHTTP do
   @behaviour FF.Monitoring.HttpClient
 
   @key :ff_monitoring_mock_http_responses
+  @fn_key :ff_monitoring_mock_http_fn
 
   def set_response(response) do
     set_responses([response])
@@ -27,12 +28,29 @@ defmodule FF.MonitoringMockHTTP do
 
   def reset do
     Process.delete(@key)
+    Process.delete(@fn_key)
     :persistent_term.erase({@key, :global})
     :ok
   end
 
+  def set_response_fn(fun) when is_function(fun, 1) do
+    Process.put(@fn_key, fun)
+    :ok
+  end
+
   @impl FF.Monitoring.HttpClient
-  def request(_opts) do
+  def request(opts) do
+    case Process.get(@fn_key) do
+      fun when is_function(fun, 1) ->
+        Process.delete(@fn_key)
+        fun.(opts)
+
+      _ ->
+        consume_response()
+    end
+  end
+
+  defp consume_response do
     case process_responses() do
       [response | rest] ->
         Process.put(@key, rest)

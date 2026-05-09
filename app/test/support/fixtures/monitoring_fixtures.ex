@@ -31,4 +31,31 @@ defmodule FF.MonitoringFixtures do
     {:ok, check} = Monitoring.create_check(account, user, attrs)
     check
   end
+
+  # ---- Heartbeat fixtures ----
+
+  def unique_heartbeat_name, do: "heartbeat#{System.unique_integer([:positive])}"
+
+  def valid_heartbeat_attributes(attrs \\ %{}) do
+    Enum.into(attrs, %{
+      name: unique_heartbeat_name(),
+      interval_seconds: 300,
+      grace_seconds: 60,
+      failure_threshold: 1,
+      reopen_window_hours: 24
+    })
+  end
+
+  @doc """
+  Creates a heartbeat fixture under the given account/project, authored by the given user.
+  """
+  def heartbeat_fixture(account, user, project, attrs \\ %{}) do
+    attrs =
+      attrs
+      |> valid_heartbeat_attributes()
+      |> Map.put(:project_id, project.id)
+
+    {:ok, heartbeat} = Monitoring.create_heartbeat(account, user, attrs)
+    heartbeat
+  end
 end

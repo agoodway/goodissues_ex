@@ -5,7 +5,7 @@ defmodule FF.Application do
 
   use Application
 
-  alias FF.Monitoring.Scheduler
+  alias FF.Monitoring.{HeartbeatScheduler, Scheduler}
 
   @impl true
   def start(_type, _args) do
@@ -46,6 +46,7 @@ defmodule FF.Application do
       Task.start(fn ->
         try do
           Scheduler.recover_orphaned_jobs()
+          HeartbeatScheduler.recover_orphaned_jobs()
         rescue
           _ -> :ok
         end

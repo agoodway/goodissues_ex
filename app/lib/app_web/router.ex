@@ -102,6 +102,31 @@ defmodule FFWeb.Router do
     get "/docs", OpenApiSpex.Plug.SwaggerUI, path: "/api/v1/openapi"
   end
 
+  # Authenticated API with rate limiting for public ping endpoints
+  pipeline :api_rate_limited do
+    plug :accepts, ["json"]
+    plug CORSPlug
+    plug OpenApiSpex.Plug.PutApiSpec, module: FFWeb.ApiSpec
+    plug FFWeb.Plugs.RateLimiter, max_requests: 60, window_ms: 60_000
+  end
+
+  # ============================================
+  # API Routes - Public (token-authenticated, no Bearer)
+  # ============================================
+  scope "/api/v1", FFWeb.Api.V1, as: :api_v1 do
+    pipe_through :api_rate_limited
+
+    post "/projects/:project_id/heartbeats/:heartbeat_token/ping", HeartbeatPingController, :ping
+
+    post "/projects/:project_id/heartbeats/:heartbeat_token/ping/start",
+         HeartbeatPingController,
+         :start
+
+    post "/projects/:project_id/heartbeats/:heartbeat_token/ping/fail",
+         HeartbeatPingController,
+         :fail
+  end
+
   # ============================================
   # API Routes - Read (authenticated)
   # ============================================
@@ -125,6 +150,14 @@ defmodule FFWeb.Router do
     get "/projects/:project_id/checks", CheckController, :index
     get "/projects/:project_id/checks/:check_id", CheckController, :show
     get "/projects/:project_id/checks/:check_id/results", CheckResultController, :index
+
+    # Heartbeats (nested under projects)
+    get "/projects/:project_id/heartbeats", HeartbeatController, :index
+    get "/projects/:project_id/heartbeats/:heartbeat_id", HeartbeatController, :show
+
+    get "/projects/:project_id/heartbeats/:heartbeat_id/pings",
+        HeartbeatPingHistoryController,
+        :index
   end
 
   # ============================================
@@ -154,6 +187,11 @@ defmodule FFWeb.Router do
     post "/projects/:project_id/checks", CheckController, :create
     patch "/projects/:project_id/checks/:check_id", CheckController, :update
     delete "/projects/:project_id/checks/:check_id", CheckController, :delete
+
+    # Heartbeats (nested under projects)
+    post "/projects/:project_id/heartbeats", HeartbeatController, :create
+    patch "/projects/:project_id/heartbeats/:heartbeat_id", HeartbeatController, :update
+    delete "/projects/:project_id/heartbeats/:heartbeat_id", HeartbeatController, :delete
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
