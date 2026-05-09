@@ -347,7 +347,7 @@ defmodule GIWeb.Layouts do
 
   def account_switcher(assigns) do
     ~H"""
-    <div class="dropdown w-full">
+    <div class="dropdown dropdown-top w-full">
       <div
         tabindex="0"
         role="button"
@@ -366,7 +366,7 @@ defmodule GIWeb.Layouts do
       </div>
       <ul
         tabindex="0"
-        class="dropdown-content z-20 w-full mt-1 py-1 rounded-sm bg-base-200 border border-base-300 shadow-lg"
+        class="dropdown-content z-20 w-full mb-1 py-1 rounded-sm bg-base-200 border border-base-300 shadow-lg"
       >
         <%= for {account, role} <- @current_scope.accounts do %>
           <%= if account.id == @current_scope.account.id do %>
