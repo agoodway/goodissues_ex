@@ -20,6 +20,76 @@ defmodule FF.Monitoring do
   @max_per_page 100
 
   # ==========================================================================
+  # PubSub
+  # ==========================================================================
+
+  @doc "Returns the PubSub topic for check events scoped to a project."
+  def checks_topic(project_id) when is_binary(project_id) do
+    "checks:project:#{project_id}"
+  end
+
+  defp broadcast_check_created(%Check{} = check) do
+    Phoenix.PubSub.broadcast(
+      FF.PubSub,
+      checks_topic(check.project_id),
+      {:check_created, check_payload(check)}
+    )
+  end
+
+  defp broadcast_check_updated(%Check{} = check) do
+    Phoenix.PubSub.broadcast(
+      FF.PubSub,
+      checks_topic(check.project_id),
+      {:check_updated, check_payload(check)}
+    )
+  end
+
+  defp broadcast_check_deleted(%Check{} = check) do
+    Phoenix.PubSub.broadcast(
+      FF.PubSub,
+      checks_topic(check.project_id),
+      {:check_deleted, %{id: check.id}}
+    )
+  end
+
+  @doc false
+  def broadcast_check_run_completed(%Check{} = check) do
+    Phoenix.PubSub.broadcast(
+      FF.PubSub,
+      checks_topic(check.project_id),
+      {:check_run_completed, check_payload(check)}
+    )
+  end
+
+  @doc false
+  def broadcast_check_result_created(%Check{} = check, %CheckResult{} = result) do
+    Phoenix.PubSub.broadcast(
+      FF.PubSub,
+      checks_topic(check.project_id),
+      {:check_result_created, check_result_payload(check, result)}
+    )
+  end
+
+  defp check_result_payload(%Check{} = check, %CheckResult{} = result) do
+    %{check_id: check.id, result: result}
+  end
+
+  defp check_payload(%Check{} = check) do
+    %{
+      id: check.id,
+      name: check.name,
+      url: check.url,
+      method: check.method,
+      status: check.status,
+      paused: check.paused,
+      interval_seconds: check.interval_seconds,
+      last_checked_at: check.last_checked_at,
+      consecutive_failures: check.consecutive_failures,
+      failure_threshold: check.failure_threshold
+    }
+  end
+
+  # ==========================================================================
   # Checks — CRUD
   # ==========================================================================
 
@@ -53,6 +123,33 @@ defmodule FF.Monitoring do
           total: total,
           total_pages: total_pages
         }
+    end
+  end
+
+  @doc """
+  Returns a map of check counts by status for a project:
+  `%{up: n, down: n, unknown: n, paused: n}`.
+  """
+  def count_checks_by_status(%Account{} = account, project_id) do
+    case fetch_project(account, project_id) do
+      nil ->
+        %{up: 0, down: 0, unknown: 0, paused: 0}
+
+      %Project{id: pid} ->
+        counts =
+          from(c in Check,
+            where: c.project_id == ^pid,
+            group_by: [c.status, c.paused],
+            select: {c.status, c.paused, count(c.id)}
+          )
+          |> Repo.all()
+
+        Enum.reduce(counts, %{up: 0, down: 0, unknown: 0, paused: 0}, fn
+          {_status, true, n}, acc -> Map.update!(acc, :paused, &(&1 + n))
+          {:up, false, n}, acc -> Map.update!(acc, :up, &(&1 + n))
+          {:down, false, n}, acc -> Map.update!(acc, :down, &(&1 + n))
+          {:unknown, false, n}, acc -> Map.update!(acc, :unknown, &(&1 + n))
+        end)
     end
   end
 
@@ -121,6 +218,7 @@ defmodule FF.Monitoring do
     |> Check.create_changeset(attrs)
     |> Repo.insert()
     |> tap_on_ok(&maybe_schedule_initial/1)
+    |> tap_on_ok(&broadcast_check_created/1)
   end
 
   defp maybe_schedule_initial(%Check{paused: true}), do: :noop
@@ -144,12 +242,15 @@ defmodule FF.Monitoring do
         Scheduler.schedule_initial(updated)
       end
     end)
+    |> tap_on_ok(&broadcast_check_updated/1)
   end
 
   @doc "Deletes a check and cancels any pending Oban jobs for it."
   def delete_check(%Check{} = check) do
     Scheduler.cancel_jobs(check)
+
     Repo.delete(check)
+    |> tap_on_ok(fn _deleted -> broadcast_check_deleted(check) end)
   end
 
   @doc "Returns a changeset for a check (used by tests / forms)."
@@ -187,7 +288,10 @@ defmodule FF.Monitoring do
       %Check{id: cid} ->
         {page, per_page} = extract_pagination(filters)
 
-        base_query = from(r in CheckResult, where: r.check_id == ^cid)
+        base_query =
+          from(r in CheckResult, where: r.check_id == ^cid)
+          |> maybe_filter_result_status(filters[:status] || filters["status"])
+
         total = Repo.aggregate(base_query, :count)
         total_pages = max(ceil(total / per_page), 1)
 
@@ -294,6 +398,21 @@ defmodule FF.Monitoring do
   # ==========================================================================
   # Helpers
   # ==========================================================================
+
+  defp maybe_filter_result_status(query, nil), do: query
+  defp maybe_filter_result_status(query, ""), do: query
+
+  defp maybe_filter_result_status(query, status) when is_atom(status) do
+    from(r in query, where: r.status == ^status)
+  end
+
+  defp maybe_filter_result_status(query, status) when is_binary(status) do
+    case status do
+      "up" -> maybe_filter_result_status(query, :up)
+      "down" -> maybe_filter_result_status(query, :down)
+      _ -> query
+    end
+  end
 
   defp fetch_project(_account, nil), do: nil
 

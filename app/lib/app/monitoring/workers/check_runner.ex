@@ -11,7 +11,7 @@ defmodule FF.Monitoring.Workers.CheckRunner do
     max_attempts: 1,
     unique: [
       keys: [:check_id],
-      states: [:available, :scheduled, :retryable, :executing]
+      states: [:available, :scheduled, :retryable]
     ]
 
   require Logger
@@ -44,6 +44,8 @@ defmodule FF.Monitoring.Workers.CheckRunner do
 
     {:ok, %{} = result} =
       Monitoring.create_check_result(check, build_result_attrs(outcome, elapsed_ms, checked_at))
+
+    Monitoring.broadcast_check_result_created(check, result)
 
     updated_check = apply_outcome(check, outcome, checked_at)
 
@@ -152,16 +154,19 @@ defmodule FF.Monitoring.Workers.CheckRunner do
         last_checked_at: checked_at
       })
 
+    Monitoring.broadcast_check_run_completed(updated)
     updated
   end
 
   defp apply_outcome(%Check{} = check, {:down, _status, _error}, checked_at) do
     {:ok, updated} =
       Monitoring.update_runtime_fields(check, %{
+        status: :down,
         consecutive_failures: check.consecutive_failures + 1,
         last_checked_at: checked_at
       })
 
+    Monitoring.broadcast_check_run_completed(updated)
     updated
   end
 
