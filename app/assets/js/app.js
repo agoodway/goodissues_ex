@@ -29,6 +29,51 @@ const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute
 
 const Hooks = {
   ...colocatedHooks,
+  Modal: {
+    mounted() {
+      if (this.el.dataset.show === "true" && !this.el.open) {
+        this.el.showModal()
+        this.el.classList.add("modal-opening")
+        requestAnimationFrame(() => this.el.classList.remove("modal-opening"))
+      }
+      this.el._cancelHandler = (e) => {
+        e.preventDefault()
+        this.closeWithAnimation()
+      }
+      this.el.addEventListener("cancel", this.el._cancelHandler)
+    },
+    beforeUpdate() {
+      this._wasOpen = this.el.open
+    },
+    updated() {
+      // If LV's diff stripped the `open` attribute that showModal() set,
+      // put it back without calling showModal() again — calling showModal()
+      // re-traps focus to the first focusable element in the dialog.
+      if (this._wasOpen && !this.el.hasAttribute("open")) {
+        this.el.setAttribute("open", "")
+      }
+      const shouldShow = this.el.dataset.show === "true"
+      if (!shouldShow && this.el.open) {
+        this.closeWithAnimation()
+      }
+    },
+    destroyed() {
+      if (this.el._cancelHandler) {
+        this.el.removeEventListener("cancel", this.el._cancelHandler)
+        delete this.el._cancelHandler
+      }
+      if (this.el.open) this.el.close()
+    },
+    closeWithAnimation() {
+      const modal = this.el
+      if (!modal.open || modal.classList.contains("modal-closing")) return
+      modal.classList.add("modal-closing")
+      setTimeout(() => {
+        modal.classList.remove("modal-closing")
+        if (modal.open) modal.close()
+      }, 200)
+    }
+  },
   CopyToClipboard: {
     mounted() {
       this.el.addEventListener("click", () => {

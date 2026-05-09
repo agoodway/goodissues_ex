@@ -8,6 +8,7 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
   use FFWeb, :live_view
 
   alias FF.Accounts.Scope
+  alias FF.Monitoring
   alias FF.Tracking
   alias FF.Tracking.Issue
 
@@ -60,12 +61,14 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
       project ->
         issue_count = Tracking.count_issues(project)
         recent_issues = get_recent_issues(account, project.id)
+        check_status = Monitoring.count_checks_by_status(account, project.id)
 
         socket
         |> assign(:page_title, project.name)
         |> assign(:project, project)
         |> assign(:issue_count, issue_count)
         |> assign(:recent_issues, recent_issues)
+        |> assign(:check_status, check_status)
     end
   end
 
@@ -160,6 +163,26 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
   defp issue_status_class(:new), do: "project-issue-status-new"
   defp issue_status_class(:in_progress), do: "project-issue-status-progress"
   defp issue_status_class(:archived), do: "project-issue-status-archived"
+
+  defp check_status_summary(%{down: down} = status) when down > 0 do
+    parts = ["#{down} down"]
+    parts = if status.up > 0, do: parts ++ ["#{status.up} up"], else: parts
+    Enum.join(parts, ", ")
+  end
+
+  defp check_status_summary(%{up: up, paused: 0, unknown: 0}) when up > 0, do: "All clear"
+
+  defp check_status_summary(status) do
+    []
+    |> then(fn parts -> if status.up > 0, do: parts ++ ["#{status.up} up"], else: parts end)
+    |> then(fn parts ->
+      if status.paused > 0, do: parts ++ ["#{status.paused} paused"], else: parts
+    end)
+    |> then(fn parts ->
+      if status.unknown > 0, do: parts ++ ["#{status.unknown} unknown"], else: parts
+    end)
+    |> Enum.join(", ")
+  end
 
   defp format_relative_time(datetime) do
     now = DateTime.utc_now()
@@ -360,6 +383,48 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
                         {@project.issue_counter}
                       </span>
                       <span class="project-stat-label">Next #</span>
+                    </div>
+                  </div>
+                </div>
+
+                <%!-- Monitoring card --%>
+                <div class="project-sidebar-card">
+                  <div class="project-sidebar-header">
+                    <.icon name="hero-signal" class="size-4" />
+                    <span>Monitoring</span>
+                  </div>
+                  <div class="project-sidebar-body">
+                    <% total_checks =
+                      @check_status.up + @check_status.down + @check_status.unknown +
+                        @check_status.paused %>
+                    <div class="project-detail-row">
+                      <span class="project-detail-label">Checks</span>
+                      <span class="project-detail-value">{total_checks}</span>
+                    </div>
+                    <div :if={total_checks > 0} class="project-detail-row">
+                      <span class="project-detail-label">Status</span>
+                      <span class="project-detail-value font-mono text-xs">
+                        {check_status_summary(@check_status)}
+                      </span>
+                    </div>
+                    <div class="mt-3 flex flex-col gap-2">
+                      <.link
+                        navigate={
+                          ~p"/dashboard/#{@current_scope.account.slug}/projects/#{@project.id}/checks"
+                        }
+                        class="project-view-all-link"
+                      >
+                        View checks <.icon name="hero-arrow-right" class="size-3.5" />
+                      </.link>
+                      <.link
+                        :if={@can_manage && total_checks == 0}
+                        navigate={
+                          ~p"/dashboard/#{@current_scope.account.slug}/projects/#{@project.id}/checks/new"
+                        }
+                        class="project-create-issue-link"
+                      >
+                        <.icon name="hero-plus" class="size-4" /> Create first check
+                      </.link>
                     </div>
                   </div>
                 </div>

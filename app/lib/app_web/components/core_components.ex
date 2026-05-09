@@ -509,7 +509,8 @@ defmodule FFWeb.CoreComponents do
     <dialog
       id={@id}
       class="modal-terminal"
-      phx-mounted={@show && show_modal(@id)}
+      phx-hook="Modal"
+      data-show={to_string(@show)}
       phx-remove={hide_modal(@id)}
     >
       <%!-- Backdrop with blur --%>
