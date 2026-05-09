@@ -1,5 +1,0 @@
-zig-out/
-.zig-cache/
-dist/
-*.o
-*.d
