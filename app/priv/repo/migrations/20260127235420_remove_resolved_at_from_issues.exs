@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.RemoveResolvedAtFromIssues do
+defmodule GI.Repo.Migrations.RemoveResolvedAtFromIssues do
   use Ecto.Migration
 
   def change do

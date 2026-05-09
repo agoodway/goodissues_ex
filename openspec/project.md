@@ -1,7 +1,7 @@
 # Project Context
 
 ## Purpose
-FruitFly is a bug and feature request tracking system providing a REST API for managing projects and issues. It supports multi-tenant accounts with role-based API key access.
+GoodIssues is a bug and feature request tracking system providing a REST API for managing projects and issues. It supports multi-tenant accounts with role-based API key access.
 
 ## Tech Stack
 - **Backend**: Elixir/Phoenix 1.8, Ecto, PostgreSQL
@@ -10,10 +10,10 @@ FruitFly is a bug and feature request tracking system providing a REST API for m
 
 ## Monorepo Structure
 ```
-fruitfly/
+goodissues/
 ├── app/                    # Phoenix/Elixir backend API
-│   ├── lib/app/            # Core business logic (contexts)
-│   ├── lib/app_web/        # Web layer (controllers, views, router)
+│   ├── lib/good_issues/    # Core business logic (contexts)
+│   ├── lib/good_issues_web/ # Web layer (controllers, views, router)
 │   ├── priv/repo/          # Database migrations
 │   └── openapi.json        # OpenAPI specification
 ├── cli/                    # Go CLI client
@@ -37,7 +37,7 @@ fruitfly/
 
 ### Testing Strategy
 - Elixir: ExUnit with DataCase for database tests
-- API tests in `test/app_web/controllers/`
+- API tests in `test/good_issues_web/controllers/`
 - CLI: Go testing package
 
 ### Git Workflow

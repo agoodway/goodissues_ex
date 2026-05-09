@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.AddHeartbeatIdToIssues do
+defmodule GI.Repo.Migrations.AddHeartbeatIdToIssues do
   use Ecto.Migration
 
   def change do

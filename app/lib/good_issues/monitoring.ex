@@ -1,21 +1,21 @@
-defmodule FF.Monitoring do
+defmodule GI.Monitoring do
   @moduledoc """
   The Monitoring context.
 
   Manages uptime checks and their execution results. Checks are HTTP
   monitors scoped to a project; each check runs at its configured
   interval via a self-rescheduling Oban worker (see
-  `FF.Monitoring.Workers.CheckRunner`). Failed checks auto-create
-  incident issues through `FF.Monitoring.IncidentLifecycle`.
+  `GI.Monitoring.Workers.CheckRunner`). Failed checks auto-create
+  incident issues through `GI.Monitoring.IncidentLifecycle`.
   """
 
   import Ecto.Query
 
-  alias FF.Accounts.{Account, User}
-  alias FF.Monitoring.{Check, CheckResult, Heartbeat, HeartbeatPing, Scheduler}
-  alias FF.Monitoring.{AlertRuleEvaluator, HeartbeatIncidentLifecycle, HeartbeatScheduler}
-  alias FF.Repo
-  alias FF.Tracking.{Issue, Project}
+  alias GI.Accounts.{Account, User}
+  alias GI.Monitoring.{Check, CheckResult, Heartbeat, HeartbeatPing, Scheduler}
+  alias GI.Monitoring.{AlertRuleEvaluator, HeartbeatIncidentLifecycle, HeartbeatScheduler}
+  alias GI.Repo
+  alias GI.Tracking.{Issue, Project}
 
   @default_per_page 20
   @max_per_page 100
@@ -31,7 +31,7 @@ defmodule FF.Monitoring do
 
   defp broadcast_check_created(%Check{} = check) do
     Phoenix.PubSub.broadcast(
-      FF.PubSub,
+      GI.PubSub,
       checks_topic(check.project_id),
       {:check_created, check_payload(check)}
     )
@@ -39,7 +39,7 @@ defmodule FF.Monitoring do
 
   defp broadcast_check_updated(%Check{} = check) do
     Phoenix.PubSub.broadcast(
-      FF.PubSub,
+      GI.PubSub,
       checks_topic(check.project_id),
       {:check_updated, check_payload(check)}
     )
@@ -47,7 +47,7 @@ defmodule FF.Monitoring do
 
   defp broadcast_check_deleted(%Check{} = check) do
     Phoenix.PubSub.broadcast(
-      FF.PubSub,
+      GI.PubSub,
       checks_topic(check.project_id),
       {:check_deleted, %{id: check.id}}
     )
@@ -56,7 +56,7 @@ defmodule FF.Monitoring do
   @doc false
   def broadcast_check_run_completed(%Check{} = check) do
     Phoenix.PubSub.broadcast(
-      FF.PubSub,
+      GI.PubSub,
       checks_topic(check.project_id),
       {:check_run_completed, check_payload(check)}
     )
@@ -65,7 +65,7 @@ defmodule FF.Monitoring do
   @doc false
   def broadcast_check_result_created(%Check{} = check, %CheckResult{} = result) do
     Phoenix.PubSub.broadcast(
-      FF.PubSub,
+      GI.PubSub,
       checks_topic(check.project_id),
       {:check_result_created, check_result_payload(check, result)}
     )
@@ -102,7 +102,7 @@ defmodule FF.Monitoring do
   @doc "Broadcasts a reaper run completion event."
   def broadcast_reaper_run_completed(payload) do
     Phoenix.PubSub.broadcast(
-      FF.PubSub,
+      GI.PubSub,
       reaper_topic(),
       {:reaper_run_completed, payload}
     )
@@ -394,7 +394,7 @@ defmodule FF.Monitoring do
   end
 
   defp classify_incident(issue, %Check{reopen_window_hours: window}, now) do
-    FF.Monitoring.SharedIncidentLifecycle.classify_incident(issue, window, now)
+    GI.Monitoring.SharedIncidentLifecycle.classify_incident(issue, window, now)
   end
 
   # ==========================================================================

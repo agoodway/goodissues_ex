@@ -14,10 +14,10 @@ defmodule Mix.Tasks.Openapi.Spec do
   @impl Mix.Task
   def run(_) do
     # Start the application
-    {:ok, _} = Application.ensure_all_started(:app)
+    {:ok, _} = Application.ensure_all_started(:good_issues)
 
     # Get the spec from the ApiSpec module
-    spec = FFWeb.ApiSpec.spec()
+    spec = GIWeb.ApiSpec.spec()
 
     # Write to file with proper formatting
     File.write!("openapi.json", Jason.encode!(spec, pretty: true))

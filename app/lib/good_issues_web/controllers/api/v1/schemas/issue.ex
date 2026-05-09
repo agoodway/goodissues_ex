@@ -1,4 +1,4 @@
-defmodule FFWeb.Api.V1.Schemas.Issue do
+defmodule GIWeb.Api.V1.Schemas.Issue do
   @moduledoc """
   OpenAPI schemas for Issue endpoints.
   """
@@ -109,7 +109,7 @@ defmodule FFWeb.Api.V1.Schemas.Issue do
         id: %Schema{type: :string, format: :uuid, description: "Issue ID"},
         key: %Schema{
           type: :string,
-          description: "Human-readable issue key (e.g., FF-123)",
+          description: "Human-readable issue key (e.g., GI-123)",
           nullable: true
         },
         number: %Schema{
@@ -207,7 +207,7 @@ defmodule FFWeb.Api.V1.Schemas.Issue do
 
   defmodule IssueListResponse do
     @moduledoc false
-    alias FFWeb.Api.V1.Schemas.Pagination
+    alias GIWeb.Api.V1.Schemas.Pagination
 
     OpenApiSpex.schema(
       Map.merge(

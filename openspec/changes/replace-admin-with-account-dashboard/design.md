@@ -100,8 +100,8 @@ socket
 # In router.ex
 live_session :dashboard,
   on_mount: [
-    {FFWeb.UserAuth, :ensure_authenticated},
-    {FFWeb.UserAuth, :ensure_account_selected}  # New
+    {GIWeb.UserAuth, :ensure_authenticated},
+    {GIWeb.UserAuth, :ensure_account_selected}  # New
   ] do
   # Routes here
 end
@@ -164,15 +164,15 @@ lib/app_web/live/admin/account_live/   → lib/app_web/live/dashboard/account_li
 lib/app_web/live/admin/api_key_live/   → lib/app_web/live/dashboard/api_key_live/
 
 # Modules
-FFWeb.Admin.AccountLive.Index   → FFWeb.Dashboard.AccountLive.Index
-FFWeb.Admin.AccountLive.Show    → FFWeb.Dashboard.AccountLive.Show
-FFWeb.Admin.ApiKeyLive.*        → FFWeb.Dashboard.ApiKeyLive.*
+GIWeb.Admin.AccountLive.Index   → GIWeb.Dashboard.AccountLive.Index
+GIWeb.Admin.AccountLive.Show    → GIWeb.Dashboard.AccountLive.Show
+GIWeb.Admin.ApiKeyLive.*        → GIWeb.Dashboard.ApiKeyLive.*
 
 # Plugs
-FFWeb.Plugs.AdminAuth           → DELETE (replaced by Scope checks)
+GIWeb.Plugs.AdminAuth           → DELETE (replaced by Scope checks)
 
 # Components
-FFWeb.Layouts.admin/1           → FFWeb.Layouts.dashboard/1
+GIWeb.Layouts.admin/1           → GIWeb.Layouts.dashboard/1
 ```
 
 ## Data Migration Considerations

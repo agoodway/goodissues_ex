@@ -14,7 +14,7 @@ type Config struct {
 }
 
 const (
-	configDir  = ".fruitfly"
+	configDir  = ".goodissues"
 	configFile = "config"
 	configType = "yaml"
 )
@@ -77,10 +77,10 @@ func Save(cfg *Config) error {
 
 func (c *Config) Validate() error {
 	if c.APIKey == "" {
-		return fmt.Errorf("API key not configured. Run 'fruitfly configure --api-key <key>' to set it")
+		return fmt.Errorf("API key not configured. Run 'goodissues configure --api-key <key>' to set it")
 	}
 	if c.BaseURL == "" {
-		return fmt.Errorf("base URL not configured. Run 'fruitfly configure --url <url>' to set it")
+		return fmt.Errorf("base URL not configured. Run 'goodissues configure --url <url>' to set it")
 	}
 	return nil
 }

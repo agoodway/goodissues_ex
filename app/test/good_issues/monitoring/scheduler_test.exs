@@ -1,12 +1,12 @@
-defmodule FF.Monitoring.SchedulerTest do
-  use FF.DataCase, async: false
+defmodule GI.Monitoring.SchedulerTest do
+  use GI.DataCase, async: false
 
-  import FF.AccountsFixtures
-  import FF.MonitoringFixtures
-  import FF.TrackingFixtures
+  import GI.AccountsFixtures
+  import GI.MonitoringFixtures
+  import GI.TrackingFixtures
 
-  alias FF.Monitoring.Scheduler
-  alias FF.Repo
+  alias GI.Monitoring.Scheduler
+  alias GI.Repo
 
   setup do
     {user, account} = user_with_account_fixture()
@@ -133,7 +133,7 @@ defmodule FF.Monitoring.SchedulerTest do
       |> Repo.update!()
 
       # Pause the check
-      FF.Monitoring.update_check(check, %{paused: true})
+      GI.Monitoring.update_check(check, %{paused: true})
 
       assert Scheduler.stuck_executing_jobs(now) == []
     end

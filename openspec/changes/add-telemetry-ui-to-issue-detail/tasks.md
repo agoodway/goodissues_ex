@@ -2,14 +2,14 @@
 
 ## Implementation Order
 
-1. [x] Add `list_spans_by_request_id_for_project/3` to `FF.Telemetry` context
+1. [x] Add `list_spans_by_request_id_for_project/3` to `GI.Telemetry` context
    - Query spans by request_id scoped to account and project
    - Return spans ordered by timestamp ascending
    - Verify: unit test in `telemetry_test.exs`
 
 2. [x] Update `show.ex` LiveView to load telemetry data on mount
    - Extract `request_id` from `issue.error.occurrences[0].context["request_id"]`
-   - Call `FF.Telemetry.list_spans_by_request_id_for_project/3` when request_id exists
+   - Call `GI.Telemetry.list_spans_by_request_id_for_project/3` when request_id exists
    - Assign spans to socket (empty list if no request_id or no spans)
    - Verify: page loads without errors
 

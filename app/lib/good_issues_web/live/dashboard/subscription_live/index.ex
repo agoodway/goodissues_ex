@@ -1,11 +1,11 @@
-defmodule FFWeb.Dashboard.SubscriptionLive.Index do
+defmodule GIWeb.Dashboard.SubscriptionLive.Index do
   @moduledoc """
   Dashboard view for listing event subscriptions scoped to the current account.
   """
-  use FFWeb, :live_view
+  use GIWeb, :live_view
 
-  alias FF.Accounts.Scope
-  alias FF.Notifications
+  alias GI.Accounts.Scope
+  alias GI.Notifications
 
   @impl true
   def mount(_params, _session, socket) do
@@ -70,7 +70,7 @@ defmodule FFWeb.Dashboard.SubscriptionLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard
+    <GIWeb.Layouts.dashboard
       flash={@flash}
       current_scope={@current_scope}
       page_title={@page_title}
@@ -242,7 +242,7 @@ defmodule FFWeb.Dashboard.SubscriptionLive.Index do
             <div class="size-16 rounded-sm bg-base-200 border border-base-300 flex items-center justify-center mb-6">
               <.icon name="hero-bell" class="size-8 opacity-30" />
             </div>
-            <div class="font-mono text-sm mb-2">$ fruitfly subscriptions list</div>
+            <div class="font-mono text-sm mb-2">$ goodissues subscriptions list</div>
             <div class="font-mono text-xs text-muted mb-6">No subscriptions found.</div>
             <.link
               :if={@can_manage}
@@ -265,7 +265,7 @@ defmodule FFWeb.Dashboard.SubscriptionLive.Index do
           </span>
         </div>
       </div>
-    </FFWeb.Layouts.dashboard>
+    </GIWeb.Layouts.dashboard>
     """
   end
 end

@@ -1,11 +1,11 @@
-defmodule FFWeb.Api.V1.CheckResultControllerTest do
-  use FFWeb.ConnCase
+defmodule GIWeb.Api.V1.CheckResultControllerTest do
+  use GIWeb.ConnCase
 
-  import FF.AccountsFixtures
-  import FF.MonitoringFixtures
-  import FF.TrackingFixtures
+  import GI.AccountsFixtures
+  import GI.MonitoringFixtures
+  import GI.TrackingFixtures
 
-  alias FF.Monitoring
+  alias GI.Monitoring
 
   setup %{conn: conn} do
     {user, account} = user_with_account_fixture()

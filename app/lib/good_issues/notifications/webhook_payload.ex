@@ -1,4 +1,4 @@
-defmodule FF.Notifications.WebhookPayload do
+defmodule GI.Notifications.WebhookPayload do
   @moduledoc """
   Builds Standard Webhooks JSON payloads.
   """

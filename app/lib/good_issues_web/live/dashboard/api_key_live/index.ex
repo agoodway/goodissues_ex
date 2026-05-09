@@ -1,14 +1,14 @@
-defmodule FFWeb.Dashboard.ApiKeyLive.Index do
+defmodule GIWeb.Dashboard.ApiKeyLive.Index do
   @moduledoc """
   Dashboard view for listing API keys scoped to the current account.
 
   Shows all API keys belonging to the current account, with filtering
   and pagination. Users with owner/admin role can revoke keys.
   """
-  use FFWeb, :live_view
+  use GIWeb, :live_view
 
-  alias FF.Accounts
-  alias FF.Accounts.Scope
+  alias GI.Accounts
+  alias GI.Accounts.Scope
 
   @impl true
   def mount(_params, _session, socket) do
@@ -145,7 +145,7 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard
+    <GIWeb.Layouts.dashboard
       flash={@flash}
       current_scope={@current_scope}
       page_title={@page_title}
@@ -362,7 +362,7 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Index do
             <div class="size-16 rounded-sm bg-base-200 border border-base-300 flex items-center justify-center mb-6">
               <.icon name="hero-key" class="size-8 opacity-30" />
             </div>
-            <div class="font-mono text-sm mb-2">$ fruitfly keys list</div>
+            <div class="font-mono text-sm mb-2">$ goodissues keys list</div>
             <div class="font-mono text-xs text-muted mb-6">No API keys found.</div>
             <.link
               :if={@can_manage}
@@ -431,7 +431,7 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Index do
           </span>
         </div>
       </div>
-    </FFWeb.Layouts.dashboard>
+    </GIWeb.Layouts.dashboard>
     """
   end
 end

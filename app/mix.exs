@@ -1,9 +1,9 @@
-defmodule FF.MixProject do
+defmodule GI.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :app,
+      app: :good_issues,
       version: "0.1.0",
       elixir: "~> 1.15",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -24,7 +24,7 @@ defmodule FF.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {FF.Application, []},
+      mod: {GI.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
   end

@@ -1,8 +1,8 @@
-defmodule FFWeb.Api.V1.IssueControllerTest do
-  use FFWeb.ConnCase
+defmodule GIWeb.Api.V1.IssueControllerTest do
+  use GIWeb.ConnCase
 
-  import FF.AccountsFixtures
-  import FF.TrackingFixtures
+  import GI.AccountsFixtures
+  import GI.TrackingFixtures
 
   setup %{conn: conn} do
     {user, account} = user_with_account_fixture()
@@ -254,7 +254,7 @@ defmodule FFWeb.Api.V1.IssueControllerTest do
       conn = post(conn, ~p"/api/v1/issues", params)
       assert %{"data" => %{"id" => id}} = json_response(conn, 201)
 
-      issue = FF.Tracking.get_issue(account, id)
+      issue = GI.Tracking.get_issue(account, id)
       assert issue.title == "New Bug"
       assert issue.description == "Something is broken"
       assert issue.type == :bug
@@ -273,7 +273,7 @@ defmodule FFWeb.Api.V1.IssueControllerTest do
       conn = post(conn, ~p"/api/v1/issues", params)
       assert %{"data" => %{"id" => id}} = json_response(conn, 201)
 
-      issue = FF.Tracking.get_issue(account, id)
+      issue = GI.Tracking.get_issue(account, id)
       assert issue.title == "Minimal Bug"
       assert issue.type == :bug
       assert issue.status == :new
@@ -295,7 +295,7 @@ defmodule FFWeb.Api.V1.IssueControllerTest do
       conn = post(conn, ~p"/api/v1/issues", params)
       assert %{"data" => %{"id" => id, "type" => "incident"}} = json_response(conn, 201)
 
-      issue = FF.Tracking.get_issue(account, id)
+      issue = GI.Tracking.get_issue(account, id)
       assert issue.type == :incident
       assert issue.priority == :critical
     end
@@ -311,7 +311,7 @@ defmodule FFWeb.Api.V1.IssueControllerTest do
       conn = post(conn, ~p"/api/v1/issues", params)
       assert %{"data" => %{"id" => id}} = json_response(conn, 201)
 
-      issue = FF.Tracking.get_issue(account, id)
+      issue = GI.Tracking.get_issue(account, id)
       assert issue.submitter_email == "external@example.com"
     end
 
@@ -537,7 +537,7 @@ defmodule FFWeb.Api.V1.IssueControllerTest do
       conn = delete(conn, ~p"/api/v1/issues/#{issue.id}")
       assert response(conn, 204)
 
-      assert FF.Tracking.get_issue(account, issue.id) == nil
+      assert GI.Tracking.get_issue(account, issue.id) == nil
     end
 
     test "returns 404 for non-existent issue", %{conn: conn} do

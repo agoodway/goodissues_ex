@@ -1,8 +1,8 @@
-defmodule FFWeb.Api.V1.EventControllerTest do
-  use FFWeb.ConnCase
+defmodule GIWeb.Api.V1.EventControllerTest do
+  use GIWeb.ConnCase
 
-  import FF.AccountsFixtures
-  import FF.TrackingFixtures
+  import GI.AccountsFixtures
+  import GI.TrackingFixtures
 
   setup %{conn: conn} do
     {user, account} = user_with_account_fixture()
@@ -201,7 +201,7 @@ defmodule FFWeb.Api.V1.EventControllerTest do
       assert %{"inserted" => 1} = json_response(conn, 201)
 
       # Verify data was stored correctly
-      [span] = FF.Telemetry.list_spans_by_request_id(conn.assigns.current_account, "req-abc-123")
+      [span] = GI.Telemetry.list_spans_by_request_id(conn.assigns.current_account, "req-abc-123")
       assert span.request_id == "req-abc-123"
       assert span.trace_id == "trace-xyz-456"
     end

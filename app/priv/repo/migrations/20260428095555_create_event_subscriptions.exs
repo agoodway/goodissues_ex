@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.CreateEventSubscriptions do
+defmodule GI.Repo.Migrations.CreateEventSubscriptions do
   use Ecto.Migration
 
   def change do

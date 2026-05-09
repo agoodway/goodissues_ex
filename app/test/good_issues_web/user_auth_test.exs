@@ -1,11 +1,11 @@
-defmodule FFWeb.UserAuthTest do
-  use FFWeb.ConnCase, async: true
+defmodule GIWeb.UserAuthTest do
+  use GIWeb.ConnCase, async: true
 
-  alias FF.Accounts
-  alias FF.Accounts.Scope
-  alias FFWeb.UserAuth
+  alias GI.Accounts
+  alias GI.Accounts.Scope
+  alias GIWeb.UserAuth
 
-  import FF.AccountsFixtures
+  import GI.AccountsFixtures
 
   @remember_me_cookie "_ff_web_user_remember_me"
   @remember_me_cookie_max_age 60 * 60 * 24 * 14
@@ -13,7 +13,7 @@ defmodule FFWeb.UserAuthTest do
   setup %{conn: conn} do
     conn =
       conn
-      |> Map.replace!(:secret_key_base, FFWeb.Endpoint.config(:secret_key_base))
+      |> Map.replace!(:secret_key_base, GIWeb.Endpoint.config(:secret_key_base))
       |> init_test_session(%{})
 
     %{user: %{user_fixture() | authenticated_at: DateTime.utc_now(:second)}, conn: conn}
@@ -80,7 +80,7 @@ defmodule FFWeb.UserAuthTest do
       conn =
         conn
         |> recycle()
-        |> Map.replace!(:secret_key_base, FFWeb.Endpoint.config(:secret_key_base))
+        |> Map.replace!(:secret_key_base, GIWeb.Endpoint.config(:secret_key_base))
         |> fetch_cookies()
         |> init_test_session(%{user_remember_me: true})
 

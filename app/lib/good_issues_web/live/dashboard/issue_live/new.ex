@@ -1,14 +1,14 @@
-defmodule FFWeb.Dashboard.IssueLive.New do
+defmodule GIWeb.Dashboard.IssueLive.New do
   @moduledoc """
   Dashboard view for creating a new issue.
 
   Only users with owner/admin role can create issues.
   """
-  use FFWeb, :live_view
+  use GIWeb, :live_view
 
-  alias FF.Accounts.Scope
-  alias FF.Tracking
-  alias FF.Tracking.Issue
+  alias GI.Accounts.Scope
+  alias GI.Tracking
+  alias GI.Tracking.Issue
 
   @impl true
   def mount(_params, _session, socket) do
@@ -35,14 +35,14 @@ defmodule FFWeb.Dashboard.IssueLive.New do
   end
 
   @impl true
-  def handle_info({FFWeb.Dashboard.IssueLive.FormComponent, {:saved, _issue}}, socket) do
+  def handle_info({GIWeb.Dashboard.IssueLive.FormComponent, {:saved, _issue}}, socket) do
     {:noreply, socket}
   end
 
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard
+    <GIWeb.Layouts.dashboard
       flash={@flash}
       current_scope={@current_scope}
       page_title={@page_title}
@@ -91,7 +91,7 @@ defmodule FFWeb.Dashboard.IssueLive.New do
             <% else %>
               <div class="terminal-card p-6">
                 <.live_component
-                  module={FFWeb.Dashboard.IssueLive.FormComponent}
+                  module={GIWeb.Dashboard.IssueLive.FormComponent}
                   id={:new}
                   title="Create Issue"
                   action={:new}
@@ -105,7 +105,7 @@ defmodule FFWeb.Dashboard.IssueLive.New do
           </div>
         </div>
       </div>
-    </FFWeb.Layouts.dashboard>
+    </GIWeb.Layouts.dashboard>
     """
   end
 end

@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.RemoveIsAdminFromUsers do
+defmodule GI.Repo.Migrations.RemoveIsAdminFromUsers do
   use Ecto.Migration
 
   def change do

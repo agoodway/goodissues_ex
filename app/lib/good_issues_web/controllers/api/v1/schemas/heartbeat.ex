@@ -1,4 +1,4 @@
-defmodule FFWeb.Api.V1.Schemas.Heartbeat do
+defmodule GIWeb.Api.V1.Schemas.Heartbeat do
   @moduledoc """
   OpenAPI schemas for Heartbeat, HeartbeatPing, and AlertRule endpoints.
   """
@@ -176,7 +176,7 @@ defmodule FFWeb.Api.V1.Schemas.Heartbeat do
 
   defmodule HeartbeatListResponse do
     @moduledoc false
-    alias FFWeb.Api.V1.Schemas.Pagination
+    alias GIWeb.Api.V1.Schemas.Pagination
     OpenApiSpex.schema(Pagination.paginated_list("Heartbeat", HeartbeatResource))
   end
 
@@ -211,7 +211,7 @@ defmodule FFWeb.Api.V1.Schemas.Heartbeat do
 
   defmodule HeartbeatPingListResponse do
     @moduledoc false
-    alias FFWeb.Api.V1.Schemas.Pagination
+    alias GIWeb.Api.V1.Schemas.Pagination
     OpenApiSpex.schema(Pagination.paginated_list("HeartbeatPing", HeartbeatPingResource))
   end
 

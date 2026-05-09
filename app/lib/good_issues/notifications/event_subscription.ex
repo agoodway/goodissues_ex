@@ -1,4 +1,4 @@
-defmodule FF.Notifications.EventSubscription do
+defmodule GI.Notifications.EventSubscription do
   @moduledoc """
   Schema for event subscriptions that declare who receives which events.
 
@@ -11,9 +11,9 @@ defmodule FF.Notifications.EventSubscription do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias FF.Accounts.{Account, User}
-  alias FF.Notifications.Event
-  alias FF.Notifications.WebhookSigner
+  alias GI.Accounts.{Account, User}
+  alias GI.Notifications.Event
+  alias GI.Notifications.WebhookSigner
 
   @type t :: %__MODULE__{
           id: Ecto.UUID.t() | nil,
@@ -179,7 +179,7 @@ defmodule FF.Notifications.EventSubscription do
 
   defp valid_webhook_destination?(destination) do
     String.starts_with?(destination, "https://") or
-      (Application.get_env(:app, :env) in [:dev, :test] and
+      (Application.get_env(:good_issues, :env) in [:dev, :test] and
          String.starts_with?(destination, "http://localhost"))
   end
 end

@@ -1,14 +1,14 @@
-defmodule FFWeb.Dashboard.ProjectLive.New do
+defmodule GIWeb.Dashboard.ProjectLive.New do
   @moduledoc """
   Dashboard view for creating a new project.
 
   Only users with owner/admin role can create projects.
   """
-  use FFWeb, :live_view
+  use GIWeb, :live_view
 
-  alias FF.Accounts.Scope
-  alias FF.Tracking
-  alias FF.Tracking.Project
+  alias GI.Accounts.Scope
+  alias GI.Tracking
+  alias GI.Tracking.Project
 
   @impl true
   def mount(_params, _session, socket) do
@@ -99,7 +99,7 @@ defmodule FFWeb.Dashboard.ProjectLive.New do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard
+    <GIWeb.Layouts.dashboard
       flash={@flash}
       current_scope={@current_scope}
       page_title={@page_title}
@@ -206,7 +206,7 @@ defmodule FFWeb.Dashboard.ProjectLive.New do
           </div>
         </div>
       </div>
-    </FFWeb.Layouts.dashboard>
+    </GIWeb.Layouts.dashboard>
     """
   end
 end

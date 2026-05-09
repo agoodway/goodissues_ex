@@ -10,7 +10,7 @@
 
 ## 2. Bot User
 
-- [x] 2.1 Add get_or_create_bot_user!/1 function to App.Accounts context — creates a passwordless user with email "bot@{account_id}.fruitfly.internal" and account membership if not exists (wrap in Repo.transaction to avoid orphaned users; do not use register_user/1 because it creates a default personal account)
+- [x] 2.1 Add get_or_create_bot_user!/1 function to App.Accounts context — creates a passwordless user with email "bot@{account_id}.goodissues.internal" and account membership if not exists (wrap in Repo.transaction to avoid orphaned users; do not use register_user/1 because it creates a default personal account)
 - [x] 2.2 Add tests for bot user creation, idempotency, and authentication failure
 
 ## 3. Database & Schemas
@@ -62,5 +62,5 @@
 - [x] 8.1 Enqueue first Oban job when a check is created (unless paused)
 - [x] 8.2 Enqueue job when a paused check is resumed (update paused: false)
 - [x] 8.3 Cancel pending Oban jobs when a check is deleted
-- [x] 8.4 Add startup recovery wiring in `FF.Application` to re-enqueue checks that have no pending jobs after Oban boots (recovery after restart)
+- [x] 8.4 Add startup recovery wiring in `GI.Application` to re-enqueue checks that have no pending jobs after Oban boots (recovery after restart)
 - [x] 8.5 Add tests for job enqueue on create, resume, delete cancellation, and restart recovery

@@ -1,16 +1,16 @@
-defmodule FFWeb.Dashboard.IssueLive.Show do
+defmodule GIWeb.Dashboard.IssueLive.Show do
   @moduledoc """
   Dashboard view for showing a single issue with edit and delete capabilities.
 
   Verifies the issue belongs to the current account before displaying.
   Supports inline editing via modal.
   """
-  use FFWeb, :live_view
+  use GIWeb, :live_view
 
-  alias FF.Accounts.Scope
-  alias FF.Telemetry
-  alias FF.Tracking
-  alias FF.Tracking.Issue
+  alias GI.Accounts.Scope
+  alias GI.Telemetry
+  alias GI.Tracking
+  alias GI.Tracking.Issue
 
   @impl true
   def mount(_params, _session, socket) do
@@ -191,7 +191,7 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
   end
 
   @impl true
-  def handle_info({FFWeb.Dashboard.IssueLive.FormComponent, {:saved, issue}}, socket) do
+  def handle_info({GIWeb.Dashboard.IssueLive.FormComponent, {:saved, issue}}, socket) do
     # Refresh issue data after edit
     case Tracking.get_issue(socket.assigns.current_scope.account, issue.id,
            preload: [:project, :submitter],
@@ -358,7 +358,7 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard
+    <GIWeb.Layouts.dashboard
       flash={@flash}
       current_scope={@current_scope}
       page_title={@page_title}
@@ -827,7 +827,7 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
         on_cancel={JS.patch(~p"/dashboard/#{@current_scope.account.slug}/issues/#{@issue.id}")}
       >
         <.live_component
-          module={FFWeb.Dashboard.IssueLive.FormComponent}
+          module={GIWeb.Dashboard.IssueLive.FormComponent}
           id={@issue.id}
           action={:edit}
           issue={@issue}
@@ -836,7 +836,7 @@ defmodule FFWeb.Dashboard.IssueLive.Show do
           patch={~p"/dashboard/#{@current_scope.account.slug}/issues/#{@issue.id}"}
         />
       </.modal>
-    </FFWeb.Layouts.dashboard>
+    </GIWeb.Layouts.dashboard>
     """
   end
 end

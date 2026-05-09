@@ -1,12 +1,12 @@
-defmodule FFWeb.Dashboard.ProjectLiveTest do
-  use FFWeb.ConnCase, async: true
+defmodule GIWeb.Dashboard.ProjectLiveTest do
+  use GIWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
-  import FF.AccountsFixtures
-  import FF.TrackingFixtures
+  import GI.AccountsFixtures
+  import GI.TrackingFixtures
 
-  alias FF.Accounts
-  alias FF.Tracking
+  alias GI.Accounts
+  alias GI.Tracking
 
   describe "Index (unauthenticated)" do
     test "redirects to login when not authenticated", %{conn: conn} do

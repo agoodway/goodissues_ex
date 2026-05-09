@@ -1,11 +1,11 @@
-defmodule FF.MonitoringContextAdditionsTest do
-  use FF.DataCase, async: false
+defmodule GI.MonitoringContextAdditionsTest do
+  use GI.DataCase, async: false
 
-  import FF.AccountsFixtures
-  import FF.MonitoringFixtures
-  import FF.TrackingFixtures
+  import GI.AccountsFixtures
+  import GI.MonitoringFixtures
+  import GI.TrackingFixtures
 
-  alias FF.Monitoring
+  alias GI.Monitoring
 
   setup do
     {user, account} = user_with_account_fixture()

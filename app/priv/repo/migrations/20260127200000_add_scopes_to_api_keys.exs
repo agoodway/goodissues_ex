@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.AddScopesToApiKeys do
+defmodule GI.Repo.Migrations.AddScopesToApiKeys do
   use Ecto.Migration
 
   def change do

@@ -1,11 +1,11 @@
-defmodule FFWeb.Api.V1.HeartbeatPingHistoryControllerTest do
-  use FFWeb.ConnCase
+defmodule GIWeb.Api.V1.HeartbeatPingHistoryControllerTest do
+  use GIWeb.ConnCase
 
-  import FF.AccountsFixtures
-  import FF.MonitoringFixtures
-  import FF.TrackingFixtures
+  import GI.AccountsFixtures
+  import GI.MonitoringFixtures
+  import GI.TrackingFixtures
 
-  alias FF.Monitoring
+  alias GI.Monitoring
 
   setup %{conn: conn} do
     {user, account} = user_with_account_fixture()
@@ -29,7 +29,7 @@ defmodule FFWeb.Api.V1.HeartbeatPingHistoryControllerTest do
     } do
       # Create some pings
       {:ok, _} = Monitoring.receive_ping(heartbeat, :start)
-      heartbeat = FF.Repo.get!(FF.Monitoring.Heartbeat, heartbeat.id)
+      heartbeat = GI.Repo.get!(GI.Monitoring.Heartbeat, heartbeat.id)
       {:ok, _} = Monitoring.receive_ping(heartbeat, :ping)
 
       conn =
@@ -80,9 +80,9 @@ defmodule FFWeb.Api.V1.HeartbeatPingHistoryControllerTest do
     } do
       # Create 3 pings
       {:ok, _} = Monitoring.receive_ping(heartbeat, :start)
-      heartbeat = FF.Repo.get!(FF.Monitoring.Heartbeat, heartbeat.id)
+      heartbeat = GI.Repo.get!(GI.Monitoring.Heartbeat, heartbeat.id)
       {:ok, _} = Monitoring.receive_ping(heartbeat, :ping)
-      heartbeat = FF.Repo.get!(FF.Monitoring.Heartbeat, heartbeat.id)
+      heartbeat = GI.Repo.get!(GI.Monitoring.Heartbeat, heartbeat.id)
       {:ok, _} = Monitoring.receive_ping(heartbeat, :fail)
 
       conn =

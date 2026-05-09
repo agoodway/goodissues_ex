@@ -1,4 +1,4 @@
-defmodule FF.Notifications.Workers.WebhookWorker do
+defmodule GI.Notifications.Workers.WebhookWorker do
   @moduledoc """
   Oban worker for delivering signed webhook notifications.
   """
@@ -10,8 +10,8 @@ defmodule FF.Notifications.Workers.WebhookWorker do
 
   require Logger
 
-  alias FF.Notifications
-  alias FF.Notifications.{WebhookPayload, WebhookSigner}
+  alias GI.Notifications
+  alias GI.Notifications.{WebhookPayload, WebhookSigner}
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: args}) do
@@ -71,7 +71,7 @@ defmodule FF.Notifications.Workers.WebhookWorker do
   end
 
   defp webhook_client do
-    Application.get_env(:app, :webhook_client, FF.Notifications.WebhookClient.HTTP)
+    Application.get_env(:good_issues, :webhook_client, GI.Notifications.WebhookClient.HTTP)
   end
 
   defp log_result(event_type, account_id, subscription_id, destination, status, opts) do

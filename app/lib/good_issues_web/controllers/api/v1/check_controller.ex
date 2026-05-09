@@ -1,17 +1,17 @@
-defmodule FFWeb.Api.V1.CheckController do
-  use FFWeb, :controller
+defmodule GIWeb.Api.V1.CheckController do
+  use GIWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
-  alias FF.Monitoring
-  alias FF.Monitoring.Check
-  alias FFWeb.Api.V1.Schemas.Check, as: CheckSchemas
+  alias GI.Monitoring
+  alias GI.Monitoring.Check
+  alias GIWeb.Api.V1.Schemas.Check, as: CheckSchemas
 
-  plug FFWeb.Plugs.ApiAuth, {:require_scope, "checks:read"} when action in [:index, :show]
+  plug GIWeb.Plugs.ApiAuth, {:require_scope, "checks:read"} when action in [:index, :show]
 
-  plug FFWeb.Plugs.ApiAuth,
+  plug GIWeb.Plugs.ApiAuth,
        {:require_scope, "checks:write"} when action in [:create, :update, :delete]
 
-  action_fallback FFWeb.FallbackController
+  action_fallback GIWeb.FallbackController
 
   tags(["Checks"])
 
@@ -34,14 +34,14 @@ defmodule FFWeb.Api.V1.CheckController do
     ],
     responses: [
       ok: {"Check list", "application/json", CheckSchemas.CheckListResponse},
-      bad_request: {"Bad request", "application/json", FFWeb.ErrorJSON},
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON}
+      bad_request: {"Bad request", "application/json", GIWeb.ErrorJSON},
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
   def index(conn, %{"project_id" => project_id} = params) do
-    with :ok <- FFWeb.Api.V1.PaginationHelpers.validate_pagination(params),
+    with :ok <- GIWeb.Api.V1.PaginationHelpers.validate_pagination(params),
          {:ok, _project} <- ensure_project(conn, project_id) do
       result = Monitoring.list_checks(conn.assigns.current_account, project_id, params)
 
@@ -71,8 +71,8 @@ defmodule FFWeb.Api.V1.CheckController do
     ],
     responses: [
       ok: {"Check", "application/json", CheckSchemas.CheckResponse},
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON}
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
@@ -95,10 +95,10 @@ defmodule FFWeb.Api.V1.CheckController do
     request_body: {"Check params", "application/json", CheckSchemas.CheckRequest},
     responses: [
       created: {"Check created", "application/json", CheckSchemas.CheckResponse},
-      unprocessable_entity: {"Validation error", "application/json", FFWeb.ChangesetJSON},
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON},
-      forbidden: {"Forbidden", "application/json", FFWeb.ErrorJSON}
+      unprocessable_entity: {"Validation error", "application/json", GIWeb.ChangesetJSON},
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON},
+      forbidden: {"Forbidden", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
@@ -135,10 +135,10 @@ defmodule FFWeb.Api.V1.CheckController do
     request_body: {"Check params", "application/json", CheckSchemas.CheckUpdateRequest},
     responses: [
       ok: {"Check updated", "application/json", CheckSchemas.CheckResponse},
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
-      unprocessable_entity: {"Validation error", "application/json", FFWeb.ChangesetJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON},
-      forbidden: {"Forbidden", "application/json", FFWeb.ErrorJSON}
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON},
+      unprocessable_entity: {"Validation error", "application/json", GIWeb.ChangesetJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON},
+      forbidden: {"Forbidden", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
@@ -170,9 +170,9 @@ defmodule FFWeb.Api.V1.CheckController do
     ],
     responses: [
       no_content: "Check deleted",
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON},
-      forbidden: {"Forbidden", "application/json", FFWeb.ErrorJSON}
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON},
+      forbidden: {"Forbidden", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
@@ -189,7 +189,7 @@ defmodule FFWeb.Api.V1.CheckController do
   end
 
   defp ensure_project(conn, project_id) do
-    case FF.Tracking.get_project(conn.assigns.current_account, project_id) do
+    case GI.Tracking.get_project(conn.assigns.current_account, project_id) do
       nil -> {:error, :not_found}
       project -> {:ok, project}
     end

@@ -1,15 +1,15 @@
 
-# FruitFly
+# GoodIssues
 
-FruitFly is a bug and feature request tracking system with a REST API.
+GoodIssues is a bug and feature request tracking system with a REST API.
 
 ## Monorepo Structure
 
 ```
-fruitfly/
+goodissues/
 ├── app/                    # Phoenix/Elixir backend API
-│   ├── lib/app/            # Core business logic (contexts)
-│   ├── lib/app_web/        # Web layer (controllers, views, router)
+│   ├── lib/good_issues/    # Core business logic (contexts)
+│   ├── lib/good_issues_web/ # Web layer (controllers, views, router)
 │   ├── priv/repo/          # Database migrations
 │   ├── test/               # ExUnit tests
 │   └── openapi.json        # OpenAPI specification
@@ -45,15 +45,15 @@ cd app && mix test
 
 ### CLI (`cli/`)
 - **Language**: Go with Cobra CLI framework
-- **Config**: Stored in `~/.fruitfly/config.yaml`
+- **Config**: Stored in `~/.goodissues/config.yaml`
 - **Auth**: API keys (pk_* read-only, sk_* read/write)
 
 Build and use:
 ```bash
-cd cli && go build -o fruitfly .
-./fruitfly configure --url http://localhost:4000 --api-key sk_...
-./fruitfly projects list
-./fruitfly issues list
+cd cli && go build -o goodissues .
+./goodissues configure --url http://localhost:4000 --api-key sk_...
+./goodissues projects list
+./goodissues issues list
 ```
 
 ## Development Conventions

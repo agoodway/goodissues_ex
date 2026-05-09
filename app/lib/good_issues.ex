@@ -1,6 +1,6 @@
-defmodule FF do
+defmodule GI do
   @moduledoc """
-  FF keeps the contexts that define your domain
+  GI keeps the contexts that define your domain
   and business logic.
 
   Contexts are also responsible for managing your data, regardless

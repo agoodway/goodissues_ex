@@ -6,14 +6,14 @@ The application needs a way to organize work within accounts. Projects provide a
 ## What Changes
 - Add **Projects** capability: CRUD API for projects scoped to accounts
 - Projects are account-scoped (multi-tenant)
-- New `FF.Tracking` context to house project-related functionality
+- New `GI.Tracking` context to house project-related functionality
 
 ## Impact
 - Affected specs: None (new capability)
 - Affected code:
-  - New context module: `FF.Tracking`
-  - New schema: `FF.Tracking.Project`
+  - New context module: `GI.Tracking`
+  - New schema: `GI.Tracking.Project`
   - New migration for `projects` table
-  - New API controller: `FFWeb.Api.V1.ProjectController`
+  - New API controller: `GIWeb.Api.V1.ProjectController`
   - New OpenAPI schemas for request/response types
   - Router updates for `/api/v1/projects` endpoints

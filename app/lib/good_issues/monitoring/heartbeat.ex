@@ -1,9 +1,9 @@
-defmodule FF.Monitoring.Heartbeat do
+defmodule GI.Monitoring.Heartbeat do
   @moduledoc """
   Schema for a heartbeat monitor scoped to a project.
 
-  Heartbeats invert the uptime check model: instead of FruitFly reaching
-  out, external jobs ping FruitFly via a unique token URL to prove they
+  Heartbeats invert the uptime check model: instead of GoodIssues reaching
+  out, external jobs ping GoodIssues via a unique token URL to prove they
   are running. If a ping doesn't arrive before the deadline
   (`next_due_at`), the system creates an incident.
   """
@@ -36,11 +36,11 @@ defmodule FF.Monitoring.Heartbeat do
     field :paused, :boolean, default: false
     field :alert_rules, {:array, :map}, default: []
 
-    belongs_to :project, FF.Tracking.Project
-    belongs_to :current_issue, FF.Tracking.Issue
-    belongs_to :created_by, FF.Accounts.User
+    belongs_to :project, GI.Tracking.Project
+    belongs_to :current_issue, GI.Tracking.Issue
+    belongs_to :created_by, GI.Accounts.User
 
-    has_many :pings, FF.Monitoring.HeartbeatPing
+    has_many :pings, GI.Monitoring.HeartbeatPing
 
     timestamps(type: :utc_datetime)
   end

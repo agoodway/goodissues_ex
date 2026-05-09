@@ -1,10 +1,10 @@
-defmodule FFWeb.PageHTML do
+defmodule GIWeb.PageHTML do
   @moduledoc """
   This module contains pages rendered by PageController.
 
   See the `page_html` directory for all templates available.
   """
-  use FFWeb, :html
+  use GIWeb, :html
 
   embed_templates "page_html/*"
 end

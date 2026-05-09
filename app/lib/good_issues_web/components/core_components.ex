@@ -1,4 +1,4 @@
-defmodule FFWeb.CoreComponents do
+defmodule GIWeb.CoreComponents do
   @moduledoc """
   Provides core UI components.
 
@@ -27,7 +27,7 @@ defmodule FFWeb.CoreComponents do
 
   """
   use Phoenix.Component
-  use Gettext, backend: FFWeb.Gettext
+  use Gettext, backend: GIWeb.Gettext
 
   alias Phoenix.HTML.Form
   alias Phoenix.LiveView.JS
@@ -583,9 +583,9 @@ defmodule FFWeb.CoreComponents do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(FFWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(GIWeb.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(FFWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(GIWeb.Gettext, "errors", msg, opts)
     end
   end
 

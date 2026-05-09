@@ -2,13 +2,13 @@
 
 ## Why
 
-FruitFly needs to correlate error reports with request performance data. By collecting telemetry spans from client applications (via FruitflyReporter), users can see the full request lifecycle including timing data, database queries, and LiveView events alongside any errors that occurred.
+GoodIssues needs to correlate error reports with request performance data. By collecting telemetry spans from client applications (via GoodIssuesReporter), users can see the full request lifecycle including timing data, database queries, and LiveView events alongside any errors that occurred.
 
 ## What Changes
 
 - Add `telemetry_spans` database table with indexes for efficient querying
-- Add `FF.Telemetry` context with batch insert and query functions
-- Add `FF.Telemetry.Span` Ecto schema with event type enum
+- Add `GI.Telemetry` context with batch insert and query functions
+- Add `GI.Telemetry.Span` Ecto schema with event type enum
 - Add `POST /api/v1/events/batch` endpoint for bulk telemetry ingestion
 - Add `events:write` scope for API authentication
 

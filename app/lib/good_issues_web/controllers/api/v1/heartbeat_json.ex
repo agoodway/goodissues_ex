@@ -1,7 +1,7 @@
-defmodule FFWeb.Api.V1.HeartbeatJSON do
+defmodule GIWeb.Api.V1.HeartbeatJSON do
   @moduledoc "JSON rendering for Heartbeat resources."
 
-  alias FF.Monitoring.Heartbeat
+  alias GI.Monitoring.Heartbeat
 
   def index(%{
         heartbeats: heartbeats,
@@ -49,7 +49,7 @@ defmodule FFWeb.Api.V1.HeartbeatJSON do
   end
 
   defp create_data(%Heartbeat{} = hb) do
-    base_url = FFWeb.Endpoint.url()
+    base_url = GIWeb.Endpoint.url()
 
     ping_url =
       "#{base_url}/api/v1/projects/#{hb.project_id}/heartbeats/#{hb.ping_token}/ping"

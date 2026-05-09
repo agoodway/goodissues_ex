@@ -1,8 +1,8 @@
-defmodule FFWeb.UserSessionController do
-  use FFWeb, :controller
+defmodule GIWeb.UserSessionController do
+  use GIWeb, :controller
 
-  alias FF.Accounts
-  alias FFWeb.UserAuth
+  alias GI.Accounts
+  alias GIWeb.UserAuth
 
   def new(conn, _params) do
     email = get_in(conn.assigns, [:current_scope, Access.key(:user), Access.key(:email)])

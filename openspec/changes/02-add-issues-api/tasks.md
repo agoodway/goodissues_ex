@@ -10,7 +10,7 @@
 
 ## 2. Schema
 
-- [x] 2.1 Create `FF.Tracking.Issue` schema with Ecto.Enum types for type, status, priority
+- [x] 2.1 Create `GI.Tracking.Issue` schema with Ecto.Enum types for type, status, priority
 - [x] 2.2 Implement changeset with validation for required fields
 - [x] 2.3 Add logic to auto-set archived_at when status changes to/from archived
 
@@ -24,13 +24,13 @@
 
 ## 4. OpenAPI Schemas
 
-- [x] 4.1 Create `FFWeb.Api.V1.Schemas.Issue` module with request/response schemas
+- [x] 4.1 Create `GIWeb.Api.V1.Schemas.Issue` module with request/response schemas
 - [x] 4.2 Define enum schemas for IssueType, IssueStatus, IssuePriority
 - [x] 4.3 Create IssueFilterParams schema for query parameters
 
 ## 5. API Controller
 
-- [x] 5.1 Create `FFWeb.Api.V1.IssueController` with index, show, create, update, delete actions
+- [x] 5.1 Create `GIWeb.Api.V1.IssueController` with index, show, create, update, delete actions
 - [x] 5.2 Add OpenApiSpex operation specs to controller
 - [x] 5.3 Implement filtering for index action
 
@@ -41,7 +41,7 @@
 
 ## 7. Testing
 
-- [x] 7.1 Write unit tests for `FF.Tracking.Issue` schema
+- [x] 7.1 Write unit tests for `GI.Tracking.Issue` schema
 - [x] 7.2 Write context tests for issue CRUD operations
 - [x] 7.3 Write context tests for issue filtering
 - [x] 7.4 Write controller tests for IssueController

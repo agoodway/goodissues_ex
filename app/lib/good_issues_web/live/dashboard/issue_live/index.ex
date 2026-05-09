@@ -1,15 +1,15 @@
-defmodule FFWeb.Dashboard.IssueLive.Index do
+defmodule GIWeb.Dashboard.IssueLive.Index do
   @moduledoc """
   Dashboard view for listing issues scoped to the current account.
 
   Shows all issues belonging to the current account's projects, with filtering
   and pagination. Matches the industrial terminal aesthetic from the API Keys UI.
   """
-  use FFWeb, :live_view
+  use GIWeb, :live_view
 
-  alias FF.Accounts.Scope
-  alias FF.Tracking
-  alias FF.Tracking.Issue
+  alias GI.Accounts.Scope
+  alias GI.Tracking
+  alias GI.Tracking.Issue
 
   @impl true
   def mount(_params, _session, socket) do
@@ -17,7 +17,7 @@ defmodule FFWeb.Dashboard.IssueLive.Index do
     account_id = socket.assigns.current_scope.account.id
 
     if connected?(socket) do
-      Phoenix.PubSub.subscribe(FF.PubSub, Tracking.issues_topic(account_id))
+      Phoenix.PubSub.subscribe(GI.PubSub, Tracking.issues_topic(account_id))
     end
 
     {:ok, assign(socket, :can_manage, Scope.can_manage_account?(socket.assigns.current_scope))}
@@ -190,7 +190,7 @@ defmodule FFWeb.Dashboard.IssueLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard
+    <GIWeb.Layouts.dashboard
       flash={@flash}
       current_scope={@current_scope}
       page_title={@page_title}
@@ -382,7 +382,7 @@ defmodule FFWeb.Dashboard.IssueLive.Index do
             <div class="size-16 rounded-sm bg-base-200 border border-base-300 flex items-center justify-center mb-6">
               <.icon name="hero-bug-ant" class="size-8 opacity-30" />
             </div>
-            <div class="font-mono text-sm mb-2">$ fruitfly issues list</div>
+            <div class="font-mono text-sm mb-2">$ goodissues issues list</div>
             <div class="font-mono text-xs text-muted">No issues found.</div>
           </div>
         </div>
@@ -421,7 +421,7 @@ defmodule FFWeb.Dashboard.IssueLive.Index do
           </div>
         </div>
       </div>
-    </FFWeb.Layouts.dashboard>
+    </GIWeb.Layouts.dashboard>
     """
   end
 end

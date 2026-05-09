@@ -1,4 +1,4 @@
-defmodule FFWeb.Api.V1.PaginationHelpers do
+defmodule GIWeb.Api.V1.PaginationHelpers do
   @moduledoc false
 
   @doc """

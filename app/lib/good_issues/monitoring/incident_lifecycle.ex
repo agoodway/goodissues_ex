@@ -1,20 +1,20 @@
-defmodule FF.Monitoring.IncidentLifecycle do
+defmodule GI.Monitoring.IncidentLifecycle do
   @moduledoc """
   Auto-creates, reopens, and archives incident issues based on check
   state transitions.
 
-  Called from `FF.Monitoring.Workers.CheckRunner` after each check
-  execution. Uses `FF.Accounts.get_or_create_bot_user!/1` so bot-authored
+  Called from `GI.Monitoring.Workers.CheckRunner` after each check
+  execution. Uses `GI.Accounts.get_or_create_bot_user!/1` so bot-authored
   issues never consume a real user seat.
   """
 
-  alias FF.Accounts
-  alias FF.Accounts.Account
-  alias FF.Monitoring
-  alias FF.Monitoring.{Check, CheckResult}
-  alias FF.Repo
-  alias FF.Tracking
-  alias FF.Tracking.{Issue, Project}
+  alias GI.Accounts
+  alias GI.Accounts.Account
+  alias GI.Monitoring
+  alias GI.Monitoring.{Check, CheckResult}
+  alias GI.Repo
+  alias GI.Tracking
+  alias GI.Tracking.{Issue, Project}
 
   @doc """
   Called when a check has crossed `failure_threshold`. Either creates a

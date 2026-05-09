@@ -13,15 +13,15 @@ Client App (any language)
   │
   ▼
 ┌─────────────────────────────────────────────────┐
-│  FFWeb.Api.V1.OtlpController                    │
+│  GIWeb.Api.V1.OtlpController                    │
 │  ├── Read raw body (protobuf binary)            │
 │  ├── Decode via generated proto modules         │
-│  └── Delegate to FF.Otel context                │
+│  └── Delegate to GI.Otel context                │
 └──────────────────────┬──────────────────────────┘
                        │
                        ▼
 ┌─────────────────────────────────────────────────┐
-│  FF.Otel (context)                              │
+│  GI.Otel (context)                              │
 │  ├── Normalize proto structs → internal maps    │
 │  ├── Resolve project via otel_service_name      │
 │  │   (reject if project not found)              │
@@ -30,9 +30,9 @@ Client App (any language)
                        │
                        ▼
 ┌─────────────────────────────────────────────────┐
-│  FF.Otel.Storage (behaviour)                    │
+│  GI.Otel.Storage (behaviour)                    │
 │                                                 │
-│  FF.Otel.Storage.Postgres (v1 impl)             │
+│  GI.Otel.Storage.Postgres (v1 impl)             │
 │  ├── Bulk insert otel_spans via insert_all      │
 │  ├── Bulk insert otel_metrics via insert_all    │
 │  └── Query with account scoping                 │
@@ -148,7 +148,7 @@ CREATE UNIQUE INDEX projects_otel_service_name_account_id ON projects (otel_serv
 ## Storage Behaviour
 
 ```elixir
-defmodule FF.Otel.Storage do
+defmodule GI.Otel.Storage do
   @type span_params :: map()
   @type metric_params :: map()
   @type filter :: keyword()
@@ -170,12 +170,12 @@ end
 
 Configuration:
 ```elixir
-config :app, FF.Otel, storage: FF.Otel.Storage.Postgres
+config :app, GI.Otel, storage: GI.Otel.Storage.Postgres
 ```
 
 The context reads the adapter at runtime:
 ```elixir
-defp storage, do: Application.get_env(:app, FF.Otel)[:storage]
+defp storage, do: Application.get_env(:app, GI.Otel)[:storage]
 ```
 
 ## OTLP Receiver Flow
@@ -186,7 +186,7 @@ defp storage, do: Application.get_env(:app, FF.Otel)[:storage]
 
 **Body reading**: `Plug.Parsers` only handles `[:urlencoded, :multipart, :json]`. The OtlpController must read the raw body via `Plug.Conn.read_body(conn, length: <limit>)` and decode the protobuf manually. Do NOT add a custom parser to the global endpoint.
 
-**Oban cron config**: The current Oban config has no `cron` plugin. Add `plugins: [{Oban.Plugins.Cron, crontab: [{"0 3 * * *", FF.Otel.Workers.RetentionPruner}]}]` to the Oban config. The pruner uses the existing `:default` queue (or a new `:maintenance` queue).
+**Oban cron config**: The current Oban config has no `cron` plugin. Add `plugins: [{Oban.Plugins.Cron, crontab: [{"0 3 * * *", GI.Otel.Workers.RetentionPruner}]}]` to the Oban config. The pruner uses the existing `:default` queue (or a new `:maintenance` queue).
 
 ### Trace ingestion
 
@@ -231,10 +231,10 @@ Multiple services can appear in a single OTLP request (multiple ResourceSpans en
 Oban cron worker running daily (configurable):
 
 ```elixir
-defmodule FF.Otel.Workers.RetentionPruner do
+defmodule GI.Otel.Workers.RetentionPruner do
   use Oban.Worker, queue: :maintenance
 
-  # Configured as cron: [{"0 3 * * *", FF.Otel.Workers.RetentionPruner}]
+  # Configured as cron: [{"0 3 * * *", GI.Otel.Workers.RetentionPruner}]
 
   @impl Oban.Worker
   def perform(_job) do
@@ -250,7 +250,7 @@ Batch deletion avoids table-level locks on large deletes. Uses `DELETE ... WHERE
 
 ## Correlation with Error Tracking
 
-FruitflyReporter sends exceptions as issues. OTel traces carry `trace_id`. When both are present for the same request:
+GoodIssuesReporter sends exceptions as issues. OTel traces carry `trace_id`. When both are present for the same request:
 
 ```
 Issue (exception)              OTel Span

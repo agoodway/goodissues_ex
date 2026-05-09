@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.CreateStacktraceLines do
+defmodule GI.Repo.Migrations.CreateStacktraceLines do
   use Ecto.Migration
 
   def change do

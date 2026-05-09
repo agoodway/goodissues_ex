@@ -1,4 +1,4 @@
-defmodule FFWeb.Api.V1.Schemas.Check do
+defmodule GIWeb.Api.V1.Schemas.Check do
   @moduledoc """
   OpenAPI schemas for Check and CheckResult endpoints.
   """
@@ -119,7 +119,7 @@ defmodule FFWeb.Api.V1.Schemas.Check do
 
   defmodule CheckListResponse do
     @moduledoc false
-    alias FFWeb.Api.V1.Schemas.Pagination
+    alias GIWeb.Api.V1.Schemas.Pagination
     OpenApiSpex.schema(Pagination.paginated_list("Check", CheckResource))
   end
 
@@ -145,7 +145,7 @@ defmodule FFWeb.Api.V1.Schemas.Check do
 
   defmodule CheckResultListResponse do
     @moduledoc false
-    alias FFWeb.Api.V1.Schemas.Pagination
+    alias GIWeb.Api.V1.Schemas.Pagination
     OpenApiSpex.schema(Pagination.paginated_list("CheckResult", CheckResultResource))
   end
 end

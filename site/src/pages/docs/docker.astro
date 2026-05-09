@@ -2,15 +2,15 @@
 import DocsLayout from '../../layouts/DocsLayout.astro';
 ---
 
-<DocsLayout title="Docker Deployment" description="Deploy FruitFly using Docker.">
+<DocsLayout title="Docker Deployment" description="Deploy GoodIssues using Docker.">
   <h1 class="text-3xl font-bold text-base-content mb-4">Docker Deployment</h1>
-  <p class="text-muted mb-8">Deploy FruitFly in production using Docker. The official image is available on Docker Hub.</p>
+  <p class="text-muted mb-8">Deploy GoodIssues in production using Docker. The official image is available on Docker Hub.</p>
 
   <!-- Docker Image -->
   <section class="mb-10">
     <h2 class="text-xl font-bold text-base-content mb-4">Docker Image</h2>
     <p class="text-sm text-muted mb-4">
-      Pull the official FruitFly image from Docker Hub:
+      Pull the official GoodIssues image from Docker Hub:
     </p>
 
     <div class="rounded-sm border border-base-300 bg-base-200/90 overflow-hidden mb-4">
@@ -19,7 +19,7 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
       </div>
       <div class="p-4 font-mono text-sm">
         <span class="text-primary">$</span>
-        <span class="text-base-content ml-2">docker pull goodway/fruitfly:latest</span>
+        <span class="text-base-content ml-2">docker pull goodway/goodissues:latest</span>
       </div>
     </div>
 
@@ -36,7 +36,7 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
   <section class="mb-10">
     <h2 class="text-xl font-bold text-base-content mb-4">Environment Variables</h2>
     <p class="text-sm text-muted mb-4">
-      Configure FruitFly using these environment variables:
+      Configure GoodIssues using these environment variables:
     </p>
 
     <div class="space-y-3">
@@ -49,7 +49,7 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
           PostgreSQL connection string.
         </p>
         <div class="mt-2 font-mono text-xs text-muted">
-          postgres://user:password@host:5432/fruitfly
+          postgres://user:password@host:5432/goodissues
         </div>
       </div>
 
@@ -72,10 +72,10 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
           <span class="text-xs px-1.5 py-0.5 rounded bg-error/10 text-error">required</span>
         </div>
         <p class="text-sm text-muted">
-          The hostname where FruitFly is accessible.
+          The hostname where GoodIssues is accessible.
         </p>
         <div class="mt-2 font-mono text-xs text-muted">
-          Example: fruitfly.example.com
+          Example: goodissues.example.com
         </div>
       </div>
 
@@ -101,11 +101,11 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
     </div>
   </section>
 
-  <!-- Running FruitFly -->
+  <!-- Running GoodIssues -->
   <section class="mb-10">
-    <h2 class="text-xl font-bold text-base-content mb-4">Running FruitFly</h2>
+    <h2 class="text-xl font-bold text-base-content mb-4">Running GoodIssues</h2>
     <p class="text-sm text-muted mb-4">
-      Start FruitFly with Docker:
+      Start GoodIssues with Docker:
     </p>
 
     <div class="rounded-sm border border-base-300 bg-base-200/90 overflow-hidden">
@@ -113,14 +113,14 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
         <span class="font-mono text-[10px] text-muted">Terminal</span>
       </div>
       <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted" set:html={`docker run -d \\
-  --name fruitfly \\
-  -e DATABASE_URL=postgres://user:password@host:5432/fruitfly \\
+  --name goodissues \\
+  -e DATABASE_URL=postgres://user:password@host:5432/goodissues \\
   -e SECRET_KEY_BASE=your-64-char-secret-key \\
-  -e PHX_HOST=fruitfly.example.com \\
+  -e PHX_HOST=goodissues.example.com \\
   -e POOL_SIZE=10 \\
   -p 4000:4000 \\
   --restart unless-stopped \\
-  goodway/fruitfly:latest`} /></pre>
+  goodway/goodissues:latest`} /></pre>
     </div>
   </section>
 
@@ -136,13 +136,13 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
         <span class="font-mono text-[10px] text-muted">.env</span>
       </div>
       <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted"># Database
-DATABASE_URL=postgres://fruitfly:secure_password@db.example.com:5432/fruitfly
+DATABASE_URL=postgres://goodissues:secure_password@db.example.com:5432/goodissues
 
 # Security
 SECRET_KEY_BASE=your-64-character-secret-key-here
 
 # Host configuration
-PHX_HOST=fruitfly.example.com
+PHX_HOST=goodissues.example.com
 
 # Optional
 POOL_SIZE=20</code></pre>
@@ -157,11 +157,11 @@ POOL_SIZE=20</code></pre>
         <span class="font-mono text-[10px] text-muted">Terminal</span>
       </div>
       <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted" set:html={`docker run -d \\
-  --name fruitfly \\
+  --name goodissues \\
   --env-file .env \\
   -p 4000:4000 \\
   --restart unless-stopped \\
-  goodway/fruitfly:latest`} /></pre>
+  goodway/goodissues:latest`} /></pre>
     </div>
 
     <div class="p-4 rounded-sm border border-warning/30 bg-warning/5">
@@ -190,25 +190,25 @@ POOL_SIZE=20</code></pre>
       <div class="px-4 py-2 border-b border-base-300/50">
         <span class="font-mono text-[10px] text-muted">nginx.conf</span>
       </div>
-      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted" set:html={`upstream fruitfly {
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted" set:html={`upstream goodissues {
     server 127.0.0.1:4000;
 }
 
 server {
     listen 80;
-    server_name fruitfly.example.com;
+    server_name goodissues.example.com;
     return 301 https://$server_name$request_uri;
 }
 
 server {
     listen 443 ssl http2;
-    server_name fruitfly.example.com;
+    server_name goodissues.example.com;
 
-    ssl_certificate /etc/letsencrypt/live/fruitfly.example.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/fruitfly.example.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/goodissues.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/goodissues.example.com/privkey.pem;
 
     location / {
-        proxy_pass http://fruitfly;
+        proxy_pass http://goodissues;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -232,7 +232,7 @@ server {
       <div class="px-4 py-2 border-b border-base-300/50">
         <span class="font-mono text-[10px] text-muted">Terminal</span>
       </div>
-      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">docker exec fruitfly bin/fruitfly eval "App.Release.migrate"</code></pre>
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">docker exec goodissues bin/goodissues eval "App.Release.migrate"</code></pre>
     </div>
   </section>
 
@@ -240,7 +240,7 @@ server {
   <section class="mb-10">
     <h2 class="text-xl font-bold text-base-content mb-4">Health Checks</h2>
     <p class="text-sm text-muted mb-4">
-      FruitFly exposes a health check endpoint:
+      GoodIssues exposes a health check endpoint:
     </p>
 
     <div class="rounded-sm border border-base-300 bg-base-200/90 overflow-hidden mb-4">
@@ -270,7 +270,7 @@ server {
       <div class="px-4 py-2 border-b border-base-300/50">
         <span class="font-mono text-[10px] text-muted">Terminal</span>
       </div>
-      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">pg_dump -h db.example.com -U postgres fruitfly > backup.sql</code></pre>
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">pg_dump -h db.example.com -U postgres goodissues > backup.sql</code></pre>
     </div>
 
     <h3 class="text-lg font-semibold text-base-content mb-3">Restore Backup</h3>
@@ -278,7 +278,7 @@ server {
       <div class="px-4 py-2 border-b border-base-300/50">
         <span class="font-mono text-[10px] text-muted">Terminal</span>
       </div>
-      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted" set:html="psql -h db.example.com -U postgres fruitfly &lt; backup.sql" /></pre>
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted" set:html="psql -h db.example.com -U postgres goodissues &lt; backup.sql" /></pre>
     </div>
   </section>
 
@@ -294,13 +294,13 @@ server {
         <span class="font-mono text-[10px] text-muted">Terminal</span>
       </div>
       <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted"># Pull the latest image
-docker pull goodway/fruitfly:latest
+docker pull goodway/goodissues:latest
 
 # Stop and remove the current container
-docker stop fruitfly && docker rm fruitfly
+docker stop goodissues && docker rm goodissues
 
 # Start with the new image
-docker run -d --name fruitfly --env-file .env -p 4000:4000 --restart unless-stopped goodway/fruitfly:latest</code></pre>
+docker run -d --name goodissues --env-file .env -p 4000:4000 --restart unless-stopped goodway/goodissues:latest</code></pre>
     </div>
 
     <p class="text-sm text-muted mt-4">
@@ -324,7 +324,7 @@ docker run -d --name fruitfly --env-file .env -p 4000:4000 --restart unless-stop
         </svg>
         Authentication & API Keys
       </a>
-      <a href="https://hub.docker.com/r/goodway/fruitfly" target="_blank" rel="noopener" class="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors">
+      <a href="https://hub.docker.com/r/goodway/goodissues" target="_blank" rel="noopener" class="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors">
         <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
         </svg>

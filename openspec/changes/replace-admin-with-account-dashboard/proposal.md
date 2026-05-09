@@ -23,8 +23,8 @@ The change aligns dashboard access with the multi-tenant account model already i
 
 ### Admin Routes
 - Routes under `/admin/*` require `is_admin == true`
-- `FFWeb.UserAuth.on_mount(:ensure_admin)` checks `user.is_admin`
-- `FFWeb.Plugs.AdminAuth` checks `user.is_admin`
+- `GIWeb.UserAuth.on_mount(:ensure_admin)` checks `user.is_admin`
+- `GIWeb.Plugs.AdminAuth` checks `user.is_admin`
 - Admin LiveViews manage ALL accounts system-wide
 
 ### Affected Files
@@ -60,7 +60,7 @@ The change aligns dashboard access with the multi-tenant account model already i
 - Auto-select last used account on dashboard access
 
 ### 5. Update Scope Module
-- Extend `FF.Accounts.Scope` to include current account context
+- Extend `GI.Accounts.Scope` to include current account context
 - Provide helpers for checking account-level permissions
 
 ## Out of Scope

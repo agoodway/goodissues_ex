@@ -1,14 +1,14 @@
-defmodule FFWeb.ErrorHTMLTest do
-  use FFWeb.ConnCase, async: true
+defmodule GIWeb.ErrorHTMLTest do
+  use GIWeb.ConnCase, async: true
 
   # Bring render_to_string/4 for testing custom views
   import Phoenix.Template, only: [render_to_string: 4]
 
   test "renders 404.html" do
-    assert render_to_string(FFWeb.ErrorHTML, "404", "html", []) == "Not Found"
+    assert render_to_string(GIWeb.ErrorHTML, "404", "html", []) == "Not Found"
   end
 
   test "renders 500.html" do
-    assert render_to_string(FFWeb.ErrorHTML, "500", "html", []) == "Internal Server Error"
+    assert render_to_string(GIWeb.ErrorHTML, "500", "html", []) == "Internal Server Error"
   end
 end

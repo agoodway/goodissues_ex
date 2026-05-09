@@ -1,14 +1,14 @@
-defmodule FFWeb.Dashboard.ProjectLive.Index do
+defmodule GIWeb.Dashboard.ProjectLive.Index do
   @moduledoc """
   Dashboard view for listing projects scoped to the current account.
 
   Shows all projects with their prefixes and issue counts.
   Matches the industrial terminal aesthetic from the Issues UI.
   """
-  use FFWeb, :live_view
+  use GIWeb, :live_view
 
-  alias FF.Accounts.Scope
-  alias FF.Tracking
+  alias GI.Accounts.Scope
+  alias GI.Tracking
 
   @impl true
   def mount(_params, _session, socket) do
@@ -39,7 +39,7 @@ defmodule FFWeb.Dashboard.ProjectLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard
+    <GIWeb.Layouts.dashboard
       flash={@flash}
       current_scope={@current_scope}
       page_title={@page_title}
@@ -153,7 +153,7 @@ defmodule FFWeb.Dashboard.ProjectLive.Index do
             <div class="size-16 rounded-sm bg-base-200 border border-base-300 flex items-center justify-center mb-6">
               <.icon name="hero-folder" class="size-8 opacity-30" />
             </div>
-            <div class="font-mono text-sm mb-2">$ fruitfly projects list</div>
+            <div class="font-mono text-sm mb-2">$ goodissues projects list</div>
             <div class="font-mono text-xs text-muted mb-4">No projects found.</div>
             <.link
               :if={@can_manage}
@@ -175,7 +175,7 @@ defmodule FFWeb.Dashboard.ProjectLive.Index do
           </span>
         </div>
       </div>
-    </FFWeb.Layouts.dashboard>
+    </GIWeb.Layouts.dashboard>
     """
   end
 end

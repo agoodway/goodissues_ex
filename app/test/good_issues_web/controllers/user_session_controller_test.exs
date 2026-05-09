@@ -1,8 +1,8 @@
-defmodule FFWeb.UserSessionControllerTest do
-  use FFWeb.ConnCase, async: true
+defmodule GIWeb.UserSessionControllerTest do
+  use GIWeb.ConnCase, async: true
 
-  import FF.AccountsFixtures
-  alias FF.Accounts
+  import GI.AccountsFixtures
+  alias GI.Accounts
 
   setup do
     %{unconfirmed_user: unconfirmed_user_fixture(), user: user_fixture()}
@@ -147,7 +147,7 @@ defmodule FFWeb.UserSessionControllerTest do
         })
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "If your email is in our system"
-      assert FF.Repo.get_by!(Accounts.UserToken, user_id: user.id).context == "login"
+      assert GI.Repo.get_by!(Accounts.UserToken, user_id: user.id).context == "login"
     end
 
     test "logs the user in", %{conn: conn, user: user} do

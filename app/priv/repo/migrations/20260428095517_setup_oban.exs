@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.SetupOban do
+defmodule GI.Repo.Migrations.SetupOban do
   use Ecto.Migration
 
   def up, do: Oban.Migration.up(version: 12)

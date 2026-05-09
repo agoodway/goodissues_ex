@@ -1,13 +1,13 @@
-defmodule FFWeb.Api.V1.CheckResultController do
-  use FFWeb, :controller
+defmodule GIWeb.Api.V1.CheckResultController do
+  use GIWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
-  alias FF.Monitoring
-  alias FFWeb.Api.V1.Schemas.Check, as: CheckSchemas
+  alias GI.Monitoring
+  alias GIWeb.Api.V1.Schemas.Check, as: CheckSchemas
 
-  plug FFWeb.Plugs.ApiAuth, {:require_scope, "checks:read"} when action in [:index]
+  plug GIWeb.Plugs.ApiAuth, {:require_scope, "checks:read"} when action in [:index]
 
-  action_fallback FFWeb.FallbackController
+  action_fallback GIWeb.FallbackController
 
   tags(["Checks"])
 
@@ -32,14 +32,14 @@ defmodule FFWeb.Api.V1.CheckResultController do
     ],
     responses: [
       ok: {"Check result list", "application/json", CheckSchemas.CheckResultListResponse},
-      bad_request: {"Bad request", "application/json", FFWeb.ErrorJSON},
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON}
+      bad_request: {"Bad request", "application/json", GIWeb.ErrorJSON},
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
   def index(conn, %{"project_id" => project_id, "check_id" => check_id} = params) do
-    with :ok <- FFWeb.Api.V1.PaginationHelpers.validate_pagination(params) do
+    with :ok <- GIWeb.Api.V1.PaginationHelpers.validate_pagination(params) do
       case Monitoring.list_check_results(
              conn.assigns.current_account,
              project_id,

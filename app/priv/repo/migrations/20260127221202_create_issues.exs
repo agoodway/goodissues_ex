@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.CreateIssues do
+defmodule GI.Repo.Migrations.CreateIssues do
   use Ecto.Migration
 
   def change do

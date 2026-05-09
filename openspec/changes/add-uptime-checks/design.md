@@ -1,6 +1,6 @@
 ## Context
 
-FruitFly currently tracks bugs and errors reactively — issues are created by users or the error tracking pipeline. There is no proactive monitoring. The system already has Oban (v2.20.3) for background jobs and Req for HTTP requests, so the infrastructure for running checks exists.
+GoodIssues currently tracks bugs and errors reactively — issues are created by users or the error tracking pipeline. There is no proactive monitoring. The system already has Oban (v2.20.3) for background jobs and Req for HTTP requests, so the infrastructure for running checks exists.
 
 Checks will be a new domain (`App.Monitoring`) alongside the existing `App.Tracking` context. The key integration point is auto-creating issues in `App.Tracking` when checks fail, using a system bot user as the submitter.
 
@@ -63,7 +63,7 @@ Checks will be a new domain (`App.Monitoring`) alongside the existing `App.Track
 
 ### 4. System Bot User
 
-**Decision**: Lazily create one bot user per account with a deterministic email (`bot@{account_id}.fruitfly.internal`) and no password.
+**Decision**: Lazily create one bot user per account with a deterministic email (`bot@{account_id}.goodissues.internal`) and no password.
 
 **Rationale**: `create_issue/3` requires a user as submitter. A passwordless user with a non-routable email domain is simple, can't log in, and doesn't consume a real user seat. Lazy creation avoids a migration to seed existing accounts.
 
@@ -91,6 +91,6 @@ Checks will be a new domain (`App.Monitoring`) alongside the existing `App.Track
 
 - **[Job duplication on restart]** → Mitigated by Oban's `unique` option keyed on `check_id` with a period matching the check interval. On app restart, the recovery process re-enqueues any checks that don't have a pending job.
 - **[Check volume scaling]** → A single Oban queue with default concurrency may bottleneck with many checks. Mitigated by using a dedicated `:checks` queue with configurable concurrency. Not a concern at current scale.
-- **[Bot user visibility]** → Bot users appear in user lists. Mitigated by filtering on the `.fruitfly.internal` email domain where needed. Acceptable for now.
+- **[Bot user visibility]** → Bot users appear in user lists. Mitigated by filtering on the `.goodissues.internal` email domain where needed. Acceptable for now.
 - **[No check result pruning]** → `check_results` table will grow unbounded. Acceptable for MVP; add a pruning job in a follow-up change.
 - **[Cross-context coupling]** → `App.Monitoring` calls `App.Tracking.create_issue/3` directly. This is a conscious trade-off — event-based decoupling would add complexity without clear benefit at this scale.

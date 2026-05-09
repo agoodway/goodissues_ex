@@ -1,15 +1,15 @@
-defmodule FF.Monitoring.HeartbeatIncidentLifecycleTest do
-  use FF.DataCase, async: false
+defmodule GI.Monitoring.HeartbeatIncidentLifecycleTest do
+  use GI.DataCase, async: false
 
-  import FF.AccountsFixtures
-  import FF.MonitoringFixtures
-  import FF.TrackingFixtures
+  import GI.AccountsFixtures
+  import GI.MonitoringFixtures
+  import GI.TrackingFixtures
 
-  alias FF.Monitoring
-  alias FF.Monitoring.{Heartbeat, HeartbeatIncidentLifecycle}
-  alias FF.Repo
-  alias FF.Tracking
-  alias FF.Tracking.Issue
+  alias GI.Monitoring
+  alias GI.Monitoring.{Heartbeat, HeartbeatIncidentLifecycle}
+  alias GI.Repo
+  alias GI.Tracking
+  alias GI.Tracking.Issue
 
   setup do
     {user, account} = user_with_account_fixture()
@@ -131,7 +131,7 @@ defmodule FF.Monitoring.HeartbeatIncidentLifecycleTest do
       assert hb.current_issue_id != nil
 
       # The ping should be linked to the incident
-      reloaded_ping = Repo.get!(FF.Monitoring.HeartbeatPing, ping2.id)
+      reloaded_ping = Repo.get!(GI.Monitoring.HeartbeatPing, ping2.id)
       assert reloaded_ping.issue_id == hb.current_issue_id
     end
   end

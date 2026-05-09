@@ -1,4 +1,4 @@
-defmodule FF.Monitoring.AlertRuleEvaluator do
+defmodule GI.Monitoring.AlertRuleEvaluator do
   @moduledoc """
   Evaluates heartbeat alert rules against ping payloads.
 

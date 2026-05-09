@@ -1,10 +1,10 @@
 import Config
 
 # Environment for compile-time checks
-config :app, env: :dev
+config :good_issues, env: :dev
 
 # Configure your database
-config :app, FF.Repo,
+config :good_issues, GI.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
@@ -19,7 +19,7 @@ config :app, FF.Repo,
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we can use it
 # to bundle .js and .css sources.
-config :app, FFWeb.Endpoint,
+config :good_issues, GIWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
   http: [ip: {127, 0, 0, 1}],
@@ -56,7 +56,7 @@ config :app, FFWeb.Endpoint,
 # different ports.
 
 # Reload browser tabs when matching files change.
-config :app, FFWeb.Endpoint,
+config :good_issues, GIWeb.Endpoint,
   live_reload: [
     web_console_logger: true,
     patterns: [
@@ -71,7 +71,7 @@ config :app, FFWeb.Endpoint,
   ]
 
 # Enable dev routes for dashboard and mailbox
-config :app, dev_routes: true
+config :good_issues, dev_routes: true
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :default_formatter, format: "[$level] $message\n"

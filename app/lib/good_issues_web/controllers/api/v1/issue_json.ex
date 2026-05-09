@@ -1,9 +1,9 @@
-defmodule FFWeb.Api.V1.IssueJSON do
+defmodule GIWeb.Api.V1.IssueJSON do
   @moduledoc """
   JSON rendering for Issue resources.
   """
 
-  alias FF.Tracking.Issue
+  alias GI.Tracking.Issue
 
   def index(%{
         issues: issues,

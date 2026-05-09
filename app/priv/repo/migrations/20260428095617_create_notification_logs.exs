@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.CreateNotificationLogs do
+defmodule GI.Repo.Migrations.CreateNotificationLogs do
   use Ecto.Migration
 
   def change do

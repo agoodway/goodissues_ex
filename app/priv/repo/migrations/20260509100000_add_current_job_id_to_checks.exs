@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.AddCurrentJobIdToChecks do
+defmodule GI.Repo.Migrations.AddCurrentJobIdToChecks do
   use Ecto.Migration
 
   def change do

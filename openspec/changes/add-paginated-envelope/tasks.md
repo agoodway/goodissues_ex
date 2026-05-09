@@ -1,9 +1,9 @@
 ## 1. Shared Pagination Schema
 
-- [x] 1.1 Create `FFWeb.Api.V1.Schemas.Pagination` module with `PaginationMeta` schema and `paginated_list/2` helper function
-- [x] 1.2 Update `FFWeb.Api.V1.Schemas.Error.ErrorListResponse` to use shared `PaginationMeta` from the new module (remove local `PaginationMeta` definition)
-- [x] 1.3 Update `FFWeb.Api.V1.Schemas.Issue.IssueListResponse` to use shared `PaginationMeta` and include `meta` in the response schema
-- [x] 1.4 Update `FFWeb.Api.V1.Schemas.Project.ProjectListResponse` to use shared `PaginationMeta` and include `meta` in the response schema
+- [x] 1.1 Create `GIWeb.Api.V1.Schemas.Pagination` module with `PaginationMeta` schema and `paginated_list/2` helper function
+- [x] 1.2 Update `GIWeb.Api.V1.Schemas.Error.ErrorListResponse` to use shared `PaginationMeta` from the new module (remove local `PaginationMeta` definition)
+- [x] 1.3 Update `GIWeb.Api.V1.Schemas.Issue.IssueListResponse` to use shared `PaginationMeta` and include `meta` in the response schema
+- [x] 1.4 Update `GIWeb.Api.V1.Schemas.Project.ProjectListResponse` to use shared `PaginationMeta` and include `meta` in the response schema
 
 - [x] 1.5 Add pagination parameter validation to controllers — return 400 Bad Request for invalid `page` (0, negative, non-integer) and `per_page` (0, negative, non-integer) values instead of silently falling back to defaults
 

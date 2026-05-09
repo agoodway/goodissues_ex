@@ -1,12 +1,12 @@
-defmodule FFWeb.Dashboard.SubscriptionLive.New do
+defmodule GIWeb.Dashboard.SubscriptionLive.New do
   @moduledoc """
   Dashboard view for creating a new event subscription.
   """
-  use FFWeb, :live_view
+  use GIWeb, :live_view
 
-  alias FF.Accounts.Scope
-  alias FF.Notifications
-  alias FF.Notifications.{Event, EventSubscription}
+  alias GI.Accounts.Scope
+  alias GI.Notifications
+  alias GI.Notifications.{Event, EventSubscription}
 
   @impl true
   def mount(_params, _session, socket) do
@@ -117,7 +117,7 @@ defmodule FFWeb.Dashboard.SubscriptionLive.New do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard
+    <GIWeb.Layouts.dashboard
       flash={@flash}
       current_scope={@current_scope}
       page_title={@page_title}
@@ -179,7 +179,7 @@ defmodule FFWeb.Dashboard.SubscriptionLive.New do
               type="url"
               label="Webhook URL"
               required
-              placeholder="https://example.com/webhooks/fruitfly"
+              placeholder="https://example.com/webhooks/goodissues"
             />
             <p class="text-xs text-muted mt-1 font-mono">
               // Webhooks are signed using the Standard Webhooks spec (HMAC-SHA256).
@@ -237,7 +237,7 @@ defmodule FFWeb.Dashboard.SubscriptionLive.New do
           </div>
         </.form>
       </div>
-    </FFWeb.Layouts.dashboard>
+    </GIWeb.Layouts.dashboard>
     """
   end
 end

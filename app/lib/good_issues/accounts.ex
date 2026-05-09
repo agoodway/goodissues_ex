@@ -1,12 +1,12 @@
-defmodule FF.Accounts do
+defmodule GI.Accounts do
   @moduledoc """
   The Accounts context.
   """
 
   import Ecto.Query, warn: false
-  alias FF.Repo
+  alias GI.Repo
 
-  alias FF.Accounts.{Account, AccountUser, ApiKey, User, UserNotifier, UserToken}
+  alias GI.Accounts.{Account, AccountUser, ApiKey, User, UserNotifier, UserToken}
 
   ## Database getters
 
@@ -131,7 +131,7 @@ defmodule FF.Accounts do
   @doc """
   Returns an `%Ecto.Changeset{}` for changing the user email.
 
-  See `FF.Accounts.User.email_changeset/3` for a list of supported options.
+  See `GI.Accounts.User.email_changeset/3` for a list of supported options.
 
   ## Examples
 
@@ -167,7 +167,7 @@ defmodule FF.Accounts do
   @doc """
   Returns an `%Ecto.Changeset{}` for changing the user password.
 
-  See `FF.Accounts.User.password_changeset/3` for a list of supported options.
+  See `GI.Accounts.User.password_changeset/3` for a list of supported options.
 
   ## Examples
 
@@ -562,7 +562,7 @@ defmodule FF.Accounts do
     user
   end
 
-  defp bot_user_email(account_id), do: "bot@#{account_id}.fruitfly.internal"
+  defp bot_user_email(account_id), do: "bot@#{account_id}.goodissues.internal"
 
   @doc "Remove a user from an account"
   def remove_user_from_account(account, user) do

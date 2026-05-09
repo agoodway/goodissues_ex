@@ -1,4 +1,4 @@
-defmodule FF.Telemetry.Span do
+defmodule GI.Telemetry.Span do
   @moduledoc """
   Represents a telemetry span captured from a client application.
 
@@ -15,7 +15,7 @@ defmodule FF.Telemetry.Span do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias FF.Tracking.Project
+  alias GI.Tracking.Project
 
   @type t :: %__MODULE__{
           id: Ecto.UUID.t(),

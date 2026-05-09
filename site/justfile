@@ -6,7 +6,7 @@ up:
 
 # Deploy to production
 deploy:
-    docker build -t fruitfly-site .
+    docker build -t goodissues-site .
 
 # Run Astro checks
 test:

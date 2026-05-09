@@ -1,6 +1,6 @@
 package main
 
-import "fruitfly/cmd"
+import "goodissues/cmd"
 
 func main() {
 	cmd.Execute()

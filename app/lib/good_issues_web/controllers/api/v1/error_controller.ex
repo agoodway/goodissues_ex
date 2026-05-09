@@ -1,18 +1,18 @@
-defmodule FFWeb.Api.V1.ErrorController do
-  use FFWeb, :controller
+defmodule GIWeb.Api.V1.ErrorController do
+  use GIWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
-  alias FF.Tracking
-  alias FF.Tracking.Error
+  alias GI.Tracking
+  alias GI.Tracking.Error
 
-  alias FFWeb.Api.V1.Schemas.Error, as: ErrorSchemas
+  alias GIWeb.Api.V1.Schemas.Error, as: ErrorSchemas
 
-  plug FFWeb.Plugs.ApiAuth,
+  plug GIWeb.Plugs.ApiAuth,
        {:require_scope, "errors:read"} when action in [:index, :show, :search]
 
-  plug FFWeb.Plugs.ApiAuth, {:require_scope, "errors:write"} when action in [:create, :update]
+  plug GIWeb.Plugs.ApiAuth, {:require_scope, "errors:write"} when action in [:create, :update]
 
-  action_fallback FFWeb.FallbackController
+  action_fallback GIWeb.FallbackController
 
   tags(["Errors"])
 
@@ -43,12 +43,12 @@ defmodule FFWeb.Api.V1.ErrorController do
     ],
     responses: [
       ok: {"Error list", "application/json", ErrorSchemas.ErrorListResponse},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON}
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
   def index(conn, params) do
-    with :ok <- FFWeb.Api.V1.PaginationHelpers.validate_pagination(params) do
+    with :ok <- GIWeb.Api.V1.PaginationHelpers.validate_pagination(params) do
       filters = build_filters(params)
       result = Tracking.list_errors_paginated(conn.assigns.current_account, filters)
 
@@ -101,8 +101,8 @@ defmodule FFWeb.Api.V1.ErrorController do
     ],
     responses: [
       ok: {"Error with occurrences", "application/json", ErrorSchemas.ErrorResponse},
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON}
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
@@ -126,9 +126,9 @@ defmodule FFWeb.Api.V1.ErrorController do
     responses: [
       created: {"Error created", "application/json", ErrorSchemas.ErrorResponse},
       ok: {"Occurrence added", "application/json", ErrorSchemas.ErrorResponse},
-      unprocessable_entity: {"Validation error", "application/json", FFWeb.ChangesetJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON},
-      forbidden: {"Forbidden", "application/json", FFWeb.ErrorJSON}
+      unprocessable_entity: {"Validation error", "application/json", GIWeb.ChangesetJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON},
+      forbidden: {"Forbidden", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
@@ -159,7 +159,7 @@ defmodule FFWeb.Api.V1.ErrorController do
            occurrence_attrs
          ) do
       {:ok, %Error{} = error, status} ->
-        error = FF.Repo.preload(error, [:issue, :occurrences])
+        error = GI.Repo.preload(error, [:issue, :occurrences])
         http_status = if status == :created, do: :created, else: :ok
 
         conn
@@ -206,10 +206,10 @@ defmodule FFWeb.Api.V1.ErrorController do
     request_body: {"Error params", "application/json", ErrorSchemas.ErrorUpdateRequest},
     responses: [
       ok: {"Error updated", "application/json", ErrorSchemas.ErrorResponse},
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
-      unprocessable_entity: {"Validation error", "application/json", FFWeb.ChangesetJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON},
-      forbidden: {"Forbidden", "application/json", FFWeb.ErrorJSON}
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON},
+      unprocessable_entity: {"Validation error", "application/json", GIWeb.ChangesetJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON},
+      forbidden: {"Forbidden", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
@@ -226,7 +226,7 @@ defmodule FFWeb.Api.V1.ErrorController do
           if is_boolean(params["muted"]), do: Map.put(attrs, :muted, params["muted"]), else: attrs
 
         with {:ok, %Error{} = error} <- Tracking.update_error(error, attrs) do
-          error = FF.Repo.preload(error, :issue)
+          error = GI.Repo.preload(error, :issue)
           render(conn, :show, error: error)
         end
     end
@@ -264,12 +264,12 @@ defmodule FFWeb.Api.V1.ErrorController do
     ],
     responses: [
       ok: {"Error list", "application/json", ErrorSchemas.ErrorListResponse},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON}
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
   def search(conn, params) do
-    with :ok <- FFWeb.Api.V1.PaginationHelpers.validate_pagination(params) do
+    with :ok <- GIWeb.Api.V1.PaginationHelpers.validate_pagination(params) do
       filters = %{}
 
       filters =

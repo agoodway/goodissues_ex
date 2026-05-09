@@ -1,4 +1,4 @@
-defmodule FF.Monitoring.HeartbeatPing do
+defmodule GI.Monitoring.HeartbeatPing do
   @moduledoc """
   Schema for a heartbeat ping record. Read-only after insert.
 
@@ -21,8 +21,8 @@ defmodule FF.Monitoring.HeartbeatPing do
     field :duration_ms, :integer
     field :pinged_at, :utc_datetime_usec
 
-    belongs_to :heartbeat, FF.Monitoring.Heartbeat
-    belongs_to :issue, FF.Tracking.Issue
+    belongs_to :heartbeat, GI.Monitoring.Heartbeat
+    belongs_to :issue, GI.Tracking.Issue
 
     timestamps(type: :utc_datetime, updated_at: false)
   end

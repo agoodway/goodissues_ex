@@ -7,9 +7,9 @@ interface Props {
   description?: string;
 }
 
-const { title, description = 'FruitFly documentation - learn how to use the bug tracking API and CLI.' } = Astro.props;
+const { title, description = 'GoodIssues documentation - learn how to use the bug tracking API and CLI.' } = Astro.props;
 
-const fullTitle = `${title} | FruitFly Docs`;
+const fullTitle = `${title} | GoodIssues Docs`;
 
 // Navigation structure
 const navSections = [
@@ -46,14 +46,14 @@ const currentPath = Astro.url.pathname;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
-    <meta name="keywords" content="FruitFly docs, bug tracking API, issue tracker documentation, REST API docs" />
-    <meta name="author" content="FruitFly" />
+    <meta name="keywords" content="GoodIssues docs, bug tracking API, issue tracker documentation, REST API docs" />
+    <meta name="author" content="GoodIssues" />
     <meta name="robots" content="index, follow" />
 
     <meta property="og:type" content="article" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
-    <meta property="og:site_name" content="FruitFly" />
+    <meta property="og:site_name" content="GoodIssues" />
 
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={fullTitle} />
@@ -82,7 +82,7 @@ const currentPath = Astro.url.pathname;
             <div class="size-7 rounded-sm bg-primary/15 border border-primary/30 flex items-center justify-center">
               <span class="font-mono text-primary font-bold text-xs">FF</span>
             </div>
-            <span class="font-semibold text-sm text-base-content">FruitFly</span>
+            <span class="font-semibold text-sm text-base-content">GoodIssues</span>
           </a>
 
           <span class="text-muted/50">/</span>
@@ -91,7 +91,7 @@ const currentPath = Astro.url.pathname;
 
         <nav class="flex items-center gap-4">
           <a
-            href="https://hub.docker.com/r/goodway/fruitfly"
+            href="https://hub.docker.com/r/goodway/goodissues"
             target="_blank"
             rel="noopener"
             class="hidden sm:flex items-center gap-1.5 font-mono text-xs text-muted hover:text-base-content transition-colors"
@@ -101,7 +101,7 @@ const currentPath = Astro.url.pathname;
             </svg>
             Docker Hub
           </a>
-          <a href="https://app.fruitfly.dev/users/log-in" class="btn-action text-xs px-3 py-1.5">
+          <a href="https://app.goodissues.dev/users/log-in" class="btn-action text-xs px-3 py-1.5">
             Sign In
           </a>
         </nav>

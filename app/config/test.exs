@@ -1,7 +1,7 @@
 import Config
 
 # Environment for compile-time checks
-config :app, env: :test
+config :good_issues, env: :test
 
 # Only in tests, remove the complexity from the password hashing algorithm
 config :bcrypt_elixir, :log_rounds, 1
@@ -11,7 +11,7 @@ config :bcrypt_elixir, :log_rounds, 1
 # The MIX_TEST_PARTITION environment variable can be used
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
-config :app, FF.Repo,
+config :good_issues, GI.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
@@ -21,13 +21,13 @@ config :app, FF.Repo,
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
-config :app, FFWeb.Endpoint,
+config :good_issues, GIWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   secret_key_base: "JPICfNhXUZWiqKnA25T2lZJoVJrbyvOjOLCiWKbea5xn48eLyNQw4pluCXHGB64j",
   server: false
 
 # In test we don't send emails
-config :app, FF.Mailer, adapter: Swoosh.Adapters.Test
+config :good_issues, GI.Mailer, adapter: Swoosh.Adapters.Test
 
 # Disable swoosh api client as it is only required for production adapters
 config :swoosh, :api_client, false
@@ -36,7 +36,7 @@ config :swoosh, :api_client, false
 # (or invoke a worker's perform/1 directly) when test logic needs them
 # to run. The isolated notifier avoids LISTEN/NOTIFY connection pressure.
 # No plugins in test — cron plugin lives in dev.exs / prod.exs only.
-config :app, Oban,
+config :good_issues, Oban,
   testing: :manual,
   notifier: Oban.Notifiers.Isolated
 

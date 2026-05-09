@@ -17,7 +17,7 @@ Administrators need a user interface to manage API keys without relying solely o
 ## Impact
 - Affected specs: None (new capability)
 - Affected code:
-  - New LiveView modules: `FFWeb.Admin.ApiKeyLive.Index`, `FFWeb.Admin.ApiKeyLive.Show`, `FFWeb.Admin.ApiKeyLive.New`
+  - New LiveView modules: `GIWeb.Admin.ApiKeyLive.Index`, `GIWeb.Admin.ApiKeyLive.Show`, `GIWeb.Admin.ApiKeyLive.New`
   - Router updates for `/admin/api-keys` routes
   - Admin middleware/authentication checks (reuse from admin-accounts-ui)
   - Potential additions to Accounts context if needed (list_all_api_keys, get_api_key_details)

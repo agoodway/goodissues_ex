@@ -1,12 +1,12 @@
-defmodule FFWeb.Dashboard.CheckLiveTest do
-  use FFWeb.ConnCase, async: false
+defmodule GIWeb.Dashboard.CheckLiveTest do
+  use GIWeb.ConnCase, async: false
 
   import Phoenix.LiveViewTest
-  import FF.AccountsFixtures
-  import FF.MonitoringFixtures
-  import FF.TrackingFixtures
+  import GI.AccountsFixtures
+  import GI.MonitoringFixtures
+  import GI.TrackingFixtures
 
-  alias FF.Monitoring
+  alias GI.Monitoring
 
   describe "Index" do
     setup :register_and_log_in_user_with_account

@@ -1,14 +1,14 @@
-defmodule FF.Monitoring.Workers.ReaperTest do
-  use FF.DataCase, async: false
+defmodule GI.Monitoring.Workers.ReaperTest do
+  use GI.DataCase, async: false
 
-  import FF.AccountsFixtures
-  import FF.MonitoringFixtures
-  import FF.TrackingFixtures
+  import GI.AccountsFixtures
+  import GI.MonitoringFixtures
+  import GI.TrackingFixtures
 
-  alias FF.Monitoring
-  alias FF.Monitoring.Scheduler
-  alias FF.Monitoring.Workers.Reaper
-  alias FF.Repo
+  alias GI.Monitoring
+  alias GI.Monitoring.Scheduler
+  alias GI.Monitoring.Workers.Reaper
+  alias GI.Repo
 
   setup do
     {user, account} = user_with_account_fixture()
@@ -117,7 +117,7 @@ defmodule FF.Monitoring.Workers.ReaperTest do
       Ecto.Changeset.change(job, state: "executing", attempted_at: old_attempted)
       |> Repo.update!()
 
-      Phoenix.PubSub.subscribe(FF.PubSub, Monitoring.reaper_topic())
+      Phoenix.PubSub.subscribe(GI.PubSub, Monitoring.reaper_topic())
 
       assert :ok = perform_reaper()
 
@@ -195,7 +195,7 @@ defmodule FF.Monitoring.Workers.ReaperTest do
     } do
       _check = check_fixture(account, user, project, %{paused: false})
 
-      Phoenix.PubSub.subscribe(FF.PubSub, Monitoring.reaper_topic())
+      Phoenix.PubSub.subscribe(GI.PubSub, Monitoring.reaper_topic())
 
       perform_reaper()
 
@@ -215,7 +215,7 @@ defmodule FF.Monitoring.Workers.ReaperTest do
       check = check_fixture(account, user, project, %{paused: false})
       Scheduler.cancel_jobs(check)
 
-      Phoenix.PubSub.subscribe(FF.PubSub, Monitoring.reaper_topic())
+      Phoenix.PubSub.subscribe(GI.PubSub, Monitoring.reaper_topic())
 
       perform_reaper()
 

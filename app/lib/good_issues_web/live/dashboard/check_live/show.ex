@@ -1,14 +1,14 @@
-defmodule FFWeb.Dashboard.CheckLive.Show do
+defmodule GIWeb.Dashboard.CheckLive.Show do
   @moduledoc """
   Dashboard view for showing a single uptime check with edit modal,
   delete, and paginated/filterable check results.
   """
-  use FFWeb, :live_view
+  use GIWeb, :live_view
 
-  alias FF.Accounts.Scope
-  alias FF.Monitoring
-  alias FF.Monitoring.Check
-  alias FF.Tracking
+  alias GI.Accounts.Scope
+  alias GI.Monitoring
+  alias GI.Monitoring.Check
+  alias GI.Tracking
 
   @impl true
   def mount(%{"project_id" => project_id, "id" => check_id}, _session, socket) do
@@ -17,7 +17,7 @@ defmodule FFWeb.Dashboard.CheckLive.Show do
     with %{} = project <- Tracking.get_project(account, project_id),
          %Check{} = check <- Monitoring.get_check(account, project_id, check_id) do
       if connected?(socket) do
-        Phoenix.PubSub.subscribe(FF.PubSub, Monitoring.checks_topic(project.id))
+        Phoenix.PubSub.subscribe(GI.PubSub, Monitoring.checks_topic(project.id))
       end
 
       can_manage = Scope.can_manage_account?(socket.assigns.current_scope)
@@ -317,7 +317,7 @@ defmodule FFWeb.Dashboard.CheckLive.Show do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard
+    <GIWeb.Layouts.dashboard
       flash={@flash}
       current_scope={@current_scope}
       page_title={@page_title}
@@ -763,7 +763,7 @@ defmodule FFWeb.Dashboard.CheckLive.Show do
           </.form>
         </div>
       </.modal>
-    </FFWeb.Layouts.dashboard>
+    </GIWeb.Layouts.dashboard>
     """
   end
 end

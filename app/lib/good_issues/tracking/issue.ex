@@ -1,4 +1,4 @@
-defmodule FF.Tracking.Issue do
+defmodule GI.Tracking.Issue do
   @moduledoc """
   Schema for issues within projects.
   Issues track bugs, incidents, and feature requests.
@@ -23,10 +23,10 @@ defmodule FF.Tracking.Issue do
     field :submitter_email, :string
     field :archived_at, :utc_datetime
 
-    belongs_to :project, FF.Tracking.Project
-    belongs_to :submitter, FF.Accounts.User
-    belongs_to :heartbeat, FF.Monitoring.Heartbeat
-    has_one :error, FF.Tracking.Error
+    belongs_to :project, GI.Tracking.Project
+    belongs_to :submitter, GI.Accounts.User
+    belongs_to :heartbeat, GI.Monitoring.Heartbeat
+    has_one :error, GI.Tracking.Error
 
     timestamps(type: :utc_datetime)
   end

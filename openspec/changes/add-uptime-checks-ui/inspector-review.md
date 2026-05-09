@@ -75,7 +75,7 @@ _None._
 
 - **Other active changes:** Consistent after patching. The change now expresses backend monitoring work under a modified `uptime-checks` delta instead of leaving those SHALLs only inside `uptime-checks-ui`, which aligns better with `openspec/changes/add-uptime-checks/specs/uptime-checks/spec.md`.
 - **Canonical specs:** No canonical `uptime-checks-ui` or `uptime-checks` spec exists yet under `openspec/specs/`, so consistency was checked against active change artifacts and the current codebase instead.
-- **Codebase assumptions verified:** No dashboard check LiveViews or dashboard check routes exist today; `FF.Monitoring.list_check_results/4` exists but has no status filter support; `FFWeb.Dashboard.ProjectLive.Show` has no monitoring card; and failed check executions currently do not persist `status: :down` in `app/lib/app/monitoring/workers/check_runner.ex:158`.
+- **Codebase assumptions verified:** No dashboard check LiveViews or dashboard check routes exist today; `GI.Monitoring.list_check_results/4` exists but has no status filter support; `GIWeb.Dashboard.ProjectLive.Show` has no monitoring card; and failed check executions currently do not persist `status: :down` in `app/lib/app/monitoring/workers/check_runner.ex:158`.
 
 ## What looks good
 

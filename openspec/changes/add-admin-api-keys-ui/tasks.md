@@ -1,5 +1,5 @@
 ## 1. Context Layer
-- [x] 1.1 Review existing FF.Accounts API key functions for admin use
+- [x] 1.1 Review existing GI.Accounts API key functions for admin use
 - [x] 1.2 Add `list_all_api_keys/1` function with filtering support
 - [x] 1.3 Add `get_api_key!/1` to fetch API key with account_user preloads
 - [x] 1.4 Write unit tests for new context functions
@@ -10,7 +10,7 @@
 - [x] 2.3 Write integration tests for admin authentication
 
 ## 3. Admin LiveViews - Index
-- [x] 3.1 Create `FFWeb.Admin.ApiKeyLive.Index` LiveView
+- [x] 3.1 Create `GIWeb.Admin.ApiKeyLive.Index` LiveView
 - [x] 3.2 Implement API key listing with pagination
 - [x] 3.3 Add filter controls (status, type)
 - [x] 3.4 Add search functionality by name or owner email
@@ -18,7 +18,7 @@
 - [x] 3.6 Add action buttons (view details, create new, revoke)
 
 ## 4. Admin LiveViews - Show
-- [x] 4.1 Create `FFWeb.Admin.ApiKeyLive.Show` LiveView
+- [x] 4.1 Create `GIWeb.Admin.ApiKeyLive.Show` LiveView
 - [x] 4.2 Display full API key details
 - [x] 4.3 Show associated account and user information
 - [x] 4.4 Display activity information (created_at, last_used_at)
@@ -26,7 +26,7 @@
 - [x] 4.6 Handle revoked status display
 
 ## 5. Admin LiveViews - Create
-- [x] 5.1 Create `FFWeb.Admin.ApiKeyLive.New` LiveView
+- [x] 5.1 Create `GIWeb.Admin.ApiKeyLive.New` LiveView
 - [x] 5.2 Implement API key creation form (name, type, scopes, expires_at, account_user selection)
 - [x] 5.3 Add form validation and error handling
 - [x] 5.4 Display generated token once on creation (with copy button)

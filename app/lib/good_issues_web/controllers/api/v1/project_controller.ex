@@ -1,17 +1,17 @@
-defmodule FFWeb.Api.V1.ProjectController do
-  use FFWeb, :controller
+defmodule GIWeb.Api.V1.ProjectController do
+  use GIWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
-  alias FF.Tracking
-  alias FF.Tracking.Project
-  alias FFWeb.Api.V1.Schemas.Project, as: ProjectSchemas
+  alias GI.Tracking
+  alias GI.Tracking.Project
+  alias GIWeb.Api.V1.Schemas.Project, as: ProjectSchemas
 
-  plug FFWeb.Plugs.ApiAuth, {:require_scope, "projects:read"} when action in [:index, :show]
+  plug GIWeb.Plugs.ApiAuth, {:require_scope, "projects:read"} when action in [:index, :show]
 
-  plug FFWeb.Plugs.ApiAuth,
+  plug GIWeb.Plugs.ApiAuth,
        {:require_scope, "projects:write"} when action in [:create, :update, :delete]
 
-  action_fallback FFWeb.FallbackController
+  action_fallback GIWeb.FallbackController
 
   tags(["Projects"])
 
@@ -32,13 +32,13 @@ defmodule FFWeb.Api.V1.ProjectController do
     ],
     responses: [
       ok: {"Project list", "application/json", ProjectSchemas.ProjectListResponse},
-      bad_request: {"Bad request", "application/json", FFWeb.ErrorJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON}
+      bad_request: {"Bad request", "application/json", GIWeb.ErrorJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
   def index(conn, params) do
-    with :ok <- FFWeb.Api.V1.PaginationHelpers.validate_pagination(params) do
+    with :ok <- GIWeb.Api.V1.PaginationHelpers.validate_pagination(params) do
       result = Tracking.list_projects_paginated(conn.assigns.current_account, params)
 
       render(conn, :index,
@@ -64,8 +64,8 @@ defmodule FFWeb.Api.V1.ProjectController do
     ],
     responses: [
       ok: {"Project", "application/json", ProjectSchemas.ProjectResponse},
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON}
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
@@ -82,9 +82,9 @@ defmodule FFWeb.Api.V1.ProjectController do
     request_body: {"Project params", "application/json", ProjectSchemas.ProjectRequest},
     responses: [
       created: {"Project created", "application/json", ProjectSchemas.ProjectResponse},
-      unprocessable_entity: {"Validation error", "application/json", FFWeb.ChangesetJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON},
-      forbidden: {"Forbidden", "application/json", FFWeb.ErrorJSON}
+      unprocessable_entity: {"Validation error", "application/json", GIWeb.ChangesetJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON},
+      forbidden: {"Forbidden", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
@@ -111,10 +111,10 @@ defmodule FFWeb.Api.V1.ProjectController do
     request_body: {"Project params", "application/json", ProjectSchemas.ProjectRequest},
     responses: [
       ok: {"Project updated", "application/json", ProjectSchemas.ProjectResponse},
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
-      unprocessable_entity: {"Validation error", "application/json", FFWeb.ChangesetJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON},
-      forbidden: {"Forbidden", "application/json", FFWeb.ErrorJSON}
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON},
+      unprocessable_entity: {"Validation error", "application/json", GIWeb.ChangesetJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON},
+      forbidden: {"Forbidden", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
@@ -143,9 +143,9 @@ defmodule FFWeb.Api.V1.ProjectController do
     ],
     responses: [
       no_content: "Project deleted",
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON},
-      forbidden: {"Forbidden", "application/json", FFWeb.ErrorJSON}
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON},
+      forbidden: {"Forbidden", "application/json", GIWeb.ErrorJSON}
     ]
   )
 

@@ -5,7 +5,7 @@ import (
 	"os"
 	"text/tabwriter"
 
-	"fruitfly/internal/client"
+	"goodissues/internal/client"
 
 	"github.com/spf13/cobra"
 )

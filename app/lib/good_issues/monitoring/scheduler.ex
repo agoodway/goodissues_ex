@@ -1,8 +1,8 @@
-defmodule FF.Monitoring.Scheduler do
+defmodule GI.Monitoring.Scheduler do
   @moduledoc """
   Oban job scheduling for uptime checks.
 
-  Wraps the `FF.Monitoring.Workers.CheckRunner` worker so the context,
+  Wraps the `GI.Monitoring.Workers.CheckRunner` worker so the context,
   worker, and lifecycle modules don't need to know about Oban specifics.
   Scheduling is idempotent: the worker uses a `unique` constraint keyed
   on `:check_id` so duplicate enqueues collapse into a single pending
@@ -11,9 +11,9 @@ defmodule FF.Monitoring.Scheduler do
 
   import Ecto.Query
 
-  alias FF.Monitoring.Check
-  alias FF.Monitoring.Workers.CheckRunner
-  alias FF.Repo
+  alias GI.Monitoring.Check
+  alias GI.Monitoring.Workers.CheckRunner
+  alias GI.Repo
 
   @doc """
   Enqueues the first job for a check, scheduled to run immediately.
@@ -73,7 +73,7 @@ defmodule FF.Monitoring.Scheduler do
 
   @doc """
   Re-enqueues any orphaned checks, emitting a `:recovered` telemetry
-  event for each one. Called from `FF.Application` after Oban boots
+  event for each one. Called from `GI.Application` after Oban boots
   and from the Reaper worker.
 
   Returns the number of orphans recovered.

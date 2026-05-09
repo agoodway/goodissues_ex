@@ -2,7 +2,7 @@
 import DocsLayout from '../../layouts/DocsLayout.astro';
 ---
 
-<DocsLayout title="Authentication" description="Learn about FruitFly API authentication and API key types.">
+<DocsLayout title="Authentication" description="Learn about GoodIssues API authentication and API key types.">
   <h1 class="text-3xl font-bold text-base-content mb-4">Authentication</h1>
   <p class="text-muted mb-8">All API requests require authentication using API keys.</p>
 
@@ -10,7 +10,7 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
   <section class="mb-10">
     <h2 class="text-xl font-bold text-base-content mb-4">API Key Types</h2>
     <p class="text-sm text-muted mb-4">
-      FruitFly provides two types of API keys with different permission levels:
+      GoodIssues provides two types of API keys with different permission levels:
     </p>
 
     <div class="space-y-4">
@@ -64,7 +64,7 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
       <div class="px-4 py-2 border-b border-base-300/50">
         <span class="font-mono text-[10px] text-muted">curl</span>
       </div>
-      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">curl https://api.fruitfly.dev/api/v1/issues \
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">curl https://api.goodissues.dev/api/v1/issues \
   -H "Authorization: Bearer sk_live_your_api_key_here" \
   -H "Accept: application/json"</code></pre>
     </div>

@@ -2,7 +2,7 @@
 import DocsLayout from '../../../layouts/DocsLayout.astro';
 ---
 
-<DocsLayout title="Issues API" description="API reference for managing issues in FruitFly.">
+<DocsLayout title="Issues API" description="API reference for managing issues in GoodIssues.">
   <h1 class="text-3xl font-bold text-base-content mb-4">Issues API</h1>
   <p class="text-muted mb-8">Issues represent bugs or feature requests. Each issue belongs to a project and has a human-readable key like <code class="text-primary">FF-123</code>.</p>
 
@@ -118,7 +118,7 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
       <div class="px-4 py-2 border-b border-base-300/50">
         <span class="font-mono text-[10px] text-muted">curl</span>
       </div>
-      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">curl "https://api.fruitfly.dev/api/v1/issues?status=new&type=bug" \
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">curl "https://api.goodissues.dev/api/v1/issues?status=new&type=bug" \
   -H "Authorization: Bearer pk_live_..." \
   -H "Accept: application/json"</code></pre>
     </div>
@@ -170,7 +170,7 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
       <div class="px-4 py-2 border-b border-base-300/50">
         <span class="font-mono text-[10px] text-muted">curl</span>
       </div>
-      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">curl https://api.fruitfly.dev/api/v1/issues/550e8400-e29b-41d4-a716-446655440001 \
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">curl https://api.goodissues.dev/api/v1/issues/550e8400-e29b-41d4-a716-446655440001 \
   -H "Authorization: Bearer pk_live_..." \
   -H "Accept: application/json"</code></pre>
     </div>
@@ -247,7 +247,7 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
       <div class="px-4 py-2 border-b border-base-300/50">
         <span class="font-mono text-[10px] text-muted">curl</span>
       </div>
-      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted" set:html={`curl -X POST https://api.fruitfly.dev/api/v1/issues \\
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted" set:html={`curl -X POST https://api.goodissues.dev/api/v1/issues \\
   -H "Authorization: Bearer sk_live_..." \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -304,7 +304,7 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
       <div class="px-4 py-2 border-b border-base-300/50">
         <span class="font-mono text-[10px] text-muted">curl</span>
       </div>
-      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted" set:html={`curl -X PATCH https://api.fruitfly.dev/api/v1/issues/550e8400... \\
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted" set:html={`curl -X PATCH https://api.goodissues.dev/api/v1/issues/550e8400... \\
   -H "Authorization: Bearer sk_live_..." \\
   -H "Content-Type: application/json" \\
   -d '{"status": "in_progress", "priority": "critical"}'`} /></pre>

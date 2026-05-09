@@ -6,13 +6,13 @@
 
 ## 2. Domain Model
 
-- [x] 2.1 Create `FF.Telemetry.Span` schema with event type enum
+- [x] 2.1 Create `GI.Telemetry.Span` schema with event type enum
 - [x] 2.2 Define typespec for Span struct
 - [x] 2.3 Implement `create_changeset/2` with validations
 
 ## 3. Business Logic
 
-- [x] 3.1 Create `FF.Telemetry` context module
+- [x] 3.1 Create `GI.Telemetry` context module
 - [x] 3.2 Implement `create_spans_batch/3` for bulk insert
 - [x] 3.3 Implement `list_spans_by_request_id/2` for correlation queries
 - [x] 3.4 Implement `list_spans/3` with filtering options
@@ -28,6 +28,6 @@
 
 ## 5. Testing
 
-- [x] 5.1 Write context tests for `FF.Telemetry`
+- [x] 5.1 Write context tests for `GI.Telemetry`
 - [x] 5.2 Write controller tests for `EventController`
 - [x] 5.3 Test authorization and scope requirements

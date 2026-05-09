@@ -1,8 +1,8 @@
-defmodule FF.Accounts.Scope do
+defmodule GI.Accounts.Scope do
   @moduledoc """
   Defines the scope of the caller to be used throughout the app.
 
-  The `FF.Accounts.Scope` allows public interfaces to receive
+  The `GI.Accounts.Scope` allows public interfaces to receive
   information about the caller, such as if the call is initiated from an
   end-user, and if so, which user. Additionally, such a scope can carry fields
   such as "super user" or other privileges for use as authorization, or to
@@ -21,15 +21,15 @@ defmodule FF.Accounts.Scope do
 
   """
 
-  alias FF.Accounts.{AccountUser, User}
+  alias GI.Accounts.{AccountUser, User}
 
   defstruct user: nil, account: nil, account_user: nil, accounts: []
 
   @type t :: %__MODULE__{
           user: User.t() | nil,
-          account: FF.Accounts.Account.t() | nil,
+          account: GI.Accounts.Account.t() | nil,
           account_user: AccountUser.t() | nil,
-          accounts: [{FF.Accounts.Account.t(), atom()}]
+          accounts: [{GI.Accounts.Account.t(), atom()}]
         }
 
   @doc """

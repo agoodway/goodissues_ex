@@ -1,6 +1,6 @@
 ## Context
 
-This change adds issue tracking to FruitFly, building on the projects capability from 01-add-projects-api. Issues are the core entity for tracking bugs and feature requests.
+This change adds issue tracking to GoodIssues, building on the projects capability from 01-add-projects-api. Issues are the core entity for tracking bugs and feature requests.
 
 ## Goals / Non-Goals
 

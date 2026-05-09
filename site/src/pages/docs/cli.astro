@@ -2,9 +2,9 @@
 import DocsLayout from '../../layouts/DocsLayout.astro';
 ---
 
-<DocsLayout title="CLI Tool" description="Learn how to use the FruitFly CLI to manage issues from your terminal.">
+<DocsLayout title="CLI Tool" description="Learn how to use the GoodIssues CLI to manage issues from your terminal.">
   <h1 class="text-3xl font-bold text-base-content mb-4">CLI Tool</h1>
-  <p class="text-muted mb-8">The FruitFly CLI lets you manage projects and issues directly from your terminal.</p>
+  <p class="text-muted mb-8">The GoodIssues CLI lets you manage projects and issues directly from your terminal.</p>
 
   <!-- Installation -->
   <section class="mb-10">
@@ -18,7 +18,7 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
       <div class="px-4 py-2 border-b border-base-300/50">
         <span class="font-mono text-[10px] text-muted">Terminal</span>
       </div>
-      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">go install github.com/goodway/fruitfly/cli@latest</code></pre>
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">go install github.com/goodway/goodissues/cli@latest</code></pre>
     </div>
 
     <h3 class="text-lg font-semibold text-base-content mb-3">Verify Installation</h3>
@@ -29,9 +29,9 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
       <div class="p-4 font-mono text-sm space-y-2">
         <div>
           <span class="text-primary">$</span>
-          <span class="text-base-content ml-2">fruitfly --version</span>
+          <span class="text-base-content ml-2">goodissues --version</span>
         </div>
-        <div class="text-muted">fruitfly version 1.0.0</div>
+        <div class="text-muted">goodissues version 1.0.0</div>
       </div>
     </div>
   </section>
@@ -50,23 +50,23 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
       <div class="p-4 font-mono text-sm space-y-2">
         <div>
           <span class="text-primary">$</span>
-          <span class="text-base-content ml-2">fruitfly configure \</span>
+          <span class="text-base-content ml-2">goodissues configure \</span>
         </div>
-        <div class="text-base-content pl-4">--url https://api.fruitfly.dev \</div>
+        <div class="text-base-content pl-4">--url https://api.goodissues.dev \</div>
         <div class="text-base-content pl-4">--api-key sk_live_your_api_key</div>
-        <div class="text-success mt-2">Configuration saved to ~/.fruitfly/config.yaml</div>
+        <div class="text-success mt-2">Configuration saved to ~/.goodissues/config.yaml</div>
       </div>
     </div>
 
     <p class="text-sm text-muted">
-      Configuration is stored in <code class="text-primary">~/.fruitfly/config.yaml</code>:
+      Configuration is stored in <code class="text-primary">~/.goodissues/config.yaml</code>:
     </p>
 
     <div class="mt-4 rounded-sm border border-base-300 bg-base-200/90 overflow-hidden">
       <div class="px-4 py-2 border-b border-base-300/50">
-        <span class="font-mono text-[10px] text-muted">~/.fruitfly/config.yaml</span>
+        <span class="font-mono text-[10px] text-muted">~/.goodissues/config.yaml</span>
       </div>
-      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">url: https://api.fruitfly.dev
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">url: https://api.goodissues.dev
 api_key: sk_live_your_api_key</code></pre>
     </div>
   </section>
@@ -83,7 +83,7 @@ api_key: sk_live_your_api_key</code></pre>
       <div class="p-4 font-mono text-xs space-y-2">
         <div>
           <span class="text-primary">$</span>
-          <span class="text-base-content ml-2">fruitfly projects list</span>
+          <span class="text-base-content ml-2">goodissues projects list</span>
         </div>
         <div class="text-muted pt-2">
           <div class="text-base-content/70">ID                                    NAME          PREFIX</div>
@@ -101,7 +101,7 @@ api_key: sk_live_your_api_key</code></pre>
       <div class="p-4 font-mono text-xs space-y-2">
         <div>
           <span class="text-primary">$</span>
-          <span class="text-base-content ml-2">fruitfly projects create --name "Frontend App"</span>
+          <span class="text-base-content ml-2">goodissues projects create --name "Frontend App"</span>
         </div>
         <div class="text-success">Created project: Frontend App (FA)</div>
       </div>
@@ -120,7 +120,7 @@ api_key: sk_live_your_api_key</code></pre>
       <div class="p-4 font-mono text-xs space-y-2">
         <div>
           <span class="text-primary">$</span>
-          <span class="text-base-content ml-2">fruitfly issues list</span>
+          <span class="text-base-content ml-2">goodissues issues list</span>
         </div>
         <div class="text-muted pt-2">
           <div class="text-base-content/70">KEY      TITLE                TYPE  STATUS       PRIORITY</div>
@@ -140,17 +140,17 @@ api_key: sk_live_your_api_key</code></pre>
         <div>
           <div class="text-muted mb-1"># Filter by status</div>
           <span class="text-primary">$</span>
-          <span class="text-base-content ml-2">fruitfly issues list --status new</span>
+          <span class="text-base-content ml-2">goodissues issues list --status new</span>
         </div>
         <div>
           <div class="text-muted mb-1"># Filter by type</div>
           <span class="text-primary">$</span>
-          <span class="text-base-content ml-2">fruitfly issues list --type bug</span>
+          <span class="text-base-content ml-2">goodissues issues list --type bug</span>
         </div>
         <div>
           <div class="text-muted mb-1"># Filter by project</div>
           <span class="text-primary">$</span>
-          <span class="text-base-content ml-2">fruitfly issues list --project frontend-app</span>
+          <span class="text-base-content ml-2">goodissues issues list --project frontend-app</span>
         </div>
       </div>
     </div>
@@ -163,7 +163,7 @@ api_key: sk_live_your_api_key</code></pre>
       <div class="p-4 font-mono text-xs space-y-2">
         <div>
           <span class="text-primary">$</span>
-          <span class="text-base-content ml-2">fruitfly issues create \</span>
+          <span class="text-base-content ml-2">goodissues issues create \</span>
         </div>
         <div class="text-base-content pl-4">--project frontend-app \</div>
         <div class="text-base-content pl-4">--type bug \</div>
@@ -181,7 +181,7 @@ api_key: sk_live_your_api_key</code></pre>
       <div class="p-4 font-mono text-xs space-y-2">
         <div>
           <span class="text-primary">$</span>
-          <span class="text-base-content ml-2">fruitfly issues update FA-1 --status in_progress</span>
+          <span class="text-base-content ml-2">goodissues issues update FA-1 --status in_progress</span>
         </div>
         <div class="text-success">Updated issue: FA-1</div>
       </div>
@@ -195,7 +195,7 @@ api_key: sk_live_your_api_key</code></pre>
       <div class="p-4 font-mono text-xs space-y-2">
         <div>
           <span class="text-primary">$</span>
-          <span class="text-base-content ml-2">fruitfly issues show FA-1</span>
+          <span class="text-base-content ml-2">goodissues issues show FA-1</span>
         </div>
         <div class="text-muted pt-2 space-y-1">
           <div><span class="text-base-content/70">Key:</span>      FA-1</div>
@@ -215,31 +215,31 @@ api_key: sk_live_your_api_key</code></pre>
     <h2 class="text-xl font-bold text-base-content mb-4">Command Reference</h2>
     <div class="space-y-2">
       <div class="p-3 rounded-sm border border-base-300/50 bg-base-200/20">
-        <code class="text-primary font-mono text-sm">fruitfly configure</code>
+        <code class="text-primary font-mono text-sm">goodissues configure</code>
         <p class="text-sm text-muted mt-1">Set up API URL and authentication</p>
       </div>
       <div class="p-3 rounded-sm border border-base-300/50 bg-base-200/20">
-        <code class="text-primary font-mono text-sm">fruitfly projects list</code>
+        <code class="text-primary font-mono text-sm">goodissues projects list</code>
         <p class="text-sm text-muted mt-1">List all projects</p>
       </div>
       <div class="p-3 rounded-sm border border-base-300/50 bg-base-200/20">
-        <code class="text-primary font-mono text-sm">fruitfly projects create --name &lt;name&gt;</code>
+        <code class="text-primary font-mono text-sm">goodissues projects create --name &lt;name&gt;</code>
         <p class="text-sm text-muted mt-1">Create a new project</p>
       </div>
       <div class="p-3 rounded-sm border border-base-300/50 bg-base-200/20">
-        <code class="text-primary font-mono text-sm">fruitfly issues list [--status] [--type] [--project]</code>
+        <code class="text-primary font-mono text-sm">goodissues issues list [--status] [--type] [--project]</code>
         <p class="text-sm text-muted mt-1">List issues with optional filters</p>
       </div>
       <div class="p-3 rounded-sm border border-base-300/50 bg-base-200/20">
-        <code class="text-primary font-mono text-sm">fruitfly issues create --project &lt;name&gt; --type &lt;type&gt; --title &lt;title&gt;</code>
+        <code class="text-primary font-mono text-sm">goodissues issues create --project &lt;name&gt; --type &lt;type&gt; --title &lt;title&gt;</code>
         <p class="text-sm text-muted mt-1">Create a new issue</p>
       </div>
       <div class="p-3 rounded-sm border border-base-300/50 bg-base-200/20">
-        <code class="text-primary font-mono text-sm">fruitfly issues update &lt;key&gt; [--status] [--priority] [--title]</code>
+        <code class="text-primary font-mono text-sm">goodissues issues update &lt;key&gt; [--status] [--priority] [--title]</code>
         <p class="text-sm text-muted mt-1">Update an existing issue</p>
       </div>
       <div class="p-3 rounded-sm border border-base-300/50 bg-base-200/20">
-        <code class="text-primary font-mono text-sm">fruitfly issues show &lt;key&gt;</code>
+        <code class="text-primary font-mono text-sm">goodissues issues show &lt;key&gt;</code>
         <p class="text-sm text-muted mt-1">Show issue details</p>
       </div>
     </div>
@@ -253,11 +253,11 @@ api_key: sk_live_your_api_key</code></pre>
     </p>
     <div class="space-y-2">
       <div class="p-3 rounded-sm border border-base-300/50 bg-base-200/20">
-        <code class="text-primary font-mono text-sm">FRUITFLY_URL</code>
+        <code class="text-primary font-mono text-sm">GOODISSUES_URL</code>
         <p class="text-sm text-muted mt-1">API base URL</p>
       </div>
       <div class="p-3 rounded-sm border border-base-300/50 bg-base-200/20">
-        <code class="text-primary font-mono text-sm">FRUITFLY_API_KEY</code>
+        <code class="text-primary font-mono text-sm">GOODISSUES_API_KEY</code>
         <p class="text-sm text-muted mt-1">API key for authentication</p>
       </div>
     </div>
@@ -266,10 +266,10 @@ api_key: sk_live_your_api_key</code></pre>
       <div class="px-4 py-2 border-b border-base-300/50">
         <span class="font-mono text-[10px] text-muted">Example</span>
       </div>
-      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">export FRUITFLY_URL=https://api.fruitfly.dev
-export FRUITFLY_API_KEY=sk_live_your_api_key
+      <pre class="p-4 font-mono text-xs overflow-x-auto"><code class="text-muted">export GOODISSUES_URL=https://api.goodissues.dev
+export GOODISSUES_API_KEY=sk_live_your_api_key
 
-fruitfly issues list</code></pre>
+goodissues issues list</code></pre>
     </div>
   </section>
 

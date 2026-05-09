@@ -6,7 +6,7 @@ Make the uptime check scheduling chain crash-proof and self-healing so a monitor
 
 ## The Problem
 
-FruitFly's uptime checks work as a **self-rescheduling Oban job chain**: each `CheckRunner` job runs a check, records the result, then enqueues the next job N seconds from now. This is a clean pattern, but it has a fatal fragility — if anything breaks the chain, monitoring stops silently until the next application restart.
+GoodIssues's uptime checks work as a **self-rescheduling Oban job chain**: each `CheckRunner` job runs a check, records the result, then enqueues the next job N seconds from now. This is a clean pattern, but it has a fatal fragility — if anything breaks the chain, monitoring stops silently until the next application restart.
 
 Two concrete failure modes were identified:
 
@@ -128,7 +128,7 @@ A new Oban worker that runs every 60 seconds as a safety net:
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│                FF.Monitoring.Workers.Reaper                   │
+│                GI.Monitoring.Workers.Reaper                   │
 │                Runs every 60s via Oban.Plugins.Cron           │
 ├──────────────────────────────────────────────────────────────┤
 │                                                              │
@@ -178,19 +178,19 @@ These are non-overlapping by design: `orphaned_checks/0` counts `:executing` as 
 ```
 MODULES CHANGED                          WHAT CHANGES
 ───────────────                          ────────────
-FF.Monitoring.Workers.CheckRunner        perform/1 → try/after shape
+GI.Monitoring.Workers.CheckRunner        perform/1 → try/after shape
                                          run/1 loses its schedule_next call
 
-FF.Monitoring.Scheduler                  + stuck_executing_jobs/1 (new query)
+GI.Monitoring.Scheduler                  + stuck_executing_jobs/1 (new query)
                                          + cancel_job/1 (cancel single job)
                                          orphaned_checks/0, recover_orphaned_jobs/0
                                            unchanged — reused as-is
 
-FF.Monitoring.Workers.Reaper             NEW — Oban worker, queue: :default
+GI.Monitoring.Workers.Reaper             NEW — Oban worker, queue: :default
                                          Queries orphans + stuck, recovers,
                                          emits telemetry + PubSub
 
-FF.Monitoring                            + reaper_topic/0
+GI.Monitoring                            + reaper_topic/0
                                          + broadcast_reaper_run_completed/1
 
 config/config.exs                        + Oban.Plugins.Cron with reaper schedule
@@ -249,5 +249,5 @@ AFTER: Chain breaks → recovered within 60 seconds
 
 - **No public API changes** — this is purely internal reliability work
 - **No interval drift detection** — if a user changes `interval_seconds` while a job is scheduled with the old value, it self-corrects on the next natural run
-- **No watchdog for the reaper** — if `Oban.Plugins.Cron` dies, external monitoring (not FruitFly) must catch that
+- **No watchdog for the reaper** — if `Oban.Plugins.Cron` dies, external monitoring (not GoodIssues) must catch that
 - **Boot-time recovery unchanged** — `Scheduler.recover_orphaned_jobs/0` still runs at app start; the reaper is additive

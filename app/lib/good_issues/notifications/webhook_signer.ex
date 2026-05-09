@@ -1,4 +1,4 @@
-defmodule FF.Notifications.WebhookSigner do
+defmodule GI.Notifications.WebhookSigner do
   @moduledoc """
   Standard Webhooks compatible HMAC-SHA256 signing.
   """

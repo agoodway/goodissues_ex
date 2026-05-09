@@ -1,6 +1,6 @@
 ## 1. Worker Self-Reschedule Hardening
 
-- [x] 1.1 Refactor `FF.Monitoring.Workers.CheckRunner.perform/1` to use `try/after`, with `Scheduler.schedule_next/1` invoked from the `after` clause via a new `reschedule_if_active/1` helper that re-fetches the check and short-circuits on `nil` or `paused: true`
+- [x] 1.1 Refactor `GI.Monitoring.Workers.CheckRunner.perform/1` to use `try/after`, with `Scheduler.schedule_next/1` invoked from the `after` clause via a new `reschedule_if_active/1` helper that re-fetches the check and short-circuits on `nil` or `paused: true`
 - [x] 1.2 Remove the `Scheduler.schedule_next/1` call from `run/1` so the body is purely "do the work"; the `after` clause owns rescheduling
 - [x] 1.3 Add a regression test where `run/1` (or any function it calls) raises mid-execution and assert that a successor job is still inserted
 - [x] 1.4 Add a test that a deleted check during `perform/1` does NOT enqueue a successor
@@ -20,7 +20,7 @@
 
 ## 4. Reaper Worker
 
-- [x] 4.1 Create `FF.Monitoring.Workers.Reaper` Oban worker (`queue: :default`, `max_attempts: 1`)
+- [x] 4.1 Create `GI.Monitoring.Workers.Reaper` Oban worker (`queue: :default`, `max_attempts: 1`)
 - [x] 4.2 Implement `perform/1`:
   - Start a monotonic timer
   - Find orphans via `Scheduler.orphaned_checks/0`; for each, call `Scheduler.schedule_initial/1` and emit `[:ff, :monitoring, :reaper, :recovered]` with `reason: :orphaned`
@@ -32,9 +32,9 @@
 
 ## 5. Cron Plugin Configuration
 
-- [x] 5.1 In `config/config.exs`, add `plugins: [{Oban.Plugins.Cron, crontab: [{"* * * * *", FF.Monitoring.Workers.Reaper}]}]` to the `config :app, Oban` block
+- [x] 5.1 In `config/config.exs`, add `plugins: [{Oban.Plugins.Cron, crontab: [{"* * * * *", GI.Monitoring.Workers.Reaper}]}]` to the `config :app, Oban` block
 - [x] 5.2 In `config/test.exs`, override the Oban config with `plugins: []` so the cron plugin does not run during tests (the existing `testing: :manual, notifier: Oban.Notifiers.Isolated` config stays)
-- [x] 5.3 Test: at application start (in dev/prod), `Oban.config().plugins` includes `Oban.Plugins.Cron` and the crontab references `FF.Monitoring.Workers.Reaper`. In test, `Oban.config().plugins` is empty
+- [x] 5.3 Test: at application start (in dev/prod), `Oban.config().plugins` includes `Oban.Plugins.Cron` and the crontab references `GI.Monitoring.Workers.Reaper`. In test, `Oban.config().plugins` is empty
 
 ## 6. Observability Plumbing
 

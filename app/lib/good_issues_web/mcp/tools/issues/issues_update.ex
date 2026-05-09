@@ -1,9 +1,9 @@
-defmodule FFWeb.MCP.Tools.Issues.IssuesUpdate do
+defmodule GIWeb.MCP.Tools.Issues.IssuesUpdate do
   @moduledoc "Update an existing issue"
   use Anubis.Server.Component, type: :tool
 
-  alias FF.Tracking
-  alias FFWeb.MCP.Tools.Base
+  alias GI.Tracking
+  alias GIWeb.MCP.Tools.Base
 
   @impl true
   def description, do: "Update an existing issue"
@@ -37,7 +37,7 @@ defmodule FFWeb.MCP.Tools.Issues.IssuesUpdate do
   end
 
   defp update_issue_response({:ok, updated_issue}, frame) do
-    updated_issue = FF.Repo.preload(updated_issue, :project)
+    updated_issue = GI.Repo.preload(updated_issue, :project)
     {:reply, Base.success_response(serialize_issue(updated_issue)), frame.assigns}
   end
 

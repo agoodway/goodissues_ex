@@ -1,4 +1,4 @@
-defmodule FF.Notifications.Workers.EmailWorker do
+defmodule GI.Notifications.Workers.EmailWorker do
   @moduledoc """
   Oban worker for delivering email notifications.
 
@@ -14,7 +14,7 @@ defmodule FF.Notifications.Workers.EmailWorker do
   require Logger
   import Swoosh.Email
 
-  alias FF.Notifications
+  alias GI.Notifications
 
   @email_regex ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -36,10 +36,10 @@ defmodule FF.Notifications.Workers.EmailWorker do
         new()
         |> to(destination)
         |> from(mail_from())
-        |> subject("[FruitFly] #{humanize_event(event_type)}")
+        |> subject("[GoodIssues] #{humanize_event(event_type)}")
         |> text_body(build_text_body(event_type, event_data))
 
-      case FF.Mailer.deliver(email) do
+      case GI.Mailer.deliver(email) do
         {:ok, _} ->
           log_result(event_type, account_id, subscription_id, destination, "delivered",
             resource_type: resource_type,
@@ -71,7 +71,7 @@ defmodule FF.Notifications.Workers.EmailWorker do
   end
 
   defp mail_from do
-    {"FruitFly", "notifications@fruitfly.dev"}
+    {"GoodIssues", "notifications@goodissues.dev"}
   end
 
   defp humanize_event(event_type) do

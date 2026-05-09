@@ -1,4 +1,4 @@
-defmodule FF.Monitoring.Workers.HeartbeatRecovery do
+defmodule GI.Monitoring.Workers.HeartbeatRecovery do
   @moduledoc """
   Periodic Oban worker that recovers orphaned and stuck heartbeat
   deadline jobs. Runs on the `:maintenance` queue alongside the check
@@ -21,7 +21,7 @@ defmodule FF.Monitoring.Workers.HeartbeatRecovery do
 
   require Logger
 
-  alias FF.Monitoring.HeartbeatScheduler
+  alias GI.Monitoring.HeartbeatScheduler
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do

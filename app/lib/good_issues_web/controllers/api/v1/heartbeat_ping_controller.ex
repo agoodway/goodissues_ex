@@ -1,11 +1,11 @@
-defmodule FFWeb.Api.V1.HeartbeatPingController do
-  use FFWeb, :controller
+defmodule GIWeb.Api.V1.HeartbeatPingController do
+  use GIWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
-  alias FF.Monitoring
-  alias FFWeb.Api.V1.Schemas.Heartbeat, as: HBSchemas
+  alias GI.Monitoring
+  alias GIWeb.Api.V1.Schemas.Heartbeat, as: HBSchemas
 
-  action_fallback FFWeb.FallbackController
+  action_fallback GIWeb.FallbackController
 
   tags(["Heartbeat Pings"])
 
@@ -32,7 +32,7 @@ defmodule FFWeb.Api.V1.HeartbeatPingController do
       {"Optional JSON payload", "application/json", HBSchemas.PingPayload, required: false},
     responses: [
       no_content: "Ping received",
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON}
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
@@ -68,7 +68,7 @@ defmodule FFWeb.Api.V1.HeartbeatPingController do
       {"Optional JSON payload", "application/json", HBSchemas.PingPayload, required: false},
     responses: [
       no_content: "Start ping received",
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON}
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
@@ -106,7 +106,7 @@ defmodule FFWeb.Api.V1.HeartbeatPingController do
        required: false},
     responses: [
       no_content: "Fail ping received",
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON}
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON}
     ]
   )
 

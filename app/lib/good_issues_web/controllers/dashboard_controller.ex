@@ -1,7 +1,7 @@
-defmodule FFWeb.DashboardController do
-  use FFWeb, :controller
+defmodule GIWeb.DashboardController do
+  use GIWeb, :controller
 
-  alias FF.Accounts
+  alias GI.Accounts
 
   @doc """
   Redirects to the user's first account dashboard.

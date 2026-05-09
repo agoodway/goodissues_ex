@@ -1,4 +1,4 @@
-defmodule FFWeb.MCP.Supervisor do
+defmodule GIWeb.MCP.Supervisor do
   @moduledoc """
   Supervisor for the MCP server subsystem.
 
@@ -20,7 +20,7 @@ defmodule FFWeb.MCP.Supervisor do
           Anubis.Server.Registry,
 
           # Then the MCP server
-          {FFWeb.MCP.Server, transport: :streamable_http, name: FFWeb.MCP.Server}
+          {GIWeb.MCP.Server, transport: :streamable_http, name: GIWeb.MCP.Server}
         ]
 
     Supervisor.init(children, strategy: :rest_for_one)
@@ -28,16 +28,16 @@ defmodule FFWeb.MCP.Supervisor do
 
   # Skip starting SessionStore if already running (e.g. started by Tidewave)
   defp maybe_start_session_store do
-    case GenServer.whereis(FFWeb.MCP.SessionStore) do
-      nil -> [FFWeb.MCP.SessionStore]
+    case GenServer.whereis(GIWeb.MCP.SessionStore) do
+      nil -> [GIWeb.MCP.SessionStore]
       _pid -> []
     end
   end
 
   @doc "Restart only the MCP server"
   def restart_server do
-    Supervisor.terminate_child(__MODULE__, FFWeb.MCP.Server)
-    Supervisor.restart_child(__MODULE__, FFWeb.MCP.Server)
+    Supervisor.terminate_child(__MODULE__, GIWeb.MCP.Server)
+    Supervisor.restart_child(__MODULE__, GIWeb.MCP.Server)
   end
 
   @doc "Restart entire MCP subsystem"

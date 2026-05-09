@@ -1,14 +1,14 @@
-defmodule FFWeb.Dashboard.CheckLive.Index do
+defmodule GIWeb.Dashboard.CheckLive.Index do
   @moduledoc """
   Dashboard view for listing uptime checks scoped to a project.
 
   Shows a realtime status board with PubSub-driven live updates.
   """
-  use FFWeb, :live_view
+  use GIWeb, :live_view
 
-  alias FF.Accounts.Scope
-  alias FF.Monitoring
-  alias FF.Tracking
+  alias GI.Accounts.Scope
+  alias GI.Monitoring
+  alias GI.Tracking
 
   @impl true
   def mount(%{"project_id" => project_id}, _session, socket) do
@@ -23,7 +23,7 @@ defmodule FFWeb.Dashboard.CheckLive.Index do
 
       project ->
         if connected?(socket) do
-          Phoenix.PubSub.subscribe(FF.PubSub, Monitoring.checks_topic(project.id))
+          Phoenix.PubSub.subscribe(GI.PubSub, Monitoring.checks_topic(project.id))
         end
 
         can_manage = Scope.can_manage_account?(socket.assigns.current_scope)
@@ -100,7 +100,7 @@ defmodule FFWeb.Dashboard.CheckLive.Index do
   # PubSub handlers
   @impl true
   def handle_info({:check_created, payload}, socket) do
-    checks = socket.assigns.checks ++ [struct(FF.Monitoring.Check, payload)]
+    checks = socket.assigns.checks ++ [struct(GI.Monitoring.Check, payload)]
     {:noreply, assign(socket, checks: checks, total: socket.assigns.total + 1)}
   end
 
@@ -158,7 +158,7 @@ defmodule FFWeb.Dashboard.CheckLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard
+    <GIWeb.Layouts.dashboard
       flash={@flash}
       current_scope={@current_scope}
       page_title={@page_title}
@@ -349,7 +349,7 @@ defmodule FFWeb.Dashboard.CheckLive.Index do
             <div class="size-16 rounded-sm bg-base-200 border border-base-300 flex items-center justify-center mb-6">
               <.icon name="hero-signal" class="size-8 opacity-30" />
             </div>
-            <div class="font-mono text-sm mb-2">$ fruitfly checks list</div>
+            <div class="font-mono text-sm mb-2">$ goodissues checks list</div>
             <div class="font-mono text-xs text-muted mb-6">No uptime checks configured.</div>
             <.link
               :if={@can_manage}
@@ -393,7 +393,7 @@ defmodule FFWeb.Dashboard.CheckLive.Index do
           </div>
         </div>
       </div>
-    </FFWeb.Layouts.dashboard>
+    </GIWeb.Layouts.dashboard>
     """
   end
 end

@@ -1,13 +1,13 @@
-defmodule FF.MonitoringMockHTTP do
+defmodule GI.MonitoringMockHTTP do
   @moduledoc """
-  Test stub for `FF.Monitoring.HttpClient`.
+  Test stub for `GI.Monitoring.HttpClient`.
 
   Set the next response with `set_response/1` (or `set_responses/1` for
   a sequence). Each call to `request/1` consumes the next response. If
   the queue runs dry, returns `{:error, :no_response_configured}`.
   """
 
-  @behaviour FF.Monitoring.HttpClient
+  @behaviour GI.Monitoring.HttpClient
 
   @key :ff_monitoring_mock_http_responses
   @fn_key :ff_monitoring_mock_http_fn
@@ -38,7 +38,7 @@ defmodule FF.MonitoringMockHTTP do
     :ok
   end
 
-  @impl FF.Monitoring.HttpClient
+  @impl GI.Monitoring.HttpClient
   def request(opts) do
     case Process.get(@fn_key) do
       fun when is_function(fun, 1) ->

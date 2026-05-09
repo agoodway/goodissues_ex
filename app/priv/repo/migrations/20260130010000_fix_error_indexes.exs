@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.FixErrorIndexes do
+defmodule GI.Repo.Migrations.FixErrorIndexes do
   use Ecto.Migration
 
   def change do

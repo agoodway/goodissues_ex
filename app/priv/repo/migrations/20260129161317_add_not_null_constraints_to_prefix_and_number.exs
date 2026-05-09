@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.AddNotNullConstraintsToPrefixAndNumber do
+defmodule GI.Repo.Migrations.AddNotNullConstraintsToPrefixAndNumber do
   use Ecto.Migration
 
   # Zero-downtime migration: uses NOT VALID + VALIDATE CONSTRAINT pattern

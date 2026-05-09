@@ -1,4 +1,4 @@
-module fruitfly
+module goodissues
 
 go 1.21
 

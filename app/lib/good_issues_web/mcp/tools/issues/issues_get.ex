@@ -1,9 +1,9 @@
-defmodule FFWeb.MCP.Tools.Issues.IssuesGet do
+defmodule GIWeb.MCP.Tools.Issues.IssuesGet do
   @moduledoc "Get an issue by ID"
   use Anubis.Server.Component, type: :tool
 
-  alias FF.Tracking
-  alias FFWeb.MCP.Tools.Base
+  alias GI.Tracking
+  alias GIWeb.MCP.Tools.Base
 
   @impl true
   def description, do: "Get an issue by ID"

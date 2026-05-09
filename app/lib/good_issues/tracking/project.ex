@@ -1,4 +1,4 @@
-defmodule FF.Tracking.Project do
+defmodule GI.Tracking.Project do
   @moduledoc """
   Schema for projects within accounts.
   Projects are used to organize issues and other tracking items.
@@ -15,7 +15,7 @@ defmodule FF.Tracking.Project do
     field :prefix, :string
     field :issue_counter, :integer, default: 1
 
-    belongs_to :account, FF.Accounts.Account
+    belongs_to :account, GI.Accounts.Account
 
     timestamps(type: :utc_datetime)
   end

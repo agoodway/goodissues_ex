@@ -62,8 +62,8 @@ end
 
 ```elixir
 config :app, Oban,
-  repo: FF.Repo,
-  plugins: [{Oban.Plugins.Cron, crontab: [{"* * * * *", FF.Monitoring.Workers.Reaper}]}],
+  repo: GI.Repo,
+  plugins: [{Oban.Plugins.Cron, crontab: [{"* * * * *", GI.Monitoring.Workers.Reaper}]}],
   queues: [...]
 ```
 

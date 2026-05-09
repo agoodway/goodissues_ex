@@ -1,4 +1,4 @@
-defmodule FF.Notifications do
+defmodule GI.Notifications do
   @moduledoc """
   Event bus and subscription management for business event notifications.
 
@@ -9,8 +9,8 @@ defmodule FF.Notifications do
   require Logger
   import Ecto.Query
 
-  alias FF.Notifications.{Event, EventSubscription, NotificationLog}
-  alias FF.Repo
+  alias GI.Notifications.{Event, EventSubscription, NotificationLog}
+  alias GI.Repo
 
   @topic_prefix "notifications:account:"
   @global_topic "notifications"
@@ -19,7 +19,7 @@ defmodule FF.Notifications do
 
   @spec subscribe(String.t()) :: :ok | {:error, term()}
   def subscribe(account_id) when is_binary(account_id) do
-    Phoenix.PubSub.subscribe(FF.PubSub, topic(account_id))
+    Phoenix.PubSub.subscribe(GI.PubSub, topic(account_id))
   end
 
   @spec topic(String.t()) :: String.t()
@@ -29,7 +29,7 @@ defmodule FF.Notifications do
 
   @spec emit(Event.t()) :: :ok
   def emit(%Event{} = event) do
-    pubsub = FF.PubSub
+    pubsub = GI.PubSub
     Phoenix.PubSub.broadcast(pubsub, topic(event.account_id), event)
     Phoenix.PubSub.local_broadcast(pubsub, @global_topic, event)
     :ok

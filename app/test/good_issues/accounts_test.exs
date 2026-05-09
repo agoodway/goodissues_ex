@@ -1,10 +1,10 @@
-defmodule FF.AccountsTest do
-  use FF.DataCase
+defmodule GI.AccountsTest do
+  use GI.DataCase
 
-  alias FF.Accounts
+  alias GI.Accounts
 
-  import FF.AccountsFixtures
-  alias FF.Accounts.{Scope, User, UserToken}
+  import GI.AccountsFixtures
+  alias GI.Accounts.{Scope, User, UserToken}
 
   describe "get_user_by_email/1" do
     test "does not return the user if the email does not exist" do
@@ -78,7 +78,7 @@ defmodule FF.AccountsTest do
     end
 
     test "rejects reserved internal email addresses" do
-      {:error, changeset} = Accounts.register_user(%{email: "bot@example.fruitfly.internal"})
+      {:error, changeset} = Accounts.register_user(%{email: "bot@example.goodissues.internal"})
 
       assert "is reserved for internal use" in errors_on(changeset).email
     end
@@ -865,7 +865,7 @@ defmodule FF.AccountsTest do
 
       bot_user = Accounts.get_or_create_bot_user!(account)
 
-      assert bot_user.email == "bot@#{account.id}.fruitfly.internal"
+      assert bot_user.email == "bot@#{account.id}.goodissues.internal"
       assert is_nil(bot_user.hashed_password)
 
       account_user = Accounts.get_account_user(bot_user, account)
@@ -906,15 +906,15 @@ defmodule FF.AccountsTest do
         Repo.insert_all(User, [
           %{
             id: Ecto.UUID.generate(),
-            email: "bot@#{account.id}.fruitfly.internal",
+            email: "bot@#{account.id}.goodissues.internal",
             inserted_at: now,
             updated_at: now
           }
         ])
 
-      malicious_user = Repo.get_by!(User, email: "bot@#{account.id}.fruitfly.internal")
+      malicious_user = Repo.get_by!(User, email: "bot@#{account.id}.goodissues.internal")
 
-      Repo.insert!(%FF.Accounts.AccountUser{
+      Repo.insert!(%GI.Accounts.AccountUser{
         account_id: attacker_account.id,
         user_id: malicious_user.id,
         role: :owner

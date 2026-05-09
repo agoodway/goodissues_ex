@@ -4,26 +4,26 @@
 #
 # Idempotent — safe to run multiple times.
 
-alias FF.Accounts
-alias FF.Accounts.User
-alias FF.Repo
-alias FF.Tracking
+alias GI.Accounts
+alias GI.Accounts.User
+alias GI.Repo
+alias GI.Tracking
 
 seed_users = [
   %{
-    email: "admin@fruitfly.dev",
+    email: "admin@goodissues.dev",
     password: "password123456",
-    account_name: "FruitFly",
-    project: %{name: "FruitFly Core", prefix: "FF"}
+    account_name: "GoodIssues",
+    project: %{name: "GoodIssues Core", prefix: "GI"}
   },
   %{
-    email: "dev@fruitfly.dev",
+    email: "dev@goodissues.dev",
     password: "password123456",
     account_name: "Dev Team",
     project: %{name: "API Service", prefix: "API"}
   },
   %{
-    email: "demo@fruitfly.dev",
+    email: "demo@goodissues.dev",
     password: "password123456",
     account_name: "Demo Corp",
     project: nil

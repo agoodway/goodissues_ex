@@ -1,4 +1,4 @@
-defmodule FFWeb.Api.V1.Schemas.Project do
+defmodule GIWeb.Api.V1.Schemas.Project do
   @moduledoc """
   OpenAPI schemas for Project endpoints.
   """
@@ -57,7 +57,7 @@ defmodule FFWeb.Api.V1.Schemas.Project do
 
   defmodule ProjectListResponse do
     @moduledoc false
-    alias FFWeb.Api.V1.Schemas.Pagination
+    alias GIWeb.Api.V1.Schemas.Pagination
 
     OpenApiSpex.schema(
       Map.merge(

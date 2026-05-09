@@ -118,7 +118,7 @@ Projects SHALL have a prefix field for generating human-readable issue identifie
 #### Scenario: Default prefix is suggested from name
 - **WHEN** user enters project name on new project form
 - **AND** prefix field is empty
-- **THEN** prefix field suggests initials from the project name (e.g., "FruitFly" → "FF")
+- **THEN** prefix field suggests initials from the project name (e.g., "GoodIssues" → "FF")
 
 ---
 

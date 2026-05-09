@@ -1,7 +1,7 @@
-defmodule FF.Tracking.IssueTest do
-  use FF.DataCase
+defmodule GI.Tracking.IssueTest do
+  use GI.DataCase
 
-  alias FF.Tracking.Issue
+  alias GI.Tracking.Issue
 
   describe "create_changeset/2" do
     test "valid attributes" do

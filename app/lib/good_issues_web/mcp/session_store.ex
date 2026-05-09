@@ -1,4 +1,4 @@
-defmodule FFWeb.MCP.SessionStore do
+defmodule GIWeb.MCP.SessionStore do
   @moduledoc """
   ETS-based session store for MCP server.
 

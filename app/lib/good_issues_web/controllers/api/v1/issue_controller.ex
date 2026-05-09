@@ -1,17 +1,17 @@
-defmodule FFWeb.Api.V1.IssueController do
-  use FFWeb, :controller
+defmodule GIWeb.Api.V1.IssueController do
+  use GIWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
-  alias FF.Tracking
-  alias FF.Tracking.Issue
-  alias FFWeb.Api.V1.Schemas.Issue, as: IssueSchemas
+  alias GI.Tracking
+  alias GI.Tracking.Issue
+  alias GIWeb.Api.V1.Schemas.Issue, as: IssueSchemas
 
-  plug FFWeb.Plugs.ApiAuth, {:require_scope, "issues:read"} when action in [:index, :show]
+  plug GIWeb.Plugs.ApiAuth, {:require_scope, "issues:read"} when action in [:index, :show]
 
-  plug FFWeb.Plugs.ApiAuth,
+  plug GIWeb.Plugs.ApiAuth,
        {:require_scope, "issues:write"} when action in [:create, :update, :delete]
 
-  action_fallback FFWeb.FallbackController
+  action_fallback GIWeb.FallbackController
 
   tags(["Issues"])
 
@@ -47,13 +47,13 @@ defmodule FFWeb.Api.V1.IssueController do
     ],
     responses: [
       ok: {"Issue list", "application/json", IssueSchemas.IssueListResponse},
-      bad_request: {"Bad request", "application/json", FFWeb.ErrorJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON}
+      bad_request: {"Bad request", "application/json", GIWeb.ErrorJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
   def index(conn, params) do
-    with :ok <- FFWeb.Api.V1.PaginationHelpers.validate_pagination(params) do
+    with :ok <- GIWeb.Api.V1.PaginationHelpers.validate_pagination(params) do
       filters = build_filters(params)
       result = Tracking.list_issues_paginated(conn.assigns.current_account, filters)
 
@@ -93,8 +93,8 @@ defmodule FFWeb.Api.V1.IssueController do
     ],
     responses: [
       ok: {"Issue", "application/json", IssueSchemas.IssueResponse},
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON}
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
@@ -111,9 +111,9 @@ defmodule FFWeb.Api.V1.IssueController do
     request_body: {"Issue params", "application/json", IssueSchemas.IssueRequest},
     responses: [
       created: {"Issue created", "application/json", IssueSchemas.IssueResponse},
-      unprocessable_entity: {"Validation error", "application/json", FFWeb.ChangesetJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON},
-      forbidden: {"Forbidden", "application/json", FFWeb.ErrorJSON}
+      unprocessable_entity: {"Validation error", "application/json", GIWeb.ChangesetJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON},
+      forbidden: {"Forbidden", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
@@ -125,7 +125,7 @@ defmodule FFWeb.Api.V1.IssueController do
              params
            ) do
       # Preload project for key computation
-      issue = FF.Repo.preload(issue, :project)
+      issue = GI.Repo.preload(issue, :project)
 
       conn
       |> put_status(:created)
@@ -147,10 +147,10 @@ defmodule FFWeb.Api.V1.IssueController do
     request_body: {"Issue params", "application/json", IssueSchemas.IssueUpdateRequest},
     responses: [
       ok: {"Issue updated", "application/json", IssueSchemas.IssueResponse},
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
-      unprocessable_entity: {"Validation error", "application/json", FFWeb.ChangesetJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON},
-      forbidden: {"Forbidden", "application/json", FFWeb.ErrorJSON}
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON},
+      unprocessable_entity: {"Validation error", "application/json", GIWeb.ChangesetJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON},
+      forbidden: {"Forbidden", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
@@ -162,7 +162,7 @@ defmodule FFWeb.Api.V1.IssueController do
       issue ->
         with {:ok, %Issue{} = issue} <- Tracking.update_issue(issue, params) do
           # Preload project for key computation
-          issue = FF.Repo.preload(issue, :project)
+          issue = GI.Repo.preload(issue, :project)
           render(conn, :show, issue: issue)
         end
     end
@@ -181,9 +181,9 @@ defmodule FFWeb.Api.V1.IssueController do
     ],
     responses: [
       no_content: "Issue deleted",
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON},
-      forbidden: {"Forbidden", "application/json", FFWeb.ErrorJSON}
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON},
+      forbidden: {"Forbidden", "application/json", GIWeb.ErrorJSON}
     ]
   )
 

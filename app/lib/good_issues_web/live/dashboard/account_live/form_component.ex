@@ -1,7 +1,7 @@
-defmodule FFWeb.Dashboard.AccountLive.FormComponent do
-  use FFWeb, :live_component
+defmodule GIWeb.Dashboard.AccountLive.FormComponent do
+  use GIWeb, :live_component
 
-  alias FF.Accounts
+  alias GI.Accounts
 
   @impl true
   def render(assigns) do

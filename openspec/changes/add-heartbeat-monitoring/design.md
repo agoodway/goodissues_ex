@@ -1,15 +1,15 @@
 ## Context
 
-FruitFly is adding proactive monitoring alongside its existing issue tracking. The `add-uptime-checks` change introduces active HTTP monitoring with an `FF.Monitoring` context, self-rescheduling Oban workers, and an incident lifecycle that auto-creates/reopens/archives issues via a system bot user. Heartbeat monitoring builds on that same infrastructure but inverts the direction: instead of FruitFly reaching out, external jobs ping FruitFly to prove they're running.
+GoodIssues is adding proactive monitoring alongside its existing issue tracking. The `add-uptime-checks` change introduces active HTTP monitoring with an `GI.Monitoring` context, self-rescheduling Oban workers, and an incident lifecycle that auto-creates/reopens/archives issues via a system bot user. Heartbeat monitoring builds on that same infrastructure but inverts the direction: instead of GoodIssues reaching out, external jobs ping GoodIssues to prove they're running.
 
 This change depends on `add-uptime-checks` landing first, or being reconciled into this change before implementation starts, because it reuses that monitoring context, incident lifecycle, and bot-user flow.
 
 It also depends on `harden-check-scheduling` landing first, or its invariants being folded into the heartbeat implementation plan, because heartbeat deadlines are another self-rescheduling monitoring chain and should not repeat the failure modes already identified for checks.
 
 The key integration points are:
-- `FF.Monitoring` context (extended with heartbeat functions)
+- `GI.Monitoring` context (extended with heartbeat functions)
 - Incident lifecycle rules (create, reopen, archive, and issue linking) — reused semantically, but heartbeat implementation needs a heartbeat-specific wrapper or generalized lifecycle path because the current code is check-specific
-- Bot user (`FF.Accounts.get_or_create_bot_user!/1`) — reused as-is
+- Bot user (`GI.Accounts.get_or_create_bot_user!/1`) — reused as-is
 - Hardened monitoring scheduling/recovery pattern (`try/after` style reschedule guarantees, stale-job invalidation, and periodic orphan/stuck recovery) — reused for deadline detection
 
 ## Goals / Non-Goals
@@ -38,7 +38,7 @@ The key integration points are:
 
 **Decision**: Create `Heartbeat` and `HeartbeatPing` schemas alongside `Check` and `CheckResult`, not as a polymorphic "check type."
 
-**Rationale**: Heartbeats and checks have fundamentally different lifecycles. Checks are active (FruitFly initiates), heartbeats are passive (external jobs initiate). Their fields diverge significantly — heartbeats need `ping_token`, `grace_seconds`, `alert_rules`, `started_at`; checks need `url`, `method`, `expected_status`, `keyword`. Forcing polymorphism would mean nullable fields and conditional logic everywhere.
+**Rationale**: Heartbeats and checks have fundamentally different lifecycles. Checks are active (GoodIssues initiates), heartbeats are passive (external jobs initiate). Their fields diverge significantly — heartbeats need `ping_token`, `grace_seconds`, `alert_rules`, `started_at`; checks need `url`, `method`, `expected_status`, `keyword`. Forcing polymorphism would mean nullable fields and conditional logic everywhere.
 
 **Alternative considered**: Single `Monitor` table with a `type` discriminator — rejected because it couples two domains that happen to share an incident lifecycle but differ in everything else.
 
@@ -143,7 +143,7 @@ The key integration points are:
 
 ### 9. Heartbeat-Specific Incident Lifecycle Wrapper
 
-**Decision**: Implement heartbeat incident handling through a heartbeat-specific lifecycle wrapper in `FF.Monitoring` rather than claiming the current `IncidentLifecycle` module can be reused unchanged.
+**Decision**: Implement heartbeat incident handling through a heartbeat-specific lifecycle wrapper in `GI.Monitoring` rather than claiming the current `IncidentLifecycle` module can be reused unchanged.
 
 **Rationale**: The existing lifecycle code is check-specific: it expects `Check` and `CheckResult` inputs, builds check-shaped issue titles/descriptions, and links incidents back through `check_results.issue_id`. Heartbeats need the same incident rules, but with heartbeat/heartbeat_ping inputs and heartbeat-specific linkage.
 

@@ -1,14 +1,14 @@
-defmodule FFWeb.Dashboard.ApiKeyLive.Edit do
+defmodule GIWeb.Dashboard.ApiKeyLive.Edit do
   @moduledoc """
   Dashboard view for editing an API key's scopes.
 
   Only users with owner/admin role can edit API keys.
   Revoked keys cannot be edited.
   """
-  use FFWeb, :live_view
+  use GIWeb, :live_view
 
-  alias FF.Accounts
-  alias FF.Accounts.Scope
+  alias GI.Accounts
+  alias GI.Accounts.Scope
 
   @available_scopes [
     {"projects:read", "Read access to projects"},
@@ -139,7 +139,7 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Edit do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard
+    <GIWeb.Layouts.dashboard
       flash={@flash}
       current_scope={@current_scope}
       page_title={@page_title}
@@ -612,7 +612,7 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Edit do
           </div>
         </div>
       </.form>
-    </FFWeb.Layouts.dashboard>
+    </GIWeb.Layouts.dashboard>
     """
   end
 end

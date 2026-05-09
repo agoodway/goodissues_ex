@@ -1,4 +1,4 @@
-defmodule FFWeb.Layouts do
+defmodule GIWeb.Layouts do
   @moduledoc """
   This module holds layouts and related functionality
   used by your application.
@@ -9,7 +9,7 @@ defmodule FFWeb.Layouts do
   - DM Sans for body text
   - High contrast with green accent color
   """
-  use FFWeb, :html
+  use GIWeb, :html
 
   # Embed all files in layouts/* within this module.
   # The default root.html.heex file contains the HTML
@@ -45,7 +45,7 @@ defmodule FFWeb.Layouts do
       <div class="flex-1">
         <a href="/" class="flex-1 flex w-fit items-center gap-3">
           <div class="size-8 rounded bg-primary/20 border border-primary/30 flex items-center justify-center">
-            <span class="font-mono text-primary font-bold text-sm">FF</span>
+            <span class="font-mono text-primary font-bold text-sm">GI</span>
           </div>
           <span class="font-mono text-xs text-muted">v{Application.spec(:phoenix, :vsn)}</span>
         </a>
@@ -214,10 +214,10 @@ defmodule FFWeb.Layouts do
         <div class="p-4 flex items-center justify-between border-b border-base-300/30">
           <div class="flex items-center gap-3">
             <div class="size-8 rounded-sm bg-primary/15 border border-primary/25 flex items-center justify-center glow-primary">
-              <span class="font-mono text-primary font-bold text-sm">FF</span>
+              <span class="font-mono text-primary font-bold text-sm">GI</span>
             </div>
             <div class="flex flex-col">
-              <span class="font-semibold text-sm text-base-content tracking-tight">Fruitfly</span>
+              <span class="font-semibold text-sm text-base-content tracking-tight">GoodIssues</span>
               <span class="font-mono text-[10px] text-muted uppercase tracking-wider">
                 Bug Tracker
               </span>

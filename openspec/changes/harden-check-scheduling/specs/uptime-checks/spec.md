@@ -35,7 +35,7 @@ The `CheckRunner` worker's Oban `unique` constraint SHALL match jobs only in `:a
 
 ### Requirement: Periodic reaper recovers broken scheduling chains
 
-The system SHALL run `FF.Monitoring.Workers.Reaper` once per minute via `Oban.Plugins.Cron` to detect and recover non-paused checks whose scheduling chain has broken.
+The system SHALL run `GI.Monitoring.Workers.Reaper` once per minute via `Oban.Plugins.Cron` to detect and recover non-paused checks whose scheduling chain has broken.
 
 #### Scenario: Reaper recovers an orphaned check
 

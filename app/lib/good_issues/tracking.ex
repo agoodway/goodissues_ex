@@ -1,4 +1,4 @@
-defmodule FF.Tracking do
+defmodule GI.Tracking do
   @moduledoc """
   The Tracking context.
   Manages projects, issues, and related tracking functionality.
@@ -15,9 +15,9 @@ defmodule FF.Tracking do
 
   import Ecto.Query
 
-  alias FF.Accounts.{Account, User}
-  alias FF.Repo
-  alias FF.Tracking.{Error, Issue, Occurrence, Project, StacktraceLine}
+  alias GI.Accounts.{Account, User}
+  alias GI.Repo
+  alias GI.Tracking.{Error, Issue, Occurrence, Project, StacktraceLine}
 
   @doc """
   Lists all projects for the given account.
@@ -571,7 +571,7 @@ defmodule FF.Tracking do
 
   defp broadcast_issue_created(account_id, %Issue{} = issue) do
     Phoenix.PubSub.broadcast(
-      FF.PubSub,
+      GI.PubSub,
       issues_topic(account_id),
       {:issue_created, issue_payload(issue)}
     )
@@ -579,7 +579,7 @@ defmodule FF.Tracking do
 
   defp broadcast_issue_updated(account_id, %Issue{} = issue) do
     Phoenix.PubSub.broadcast(
-      FF.PubSub,
+      GI.PubSub,
       issues_topic(account_id),
       {:issue_updated, issue_payload(issue)}
     )

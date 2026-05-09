@@ -1,10 +1,10 @@
-defmodule FF.TrackingFixtures do
+defmodule GI.TrackingFixtures do
   @moduledoc """
   This module defines test helpers for creating
-  entities via the `FF.Tracking` context.
+  entities via the `GI.Tracking` context.
   """
 
-  alias FF.Tracking
+  alias GI.Tracking
 
   def unique_project_name, do: "project#{System.unique_integer()}"
   def unique_issue_title, do: "issue#{System.unique_integer()}"

@@ -1,10 +1,10 @@
-defmodule FFWeb.UserSettingsController do
-  use FFWeb, :controller
+defmodule GIWeb.UserSettingsController do
+  use GIWeb, :controller
 
-  alias FF.Accounts
-  alias FFWeb.UserAuth
+  alias GI.Accounts
+  alias GIWeb.UserAuth
 
-  import FFWeb.UserAuth, only: [require_sudo_mode: 2]
+  import GIWeb.UserAuth, only: [require_sudo_mode: 2]
 
   plug :require_sudo_mode
   plug :assign_email_and_password_changesets

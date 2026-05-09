@@ -8,11 +8,11 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "fruitfly",
-	Short: "Fruitfly CLI application",
-	Long:  `Fruitfly is a CLI application built with Cobra.`,
+	Use:   "goodissues",
+	Short: "GoodIssues CLI application",
+	Long:  `GoodIssues is a CLI application built with Cobra.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Welcome to Fruitfly! Use --help to see available commands.")
+		fmt.Println("Welcome to GoodIssues! Use --help to see available commands.")
 	},
 }
 

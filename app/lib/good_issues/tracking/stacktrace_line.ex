@@ -1,4 +1,4 @@
-defmodule FF.Tracking.StacktraceLine do
+defmodule GI.Tracking.StacktraceLine do
   @moduledoc """
   Schema for stacktrace lines within an occurrence.
   Each line represents a frame in the error stacktrace, enabling search by module/function/file.
@@ -18,7 +18,7 @@ defmodule FF.Tracking.StacktraceLine do
     field :file, :string
     field :line, :integer
 
-    belongs_to :occurrence, FF.Tracking.Occurrence
+    belongs_to :occurrence, GI.Tracking.Occurrence
   end
 
   @doc """

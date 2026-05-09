@@ -1,13 +1,13 @@
-defmodule FFWeb.Api.V1.HeartbeatPingHistoryController do
-  use FFWeb, :controller
+defmodule GIWeb.Api.V1.HeartbeatPingHistoryController do
+  use GIWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
-  alias FF.Monitoring
-  alias FFWeb.Api.V1.Schemas.Heartbeat, as: HBSchemas
+  alias GI.Monitoring
+  alias GIWeb.Api.V1.Schemas.Heartbeat, as: HBSchemas
 
-  plug FFWeb.Plugs.ApiAuth, {:require_scope, "heartbeats:read"} when action in [:index]
+  plug GIWeb.Plugs.ApiAuth, {:require_scope, "heartbeats:read"} when action in [:index]
 
-  action_fallback FFWeb.FallbackController
+  action_fallback GIWeb.FallbackController
 
   tags(["Heartbeats"])
 
@@ -32,14 +32,14 @@ defmodule FFWeb.Api.V1.HeartbeatPingHistoryController do
     ],
     responses: [
       ok: {"Heartbeat ping list", "application/json", HBSchemas.HeartbeatPingListResponse},
-      bad_request: {"Bad request", "application/json", FFWeb.ErrorJSON},
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON}
+      bad_request: {"Bad request", "application/json", GIWeb.ErrorJSON},
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
   def index(conn, %{"project_id" => project_id, "heartbeat_id" => heartbeat_id} = params) do
-    with :ok <- FFWeb.Api.V1.PaginationHelpers.validate_pagination(params) do
+    with :ok <- GIWeb.Api.V1.PaginationHelpers.validate_pagination(params) do
       case Monitoring.get_heartbeat(
              conn.assigns.current_account,
              project_id,
@@ -52,7 +52,7 @@ defmodule FFWeb.Api.V1.HeartbeatPingHistoryController do
           result = Monitoring.list_heartbeat_pings(heartbeat, params)
 
           conn
-          |> put_view(FFWeb.Api.V1.HeartbeatPingJSON)
+          |> put_view(GIWeb.Api.V1.HeartbeatPingJSON)
           |> render(:index,
             pings: result.pings,
             page: result.page,

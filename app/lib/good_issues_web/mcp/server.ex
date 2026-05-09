@@ -1,24 +1,24 @@
-defmodule FFWeb.MCP.Server do
+defmodule GIWeb.MCP.Server do
   @moduledoc """
   MCP server implementation using Anubis.
 
   Authenticates clients via Bearer token and exposes tools.
   """
   use Anubis.Server,
-    name: "fruitfly",
+    name: "goodissues",
     version: "1.0.0",
     capabilities: [:tools]
 
-  alias FF.Accounts
+  alias GI.Accounts
   alias Anubis.Server.Frame
 
   # Register tool components at compile time
-  component(FFWeb.MCP.Tools.Projects.ProjectsList, name: "projects_list")
-  component(FFWeb.MCP.Tools.Projects.ProjectsGet, name: "projects_get")
-  component(FFWeb.MCP.Tools.Issues.IssuesList, name: "issues_list")
-  component(FFWeb.MCP.Tools.Issues.IssuesGet, name: "issues_get")
-  component(FFWeb.MCP.Tools.Issues.IssuesCreate, name: "issues_create")
-  component(FFWeb.MCP.Tools.Issues.IssuesUpdate, name: "issues_update")
+  component(GIWeb.MCP.Tools.Projects.ProjectsList, name: "projects_list")
+  component(GIWeb.MCP.Tools.Projects.ProjectsGet, name: "projects_get")
+  component(GIWeb.MCP.Tools.Issues.IssuesList, name: "issues_list")
+  component(GIWeb.MCP.Tools.Issues.IssuesGet, name: "issues_get")
+  component(GIWeb.MCP.Tools.Issues.IssuesCreate, name: "issues_create")
+  component(GIWeb.MCP.Tools.Issues.IssuesUpdate, name: "issues_update")
 
   @impl true
   def init(_client_info, frame) do

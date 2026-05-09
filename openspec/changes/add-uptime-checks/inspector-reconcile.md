@@ -62,7 +62,7 @@ Status reflects the codebase **after** the patches in this report.
 | 8.1 Enqueue on create | Not started | — |
 | 8.2 Enqueue on resume | Not started | — |
 | 8.3 Cancel jobs on delete | Not started | — |
-| 8.4 Startup recovery in `FF.Application` | Not started | — |
+| 8.4 Startup recovery in `GI.Application` | Not started | — |
 | 8.5 Job lifecycle tests | Not started | — |
 
 ## Patches Applied
@@ -127,7 +127,7 @@ That said, two things to flag for whoever picks this up next:
 ## What's Aligned
 
 - Issue type extension (proposal section "Modified Capabilities → issues") matches the codebase end to end — schema, OpenAPI, dashboard labels, filter, manual-form exclusion, and tests.
-- Bot user spec (`specs/bot-user/spec.md`) matches `App.Accounts.get_or_create_bot_user!/1` and the supporting `bot@{account_id}.fruitfly.internal` email guard at `app/lib/app/accounts/user.ex:93`.
+- Bot user spec (`specs/bot-user/spec.md`) matches `App.Accounts.get_or_create_bot_user!/1` and the supporting `bot@{account_id}.goodissues.internal` email guard at `app/lib/app/accounts/user.ex:93`.
 - API key scope spec (task 7.5) matches the additions in `app/lib/app/accounts/api_key.ex:15` and the dashboard scope editor at `app/lib/app_web/live/dashboard/api_key_live/edit.ex:16-17`.
 - Issues-UI delta (`specs/issues-ui/spec.md`) — incident badge, type filter, detail view, and "manual form excludes incident" — all reflected in `issue_live/index.ex`, `issue_live/show.ex`, `issue_live/form_component.ex`, and `project_live/show.ex`.
 - Design doc decisions are still valid; nothing in the codebase contradicts them. They simply describe future work.

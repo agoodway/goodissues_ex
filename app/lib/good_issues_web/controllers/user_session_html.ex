@@ -1,9 +1,9 @@
-defmodule FFWeb.UserSessionHTML do
-  use FFWeb, :html
+defmodule GIWeb.UserSessionHTML do
+  use GIWeb, :html
 
   embed_templates "user_session_html/*"
 
   defp local_mail_adapter? do
-    Application.get_env(:app, FF.Mailer)[:adapter] == Swoosh.Adapters.Local
+    Application.get_env(:good_issues, GI.Mailer)[:adapter] == Swoosh.Adapters.Local
   end
 end

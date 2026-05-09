@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.CreateHeartbeats do
+defmodule GI.Repo.Migrations.CreateHeartbeats do
   use Ecto.Migration
 
   def change do

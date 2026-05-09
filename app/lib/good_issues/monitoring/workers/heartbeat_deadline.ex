@@ -1,4 +1,4 @@
-defmodule FF.Monitoring.Workers.HeartbeatDeadline do
+defmodule GI.Monitoring.Workers.HeartbeatDeadline do
   @moduledoc """
   Oban worker that fires when a heartbeat's deadline passes without a
   ping. Uses the hardened scheduling model from `harden-check-scheduling`:
@@ -35,9 +35,9 @@ defmodule FF.Monitoring.Workers.HeartbeatDeadline do
 
   import Ecto.Query
 
-  alias FF.Monitoring
-  alias FF.Monitoring.{Heartbeat, HeartbeatIncidentLifecycle, HeartbeatScheduler}
-  alias FF.Repo
+  alias GI.Monitoring
+  alias GI.Monitoring.{Heartbeat, HeartbeatIncidentLifecycle, HeartbeatScheduler}
+  alias GI.Repo
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"heartbeat_id" => heartbeat_id} = args}) do

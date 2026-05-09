@@ -1,14 +1,14 @@
-defmodule FFWeb.Dashboard.ApiKeyLive.New do
+defmodule GIWeb.Dashboard.ApiKeyLive.New do
   @moduledoc """
   Dashboard view for creating a new API key for the current account.
 
   Only users with owner/admin role can create API keys.
   """
-  use FFWeb, :live_view
+  use GIWeb, :live_view
 
-  alias FF.Accounts
-  alias FF.Accounts.ApiKey
-  alias FF.Accounts.Scope
+  alias GI.Accounts
+  alias GI.Accounts.ApiKey
+  alias GI.Accounts.Scope
 
   @impl true
   def mount(_params, _session, socket) do
@@ -97,7 +97,7 @@ defmodule FFWeb.Dashboard.ApiKeyLive.New do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard
+    <GIWeb.Layouts.dashboard
       flash={@flash}
       current_scope={@current_scope}
       page_title={@page_title}
@@ -233,7 +233,7 @@ defmodule FFWeb.Dashboard.ApiKeyLive.New do
           </.form>
         </div>
       <% end %>
-    </FFWeb.Layouts.dashboard>
+    </GIWeb.Layouts.dashboard>
     """
   end
 end

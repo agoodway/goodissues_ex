@@ -1,4 +1,4 @@
-defmodule FFWeb.Plugs.RateLimiter do
+defmodule GIWeb.Plugs.RateLimiter do
   @moduledoc """
   Simple ETS-based rate limiter plug keyed by {remote_ip, path_token}.
 

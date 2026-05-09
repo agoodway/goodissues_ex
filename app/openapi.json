@@ -1781,8 +1781,8 @@
     }
   },
   "info": {
-    "description": "FruitFly API documentation.\n\n## Authentication\nAll API endpoints require authentication using API keys.\n\n### API Key Types\n- **Public Keys** (`pk_...`): Read-only access\n- **Private Keys** (`sk_...`): Full read/write access\n\n### How to Authenticate\n1. Log in to your account and create an API key\n2. Click the \"Authorize\" button in Swagger UI\n3. Enter your API key: `Bearer <your_api_key>`\n\nAll management requests must include the `Authorization` header.\n\n### Public Ping Endpoints\nHeartbeat ping endpoints (`/ping`, `/ping/start`, `/ping/fail`) authenticate\nvia the heartbeat token embedded in the URL and do **not** require a Bearer token.\n\n### Multi-tenant Access\nAPI keys are scoped to your membership in a specific account.\nTo access multiple accounts, create separate API keys for each.\n",
-    "title": "FruitFly API",
+    "description": "GoodIssues API documentation.\n\n## Authentication\nAll API endpoints require authentication using API keys.\n\n### API Key Types\n- **Public Keys** (`pk_...`): Read-only access\n- **Private Keys** (`sk_...`): Full read/write access\n\n### How to Authenticate\n1. Log in to your account and create an API key\n2. Click the \"Authorize\" button in Swagger UI\n3. Enter your API key: `Bearer <your_api_key>`\n\nAll management requests must include the `Authorization` header.\n\n### Public Ping Endpoints\nHeartbeat ping endpoints (`/ping`, `/ping/start`, `/ping/fail`) authenticate\nvia the heartbeat token embedded in the URL and do **not** require a Bearer token.\n\n### Multi-tenant Access\nAPI keys are scoped to your membership in a specific account.\nTo access multiple accounts, create separate API keys for each.\n",
+    "title": "GoodIssues API",
     "version": "1.0.0"
   },
   "openapi": "3.0.0",
@@ -1791,7 +1791,7 @@
       "get": {
         "callbacks": {},
         "description": "Returns all errors for the authenticated user's account",
-        "operationId": "FFWeb.Api.V1.ErrorController.index",
+        "operationId": "GIWeb.Api.V1.ErrorController.index",
         "parameters": [
           {
             "description": "Filter by status",
@@ -1863,7 +1863,7 @@
       "post": {
         "callbacks": {},
         "description": "Reports an error. If fingerprint matches existing error, adds occurrence. Otherwise creates new issue and error.",
-        "operationId": "FFWeb.Api.V1.ErrorController.create",
+        "operationId": "GIWeb.Api.V1.ErrorController.create",
         "parameters": [],
         "requestBody": {
           "content": {
@@ -1938,7 +1938,7 @@
       "get": {
         "callbacks": {},
         "description": "Searches errors by stacktrace fields (module, function, file)",
-        "operationId": "FFWeb.Api.V1.ErrorController.search",
+        "operationId": "GIWeb.Api.V1.ErrorController.search",
         "parameters": [
           {
             "description": "Search by module name",
@@ -2021,7 +2021,7 @@
       "get": {
         "callbacks": {},
         "description": "Returns a specific error by ID with paginated occurrences",
-        "operationId": "FFWeb.Api.V1.ErrorController.show",
+        "operationId": "GIWeb.Api.V1.ErrorController.show",
         "parameters": [
           {
             "description": "Error ID",
@@ -2095,7 +2095,7 @@
       "patch": {
         "callbacks": {},
         "description": "Updates an error's status or muted flag",
-        "operationId": "FFWeb.Api.V1.ErrorController.update",
+        "operationId": "GIWeb.Api.V1.ErrorController.update",
         "parameters": [
           {
             "description": "Error ID",
@@ -2180,8 +2180,8 @@
     "/api/v1/events/batch": {
       "post": {
         "callbacks": {},
-        "description": "Creates multiple telemetry spans in a single request. Used by FruitflyReporter to efficiently send batched telemetry data.",
-        "operationId": "FFWeb.Api.V1.EventController.create_batch",
+        "description": "Creates multiple telemetry spans in a single request. Used by GoodIssuesReporter to efficiently send batched telemetry data.",
+        "operationId": "GIWeb.Api.V1.EventController.create_batch",
         "parameters": [],
         "requestBody": {
           "content": {
@@ -2323,7 +2323,7 @@
       "get": {
         "callbacks": {},
         "description": "Returns all issues for the authenticated user's account",
-        "operationId": "FFWeb.Api.V1.IssueController.index",
+        "operationId": "GIWeb.Api.V1.IssueController.index",
         "parameters": [
           {
             "description": "Filter by project ID",
@@ -2415,7 +2415,7 @@
       "post": {
         "callbacks": {},
         "description": "Creates a new issue in a project",
-        "operationId": "FFWeb.Api.V1.IssueController.create",
+        "operationId": "GIWeb.Api.V1.IssueController.create",
         "parameters": [],
         "requestBody": {
           "content": {
@@ -2480,7 +2480,7 @@
       "delete": {
         "callbacks": {},
         "description": "Deletes an issue",
-        "operationId": "FFWeb.Api.V1.IssueController.delete",
+        "operationId": "GIWeb.Api.V1.IssueController.delete",
         "parameters": [
           {
             "description": "Issue ID",
@@ -2536,7 +2536,7 @@
       "get": {
         "callbacks": {},
         "description": "Returns a specific issue by ID",
-        "operationId": "FFWeb.Api.V1.IssueController.show",
+        "operationId": "GIWeb.Api.V1.IssueController.show",
         "parameters": [
           {
             "description": "Issue ID",
@@ -2589,7 +2589,7 @@
       "patch": {
         "callbacks": {},
         "description": "Updates an existing issue",
-        "operationId": "FFWeb.Api.V1.IssueController.update",
+        "operationId": "GIWeb.Api.V1.IssueController.update",
         "parameters": [
           {
             "description": "Issue ID",
@@ -2675,7 +2675,7 @@
       "get": {
         "callbacks": {},
         "description": "Returns all projects for the authenticated user's account",
-        "operationId": "FFWeb.Api.V1.ProjectController.index",
+        "operationId": "GIWeb.Api.V1.ProjectController.index",
         "parameters": [
           {
             "description": "Page number",
@@ -2739,7 +2739,7 @@
       "post": {
         "callbacks": {},
         "description": "Creates a new project in the authenticated user's account",
-        "operationId": "FFWeb.Api.V1.ProjectController.create",
+        "operationId": "GIWeb.Api.V1.ProjectController.create",
         "parameters": [],
         "requestBody": {
           "content": {
@@ -2804,7 +2804,7 @@
       "delete": {
         "callbacks": {},
         "description": "Deletes a project",
-        "operationId": "FFWeb.Api.V1.ProjectController.delete",
+        "operationId": "GIWeb.Api.V1.ProjectController.delete",
         "parameters": [
           {
             "description": "Project ID",
@@ -2860,7 +2860,7 @@
       "get": {
         "callbacks": {},
         "description": "Returns a specific project by ID",
-        "operationId": "FFWeb.Api.V1.ProjectController.show",
+        "operationId": "GIWeb.Api.V1.ProjectController.show",
         "parameters": [
           {
             "description": "Project ID",
@@ -2913,7 +2913,7 @@
       "patch": {
         "callbacks": {},
         "description": "Updates an existing project",
-        "operationId": "FFWeb.Api.V1.ProjectController.update",
+        "operationId": "GIWeb.Api.V1.ProjectController.update",
         "parameters": [
           {
             "description": "Project ID",
@@ -2998,7 +2998,7 @@
     "/api/v1/projects/{project_id}/checks": {
       "get": {
         "callbacks": {},
-        "operationId": "FFWeb.Api.V1.CheckController.index",
+        "operationId": "GIWeb.Api.V1.CheckController.index",
         "parameters": [
           {
             "description": "",
@@ -3081,7 +3081,7 @@
       },
       "post": {
         "callbacks": {},
-        "operationId": "FFWeb.Api.V1.CheckController.create",
+        "operationId": "GIWeb.Api.V1.CheckController.create",
         "parameters": [
           {
             "description": "",
@@ -3166,7 +3166,7 @@
     "/api/v1/projects/{project_id}/checks/{check_id}": {
       "delete": {
         "callbacks": {},
-        "operationId": "FFWeb.Api.V1.CheckController.delete",
+        "operationId": "GIWeb.Api.V1.CheckController.delete",
         "parameters": [
           {
             "description": "",
@@ -3231,7 +3231,7 @@
       },
       "get": {
         "callbacks": {},
-        "operationId": "FFWeb.Api.V1.CheckController.show",
+        "operationId": "GIWeb.Api.V1.CheckController.show",
         "parameters": [
           {
             "description": "",
@@ -3293,7 +3293,7 @@
       },
       "patch": {
         "callbacks": {},
-        "operationId": "FFWeb.Api.V1.CheckController.update",
+        "operationId": "GIWeb.Api.V1.CheckController.update",
         "parameters": [
           {
             "description": "",
@@ -3388,7 +3388,7 @@
     "/api/v1/projects/{project_id}/checks/{check_id}/results": {
       "get": {
         "callbacks": {},
-        "operationId": "FFWeb.Api.V1.CheckResultController.index",
+        "operationId": "GIWeb.Api.V1.CheckResultController.index",
         "parameters": [
           {
             "description": "",
@@ -3483,7 +3483,7 @@
     "/api/v1/projects/{project_id}/heartbeats": {
       "get": {
         "callbacks": {},
-        "operationId": "FFWeb.Api.V1.HeartbeatController.index",
+        "operationId": "GIWeb.Api.V1.HeartbeatController.index",
         "parameters": [
           {
             "description": "",
@@ -3566,7 +3566,7 @@
       },
       "post": {
         "callbacks": {},
-        "operationId": "FFWeb.Api.V1.HeartbeatController.create",
+        "operationId": "GIWeb.Api.V1.HeartbeatController.create",
         "parameters": [
           {
             "description": "",
@@ -3651,7 +3651,7 @@
     "/api/v1/projects/{project_id}/heartbeats/{heartbeat_id}": {
       "delete": {
         "callbacks": {},
-        "operationId": "FFWeb.Api.V1.HeartbeatController.delete",
+        "operationId": "GIWeb.Api.V1.HeartbeatController.delete",
         "parameters": [
           {
             "description": "",
@@ -3716,7 +3716,7 @@
       },
       "get": {
         "callbacks": {},
-        "operationId": "FFWeb.Api.V1.HeartbeatController.show",
+        "operationId": "GIWeb.Api.V1.HeartbeatController.show",
         "parameters": [
           {
             "description": "",
@@ -3778,7 +3778,7 @@
       },
       "patch": {
         "callbacks": {},
-        "operationId": "FFWeb.Api.V1.HeartbeatController.update",
+        "operationId": "GIWeb.Api.V1.HeartbeatController.update",
         "parameters": [
           {
             "description": "",
@@ -3873,7 +3873,7 @@
     "/api/v1/projects/{project_id}/heartbeats/{heartbeat_id}/pings": {
       "get": {
         "callbacks": {},
-        "operationId": "FFWeb.Api.V1.HeartbeatPingHistoryController.index",
+        "operationId": "GIWeb.Api.V1.HeartbeatPingHistoryController.index",
         "parameters": [
           {
             "description": "",
@@ -3969,7 +3969,7 @@
       "post": {
         "callbacks": {},
         "description": "Signal that the monitored job completed. No Bearer auth required — the token in the URL authenticates.",
-        "operationId": "FFWeb.Api.V1.HeartbeatPingController.ping",
+        "operationId": "GIWeb.Api.V1.HeartbeatPingController.ping",
         "parameters": [
           {
             "description": "",
@@ -4028,7 +4028,7 @@
       "post": {
         "callbacks": {},
         "description": "Signal that the monitored job failed. No Bearer auth required. `exit_code` is a reserved field persisted separately.",
-        "operationId": "FFWeb.Api.V1.HeartbeatPingController.fail",
+        "operationId": "GIWeb.Api.V1.HeartbeatPingController.fail",
         "parameters": [
           {
             "description": "",
@@ -4087,7 +4087,7 @@
       "post": {
         "callbacks": {},
         "description": "Signal that the monitored job has started. No Bearer auth required.",
-        "operationId": "FFWeb.Api.V1.HeartbeatPingController.start",
+        "operationId": "GIWeb.Api.V1.HeartbeatPingController.start",
         "parameters": [
           {
             "description": "",

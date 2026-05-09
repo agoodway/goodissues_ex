@@ -1,4 +1,4 @@
-defmodule FFWeb.Api.V1.Schemas.Error do
+defmodule GIWeb.Api.V1.Schemas.Error do
   @moduledoc """
   OpenAPI schemas for Error endpoints.
   """
@@ -291,7 +291,7 @@ defmodule FFWeb.Api.V1.Schemas.Error do
 
   defmodule ErrorListResponse do
     @moduledoc false
-    alias FFWeb.Api.V1.Schemas.Pagination
+    alias GIWeb.Api.V1.Schemas.Pagination
 
     OpenApiSpex.schema(
       Map.merge(

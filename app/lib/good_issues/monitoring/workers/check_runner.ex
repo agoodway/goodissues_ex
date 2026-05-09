@@ -1,4 +1,4 @@
-defmodule FF.Monitoring.Workers.CheckRunner do
+defmodule GI.Monitoring.Workers.CheckRunner do
   @moduledoc """
   Oban worker that executes a single uptime check and reschedules itself
   for the next run. Self-rescheduling means each job reads the check's
@@ -30,9 +30,9 @@ defmodule FF.Monitoring.Workers.CheckRunner do
 
   require Logger
 
-  alias FF.Monitoring
-  alias FF.Monitoring.{Check, IncidentLifecycle, Scheduler}
-  alias FF.Repo
+  alias GI.Monitoring
+  alias GI.Monitoring.{Check, IncidentLifecycle, Scheduler}
+  alias GI.Repo
 
   @default_timeout_ms 30_000
 
@@ -124,7 +124,7 @@ defmodule FF.Monitoring.Workers.CheckRunner do
     method = check.method || :get
 
     timeout_ms =
-      Application.get_env(:app, __MODULE__, [])
+      Application.get_env(:good_issues, __MODULE__, [])
       |> Keyword.get(:timeout_ms, @default_timeout_ms)
 
     request_options = [
@@ -225,7 +225,7 @@ defmodule FF.Monitoring.Workers.CheckRunner do
   end
 
   defp http_client do
-    Application.get_env(:app, __MODULE__, [])
-    |> Keyword.get(:http_client, FF.Monitoring.HttpClient.Req)
+    Application.get_env(:good_issues, __MODULE__, [])
+    |> Keyword.get(:http_client, GI.Monitoring.HttpClient.Req)
   end
 end

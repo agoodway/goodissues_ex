@@ -1,9 +1,9 @@
-defmodule FFWeb.ApiSpec do
+defmodule GIWeb.ApiSpec do
   @moduledoc """
   OpenAPI specification for the API.
   Provides auto-generated documentation and request/response validation.
   """
-  alias FFWeb.{Endpoint, Router}
+  alias GIWeb.{Endpoint, Router}
   alias OpenApiSpex.{Components, Info, OpenApi, Paths, SecurityScheme, Server}
   @behaviour OpenApi
 
@@ -14,10 +14,10 @@ defmodule FFWeb.ApiSpec do
         Server.from_endpoint(Endpoint)
       ],
       info: %Info{
-        title: "FruitFly API",
+        title: "GoodIssues API",
         version: "1.0.0",
         description: """
-        FruitFly API documentation.
+        GoodIssues API documentation.
 
         ## Authentication
         All API endpoints require authentication using API keys.

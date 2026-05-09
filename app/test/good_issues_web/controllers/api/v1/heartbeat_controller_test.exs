@@ -1,9 +1,9 @@
-defmodule FFWeb.Api.V1.HeartbeatControllerTest do
-  use FFWeb.ConnCase
+defmodule GIWeb.Api.V1.HeartbeatControllerTest do
+  use GIWeb.ConnCase
 
-  import FF.AccountsFixtures
-  import FF.MonitoringFixtures
-  import FF.TrackingFixtures
+  import GI.AccountsFixtures
+  import GI.MonitoringFixtures
+  import GI.TrackingFixtures
 
   setup %{conn: conn} do
     {user, account} = user_with_account_fixture()

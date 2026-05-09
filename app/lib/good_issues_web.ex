@@ -1,12 +1,12 @@
-defmodule FFWeb do
+defmodule GIWeb do
   @moduledoc """
   The entrypoint for defining your web interface, such
   as controllers, components, channels, and so on.
 
   This can be used in your application as:
 
-      use FFWeb, :controller
-      use FFWeb, :html
+      use GIWeb, :controller
+      use GIWeb, :html
 
   The definitions below will be executed for every controller,
   component, etc, so keep them short and clean, focused
@@ -40,7 +40,7 @@ defmodule FFWeb do
     quote do
       use Phoenix.Controller, formats: [:html, :json]
 
-      use Gettext, backend: FFWeb.Gettext
+      use Gettext, backend: GIWeb.Gettext
 
       import Plug.Conn
 
@@ -80,15 +80,15 @@ defmodule FFWeb do
   defp html_helpers do
     quote do
       # Translation
-      use Gettext, backend: FFWeb.Gettext
+      use Gettext, backend: GIWeb.Gettext
 
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components
-      import FFWeb.CoreComponents
+      import GIWeb.CoreComponents
 
       # Common modules used in templates
-      alias FFWeb.Layouts
+      alias GIWeb.Layouts
       alias Phoenix.LiveView.JS
 
       # Routes generation with the ~p sigil
@@ -99,9 +99,9 @@ defmodule FFWeb do
   def verified_routes do
     quote do
       use Phoenix.VerifiedRoutes,
-        endpoint: FFWeb.Endpoint,
-        router: FFWeb.Router,
-        statics: FFWeb.static_paths()
+        endpoint: GIWeb.Endpoint,
+        router: GIWeb.Router,
+        statics: GIWeb.static_paths()
     end
   end
 

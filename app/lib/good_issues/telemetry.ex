@@ -1,18 +1,18 @@
-defmodule FF.Telemetry do
+defmodule GI.Telemetry do
   @moduledoc """
   The Telemetry context.
 
-  Manages telemetry spans collected from applications using FruitflyReporter.
+  Manages telemetry spans collected from applications using GoodIssuesReporter.
   Spans capture performance data and request lifecycle information that can be
   correlated with errors via request_id.
   """
 
   import Ecto.Query
 
-  alias FF.Accounts.Account
-  alias FF.Repo
-  alias FF.Telemetry.Span
-  alias FF.Tracking.Project
+  alias GI.Accounts.Account
+  alias GI.Repo
+  alias GI.Telemetry.Span
+  alias GI.Tracking.Project
 
   @doc """
   Creates multiple spans in a single bulk insert.
@@ -121,7 +121,7 @@ defmodule FF.Telemetry do
   defp valid_uuid?(_), do: false
 
   # Map of valid event type strings to atoms, ensuring atoms exist at compile time
-  # by referencing FF.Telemetry.Span's event_types
+  # by referencing GI.Telemetry.Span's event_types
   @event_type_map %{
     "phoenix_request" => :phoenix_request,
     "phoenix_router" => :phoenix_router,

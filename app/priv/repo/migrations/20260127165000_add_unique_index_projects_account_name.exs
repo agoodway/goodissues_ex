@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.AddUniqueIndexProjectsAccountName do
+defmodule GI.Repo.Migrations.AddUniqueIndexProjectsAccountName do
   use Ecto.Migration
 
   def change do

@@ -1,7 +1,7 @@
-defmodule FFWeb.Api.V1.CheckResultJSON do
+defmodule GIWeb.Api.V1.CheckResultJSON do
   @moduledoc "JSON rendering for CheckResult resources."
 
-  alias FF.Monitoring.CheckResult
+  alias GI.Monitoring.CheckResult
 
   def index(%{
         results: results,

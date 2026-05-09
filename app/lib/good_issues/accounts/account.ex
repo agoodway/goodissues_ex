@@ -1,4 +1,4 @@
-defmodule FF.Accounts.Account do
+defmodule GI.Accounts.Account do
   @moduledoc """
   Schema for accounts (organizations/tenants).
   Users can belong to multiple accounts.
@@ -14,8 +14,8 @@ defmodule FF.Accounts.Account do
           name: String.t() | nil,
           slug: String.t() | nil,
           status: :active | :suspended,
-          account_users: [FF.Accounts.AccountUser.t()] | Ecto.Association.NotLoaded.t(),
-          users: [FF.Accounts.User.t()] | Ecto.Association.NotLoaded.t(),
+          account_users: [GI.Accounts.AccountUser.t()] | Ecto.Association.NotLoaded.t(),
+          users: [GI.Accounts.User.t()] | Ecto.Association.NotLoaded.t(),
           inserted_at: DateTime.t() | nil,
           updated_at: DateTime.t() | nil
         }
@@ -25,7 +25,7 @@ defmodule FF.Accounts.Account do
     field :slug, :string
     field :status, Ecto.Enum, values: [:active, :suspended], default: :active
 
-    has_many :account_users, FF.Accounts.AccountUser
+    has_many :account_users, GI.Accounts.AccountUser
     has_many :users, through: [:account_users, :user]
 
     timestamps(type: :utc_datetime)

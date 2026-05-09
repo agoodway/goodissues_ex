@@ -1,8 +1,8 @@
-defmodule FFWeb.UserSettingsControllerTest do
-  use FFWeb.ConnCase, async: true
+defmodule GIWeb.UserSettingsControllerTest do
+  use GIWeb.ConnCase, async: true
 
-  alias FF.Accounts
-  import FF.AccountsFixtures
+  alias GI.Accounts
+  import GI.AccountsFixtures
 
   setup :register_and_log_in_user
 

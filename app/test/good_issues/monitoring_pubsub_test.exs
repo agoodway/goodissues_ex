@@ -1,11 +1,11 @@
-defmodule FF.MonitoringPubSubTest do
-  use FF.DataCase, async: false
+defmodule GI.MonitoringPubSubTest do
+  use GI.DataCase, async: false
 
-  import FF.AccountsFixtures
-  import FF.MonitoringFixtures
-  import FF.TrackingFixtures
+  import GI.AccountsFixtures
+  import GI.MonitoringFixtures
+  import GI.TrackingFixtures
 
-  alias FF.Monitoring
+  alias GI.Monitoring
 
   setup do
     {user, account} = user_with_account_fixture()
@@ -19,7 +19,7 @@ defmodule FF.MonitoringPubSubTest do
       account: account,
       project: project
     } do
-      Phoenix.PubSub.subscribe(FF.PubSub, Monitoring.checks_topic(project.id))
+      Phoenix.PubSub.subscribe(GI.PubSub, Monitoring.checks_topic(project.id))
 
       attrs = %{name: "Health", url: "https://example.com", project_id: project.id}
       {:ok, check} = Monitoring.create_check(account, user, attrs)
@@ -38,7 +38,7 @@ defmodule FF.MonitoringPubSubTest do
       project: project
     } do
       check = check_fixture(account, user, project)
-      Phoenix.PubSub.subscribe(FF.PubSub, Monitoring.checks_topic(project.id))
+      Phoenix.PubSub.subscribe(GI.PubSub, Monitoring.checks_topic(project.id))
 
       {:ok, updated} = Monitoring.update_check(check, %{name: "Renamed"})
 
@@ -53,7 +53,7 @@ defmodule FF.MonitoringPubSubTest do
       project: project
     } do
       check = check_fixture(account, user, project)
-      Phoenix.PubSub.subscribe(FF.PubSub, Monitoring.checks_topic(project.id))
+      Phoenix.PubSub.subscribe(GI.PubSub, Monitoring.checks_topic(project.id))
 
       {:ok, _updated} = Monitoring.update_check(check, %{paused: true})
 
@@ -67,7 +67,7 @@ defmodule FF.MonitoringPubSubTest do
       project: project
     } do
       check = check_fixture(account, user, project)
-      Phoenix.PubSub.subscribe(FF.PubSub, Monitoring.checks_topic(project.id))
+      Phoenix.PubSub.subscribe(GI.PubSub, Monitoring.checks_topic(project.id))
 
       {:ok, _} = Monitoring.delete_check(check)
 

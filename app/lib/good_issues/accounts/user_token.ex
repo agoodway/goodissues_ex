@@ -1,4 +1,4 @@
-defmodule FF.Accounts.UserToken do
+defmodule GI.Accounts.UserToken do
   @moduledoc """
   Schema and functions for user session and email tokens.
 
@@ -7,7 +7,7 @@ defmodule FF.Accounts.UserToken do
   """
   use Ecto.Schema
   import Ecto.Query
-  alias FF.Accounts.UserToken
+  alias GI.Accounts.UserToken
 
   @hash_algorithm :sha256
   @rand_size 32
@@ -25,7 +25,7 @@ defmodule FF.Accounts.UserToken do
     field :context, :string
     field :sent_to, :string
     field :authenticated_at, :utc_datetime
-    belongs_to :user, FF.Accounts.User
+    belongs_to :user, GI.Accounts.User
 
     timestamps(type: :utc_datetime, updated_at: false)
   end

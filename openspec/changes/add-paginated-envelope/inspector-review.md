@@ -39,7 +39,7 @@ Reviewed all change artifacts (proposal, design, tasks, delta spec) against cano
 
 The following codebase observations were confirmed during review and are correctly addressed by the change's tasks:
 
-- `PaginationMeta` lives in `FFWeb.Api.V1.Schemas.Error` at `schemas/error.ex:292` — task 1.2 addresses extraction
+- `PaginationMeta` lives in `GIWeb.Api.V1.Schemas.Error` at `schemas/error.ex:292` — task 1.2 addresses extraction
 - `IssueController.index` discards pagination meta at `issue_controller.ex:47` — task 3.1 addresses this
 - `ProjectController.index` calls `list_projects/1` (no pagination) at `project_controller.ex:28` — task 2.2 addresses this
 - `ErrorController.search` hardcodes `page: 1, per_page: 20, total_pages: 1` at `error_controller.ex:282-290` — task 4.2 addresses this

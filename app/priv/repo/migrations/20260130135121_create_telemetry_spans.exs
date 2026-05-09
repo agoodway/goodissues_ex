@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.CreateTelemetrySpans do
+defmodule GI.Repo.Migrations.CreateTelemetrySpans do
   use Ecto.Migration
 
   def change do

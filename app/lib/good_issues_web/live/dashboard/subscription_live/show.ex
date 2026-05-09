@@ -1,11 +1,11 @@
-defmodule FFWeb.Dashboard.SubscriptionLive.Show do
+defmodule GIWeb.Dashboard.SubscriptionLive.Show do
   @moduledoc """
   Dashboard view for showing a single event subscription with notification log.
   """
-  use FFWeb, :live_view
+  use GIWeb, :live_view
 
-  alias FF.Accounts.Scope
-  alias FF.Notifications
+  alias GI.Accounts.Scope
+  alias GI.Notifications
 
   @impl true
   def mount(_params, _session, socket) do
@@ -86,7 +86,7 @@ defmodule FFWeb.Dashboard.SubscriptionLive.Show do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard
+    <GIWeb.Layouts.dashboard
       flash={@flash}
       current_scope={@current_scope}
       page_title={@page_title}
@@ -337,7 +337,7 @@ defmodule FFWeb.Dashboard.SubscriptionLive.Show do
           <span>Back to Subscriptions</span>
         </.link>
       </div>
-    </FFWeb.Layouts.dashboard>
+    </GIWeb.Layouts.dashboard>
     """
   end
 end

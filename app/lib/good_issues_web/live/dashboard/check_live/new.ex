@@ -1,16 +1,16 @@
-defmodule FFWeb.Dashboard.CheckLive.New do
+defmodule GIWeb.Dashboard.CheckLive.New do
   @moduledoc """
   Dashboard view for creating a new uptime check.
 
   Uses progressive disclosure: basic fields visible by default,
   advanced settings in a collapsible section.
   """
-  use FFWeb, :live_view
+  use GIWeb, :live_view
 
-  alias FF.Accounts.Scope
-  alias FF.Monitoring
-  alias FF.Monitoring.Check
-  alias FF.Tracking
+  alias GI.Accounts.Scope
+  alias GI.Monitoring
+  alias GI.Monitoring.Check
+  alias GI.Tracking
 
   @impl true
   def mount(%{"project_id" => project_id}, _session, socket) do
@@ -85,7 +85,7 @@ defmodule FFWeb.Dashboard.CheckLive.New do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard
+    <GIWeb.Layouts.dashboard
       flash={@flash}
       current_scope={@current_scope}
       page_title={@page_title}
@@ -264,7 +264,7 @@ defmodule FFWeb.Dashboard.CheckLive.New do
           </div>
         </div>
       </div>
-    </FFWeb.Layouts.dashboard>
+    </GIWeb.Layouts.dashboard>
     """
   end
 end

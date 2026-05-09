@@ -1,14 +1,14 @@
-defmodule FFWeb.Dashboard.ApiKeyLive.Show do
+defmodule GIWeb.Dashboard.ApiKeyLive.Show do
   @moduledoc """
   Dashboard view for showing a single API key scoped to the current account.
 
   Verifies the API key belongs to the current account before displaying.
   Only users with owner/admin role can revoke keys.
   """
-  use FFWeb, :live_view
+  use GIWeb, :live_view
 
-  alias FF.Accounts
-  alias FF.Accounts.Scope
+  alias GI.Accounts
+  alias GI.Accounts.Scope
 
   @impl true
   def mount(_params, _session, socket) do
@@ -80,7 +80,7 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Show do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard
+    <GIWeb.Layouts.dashboard
       flash={@flash}
       current_scope={@current_scope}
       page_title={@page_title}
@@ -546,7 +546,7 @@ defmodule FFWeb.Dashboard.ApiKeyLive.Show do
           <span>Back to API Keys</span>
         </.link>
       </div>
-    </FFWeb.Layouts.dashboard>
+    </GIWeb.Layouts.dashboard>
     """
   end
 end

@@ -1,10 +1,10 @@
-defmodule FF.TelemetryTest do
-  use FF.DataCase
+defmodule GI.TelemetryTest do
+  use GI.DataCase
 
-  import FF.AccountsFixtures
-  import FF.TrackingFixtures
+  import GI.AccountsFixtures
+  import GI.TrackingFixtures
 
-  alias FF.Telemetry
+  alias GI.Telemetry
 
   describe "create_spans_batch/3" do
     setup do

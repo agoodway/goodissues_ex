@@ -22,7 +22,7 @@
 
 1. **OTLP route pipeline and auth model unclear** — `router.ex:133`: the existing events route uses `:api_write` pipeline which enforces `require_write_access` (private key check) then scope-based auth. The spec does not define which pipeline OTLP routes belong to or whether both checks are needed. The design now mentions a new `:api_otlp` pipeline but doesn't specify whether it includes `require_write_access`. **Action**: Define the full OTLP pipeline in the design — recommend reusing the `:api_write` pattern (private key required + scope check) for consistency.
 
-2. **Project validation responsibility unclear** — `telemetry.ex:57`: existing `create_spans_batch_unchecked/2` skips N+1 validation. The storage behaviour doesn't specify whether `FF.Otel` context validates project ownership before calling `Storage.insert_spans/2`, or whether each adapter handles it. **Action**: Clarify in design.md that the context resolves and validates the project, and the storage adapter receives a guaranteed-valid `project_id`.
+2. **Project validation responsibility unclear** — `telemetry.ex:57`: existing `create_spans_batch_unchecked/2` skips N+1 validation. The storage behaviour doesn't specify whether `GI.Otel` context validates project ownership before calling `Storage.insert_spans/2`, or whether each adapter handles it. **Action**: Clarify in design.md that the context resolves and validates the project, and the storage adapter receives a guaranteed-valid `project_id`.
 
 ### Suggestion
 
@@ -30,7 +30,7 @@
 
 2. **Total rejection HTTP status unspecified** — The design covers partial success but not the case when ALL ResourceSpans batches are rejected (every service.name unknown). Recommend HTTP 400 with structured error body rather than HTTP 200 with all-rejected.
 
-3. **OpenAPI for protobuf endpoints** — Task 5.7 says "update openapi.json" but the OTLP protocol uses protobuf. Determine whether OTLP endpoints should appear in the OpenAPI spec at all, or document them with a minimal schema noting binary protobuf bodies. The existing `FFWeb.ApiSpec` module uses JSON exclusively.
+3. **OpenAPI for protobuf endpoints** — Task 5.7 says "update openapi.json" but the OTLP protocol uses protobuf. Determine whether OTLP endpoints should appear in the OpenAPI spec at all, or document them with a minimal schema noting binary protobuf bodies. The existing `GIWeb.ApiSpec` module uses JSON exclusively.
 
 ## Patches applied
 

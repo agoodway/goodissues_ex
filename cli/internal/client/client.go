@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"time"
 
-	"fruitfly/internal/config"
+	"goodissues/internal/config"
 )
 
 type Client struct {

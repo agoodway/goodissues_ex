@@ -1,4 +1,4 @@
-defmodule FF.Monitoring.SharedIncidentLifecycle do
+defmodule GI.Monitoring.SharedIncidentLifecycle do
   @moduledoc """
   Shared incident lifecycle helpers used by both check and heartbeat
   incident lifecycle modules.
@@ -7,7 +7,7 @@ defmodule FF.Monitoring.SharedIncidentLifecycle do
   issue is open, eligible for reopen, or expired.
   """
 
-  alias FF.Tracking.Issue
+  alias GI.Tracking.Issue
 
   @doc """
   Classifies an existing issue as `:open`, `:reopen`, or `:none` based

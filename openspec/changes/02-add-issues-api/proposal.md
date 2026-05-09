@@ -15,12 +15,12 @@ The application needs a way to track bugs and feature requests. Issues provide a
 ## Impact
 - Affected specs: None (new capability)
 - Affected code:
-  - New schema: `FF.Tracking.Issue`
+  - New schema: `GI.Tracking.Issue`
   - New migration for `issues` table
-  - New API controller: `FFWeb.Api.V1.IssueController`
+  - New API controller: `GIWeb.Api.V1.IssueController`
   - New OpenAPI schemas for request/response types
   - Router updates for `/api/v1/issues` endpoints
-  - Extend `FF.Tracking` context with issue functions
+  - Extend `GI.Tracking` context with issue functions
 
 ## Dependencies
 - Requires 01-add-projects-api to be implemented first

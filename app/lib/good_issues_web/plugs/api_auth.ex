@@ -1,4 +1,4 @@
-defmodule FFWeb.Plugs.ApiAuth do
+defmodule GIWeb.Plugs.ApiAuth do
   @moduledoc """
   Bearer token authentication for API requests.
   Validates API keys and loads user/account context.
@@ -6,9 +6,9 @@ defmodule FFWeb.Plugs.ApiAuth do
   import Plug.Conn
   import Phoenix.Controller
 
-  alias FF.Accounts
+  alias GI.Accounts
 
-  @env Application.compile_env(:app, :env, :prod)
+  @env Application.compile_env(:good_issues, :env, :prod)
 
   # Suppress dialyzer warning - the else branch is reachable in dev/prod
   @dialyzer {:nowarn_function, touch_api_key_async: 1}
@@ -60,7 +60,7 @@ defmodule FFWeb.Plugs.ApiAuth do
   defp halt_unauthorized(conn) do
     conn
     |> put_status(:unauthorized)
-    |> put_view(json: FFWeb.ErrorJSON)
+    |> put_view(json: GIWeb.ErrorJSON)
     |> render(:"401")
     |> halt()
   end
@@ -77,7 +77,7 @@ defmodule FFWeb.Plugs.ApiAuth do
     else
       conn
       |> put_status(:forbidden)
-      |> put_view(json: FFWeb.ErrorJSON)
+      |> put_view(json: GIWeb.ErrorJSON)
       |> render(:"403")
       |> halt()
     end
@@ -91,8 +91,8 @@ defmodule FFWeb.Plugs.ApiAuth do
 
   ## Examples
 
-      plug FFWeb.Plugs.ApiAuth, {:require_scope, "projects:read"}
-      plug FFWeb.Plugs.ApiAuth, {:require_scope, "issues:write"}
+      plug GIWeb.Plugs.ApiAuth, {:require_scope, "projects:read"}
+      plug GIWeb.Plugs.ApiAuth, {:require_scope, "issues:write"}
   """
   def require_scope(conn, required_scope) do
     case conn.assigns[:current_api_key] do
@@ -100,7 +100,7 @@ defmodule FFWeb.Plugs.ApiAuth do
         # No API key means no authentication - return forbidden
         conn
         |> put_status(:forbidden)
-        |> put_view(json: FFWeb.ErrorJSON)
+        |> put_view(json: GIWeb.ErrorJSON)
         |> render(:forbidden_scope, scope: required_scope)
         |> halt()
 
@@ -113,7 +113,7 @@ defmodule FFWeb.Plugs.ApiAuth do
         else
           conn
           |> put_status(:forbidden)
-          |> put_view(json: FFWeb.ErrorJSON)
+          |> put_view(json: GIWeb.ErrorJSON)
           |> render(:forbidden_scope, scope: required_scope)
           |> halt()
         end

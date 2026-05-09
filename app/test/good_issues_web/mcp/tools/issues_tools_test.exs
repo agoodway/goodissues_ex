@@ -1,13 +1,13 @@
-defmodule FFWeb.MCP.Tools.IssuesToolsTest do
-  use FF.DataCase, async: true
+defmodule GIWeb.MCP.Tools.IssuesToolsTest do
+  use GI.DataCase, async: true
 
   alias Anubis.Server.Frame
-  alias FF.Repo
-  alias FF.Tracking
-  alias FFWeb.MCP.Tools.Issues.{IssuesCreate, IssuesList, IssuesUpdate}
+  alias GI.Repo
+  alias GI.Tracking
+  alias GIWeb.MCP.Tools.Issues.{IssuesCreate, IssuesList, IssuesUpdate}
 
-  import FF.AccountsFixtures
-  import FF.TrackingFixtures
+  import GI.AccountsFixtures
+  import GI.TrackingFixtures
 
   defp frame_with_api_key(api_key) do
     %Frame{assigns: %{api_key: Repo.preload(api_key, account_user: [:account, :user])}}

@@ -1,12 +1,12 @@
-defmodule FF.MonitoringTest do
-  use FF.DataCase, async: false
+defmodule GI.MonitoringTest do
+  use GI.DataCase, async: false
 
-  import FF.AccountsFixtures
-  import FF.MonitoringFixtures
-  import FF.TrackingFixtures
+  import GI.AccountsFixtures
+  import GI.MonitoringFixtures
+  import GI.TrackingFixtures
 
-  alias FF.Monitoring
-  alias FF.Monitoring.{Check, CheckResult}
+  alias GI.Monitoring
+  alias GI.Monitoring.{Check, CheckResult}
 
   setup do
     {user, account} = user_with_account_fixture()
@@ -310,7 +310,7 @@ defmodule FF.MonitoringTest do
 
       issue
       |> Ecto.Changeset.change(archived_at: old_archived_at)
-      |> FF.Repo.update!()
+      |> GI.Repo.update!()
 
       {:ok, _} =
         Monitoring.create_check_result(check, %{

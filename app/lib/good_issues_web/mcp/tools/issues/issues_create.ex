@@ -1,9 +1,9 @@
-defmodule FFWeb.MCP.Tools.Issues.IssuesCreate do
+defmodule GIWeb.MCP.Tools.Issues.IssuesCreate do
   @moduledoc "Create a new issue"
   use Anubis.Server.Component, type: :tool
 
-  alias FF.Tracking
-  alias FFWeb.MCP.Tools.Base
+  alias GI.Tracking
+  alias GIWeb.MCP.Tools.Base
 
   @impl true
   def description, do: "Create a new issue in a project"

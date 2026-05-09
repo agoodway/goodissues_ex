@@ -1,9 +1,9 @@
-defmodule FFWeb.MCP.Tools.Projects.ProjectsGet do
+defmodule GIWeb.MCP.Tools.Projects.ProjectsGet do
   @moduledoc "Get a project by ID"
   use Anubis.Server.Component, type: :tool
 
-  alias FF.Tracking
-  alias FFWeb.MCP.Tools.Base
+  alias GI.Tracking
+  alias GIWeb.MCP.Tools.Base
 
   @impl true
   def description, do: "Get a project by ID"

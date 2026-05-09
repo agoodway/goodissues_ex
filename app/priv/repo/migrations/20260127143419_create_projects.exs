@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.CreateProjects do
+defmodule GI.Repo.Migrations.CreateProjects do
   use Ecto.Migration
 
   def change do

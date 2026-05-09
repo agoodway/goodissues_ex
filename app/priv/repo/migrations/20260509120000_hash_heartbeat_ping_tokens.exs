@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.HashHeartbeatPingTokens do
+defmodule GI.Repo.Migrations.HashHeartbeatPingTokens do
   use Ecto.Migration
 
   def change do

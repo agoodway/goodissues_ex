@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.CreateOccurrences do
+defmodule GI.Repo.Migrations.CreateOccurrences do
   use Ecto.Migration
 
   def change do

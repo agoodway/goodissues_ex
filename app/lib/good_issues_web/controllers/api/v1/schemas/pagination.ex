@@ -1,4 +1,4 @@
-defmodule FFWeb.Api.V1.Schemas.Pagination do
+defmodule GIWeb.Api.V1.Schemas.Pagination do
   @moduledoc """
   Shared OpenAPI schemas for pagination.
   """

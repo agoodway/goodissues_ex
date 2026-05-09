@@ -1,10 +1,10 @@
-defmodule FFWeb.Dashboard.IssueLive.FormComponent do
+defmodule GIWeb.Dashboard.IssueLive.FormComponent do
   @moduledoc """
   Reusable form component for creating and editing issues.
   """
-  use FFWeb, :live_component
+  use GIWeb, :live_component
 
-  alias FF.Tracking
+  alias GI.Tracking
 
   @impl true
   def render(assigns) do

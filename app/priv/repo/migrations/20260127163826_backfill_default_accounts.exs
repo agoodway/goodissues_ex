@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.BackfillDefaultAccounts do
+defmodule GI.Repo.Migrations.BackfillDefaultAccounts do
   use Ecto.Migration
 
   import Ecto.Query

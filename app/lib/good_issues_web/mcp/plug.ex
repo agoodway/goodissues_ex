@@ -1,11 +1,11 @@
-defmodule FFWeb.MCP.Plug do
+defmodule GIWeb.MCP.Plug do
   @moduledoc """
   Authenticates MCP requests using Bearer token.
 
   Validates early before forwarding to Anubis server.
   """
   import Plug.Conn
-  alias FF.Accounts
+  alias GI.Accounts
 
   alias Anubis.Server.Transport.StreamableHTTP.Plug, as: AnubisPlug
 

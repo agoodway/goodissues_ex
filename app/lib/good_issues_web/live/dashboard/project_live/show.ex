@@ -1,16 +1,16 @@
-defmodule FFWeb.Dashboard.ProjectLive.Show do
+defmodule GIWeb.Dashboard.ProjectLive.Show do
   @moduledoc """
   Dashboard view for showing a single project with edit and delete capabilities.
 
   Verifies the project belongs to the current account before displaying.
   Shows project details and recent issues.
   """
-  use FFWeb, :live_view
+  use GIWeb, :live_view
 
-  alias FF.Accounts.Scope
-  alias FF.Monitoring
-  alias FF.Tracking
-  alias FF.Tracking.Issue
+  alias GI.Accounts.Scope
+  alias GI.Monitoring
+  alias GI.Tracking
+  alias GI.Tracking.Issue
 
   @impl true
   def mount(_params, _session, socket) do
@@ -200,7 +200,7 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard
+    <GIWeb.Layouts.dashboard
       flash={@flash}
       current_scope={@current_scope}
       page_title={@page_title}
@@ -554,7 +554,7 @@ defmodule FFWeb.Dashboard.ProjectLive.Show do
           </.form>
         </div>
       </.modal>
-    </FFWeb.Layouts.dashboard>
+    </GIWeb.Layouts.dashboard>
     """
   end
 end

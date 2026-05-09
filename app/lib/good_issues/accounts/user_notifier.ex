@@ -1,4 +1,4 @@
-defmodule FF.Accounts.UserNotifier do
+defmodule GI.Accounts.UserNotifier do
   @moduledoc """
   Handles email notifications to users.
 
@@ -6,15 +6,15 @@ defmodule FF.Accounts.UserNotifier do
   """
   import Swoosh.Email
 
-  alias FF.Accounts.User
-  alias FF.Mailer
+  alias GI.Accounts.User
+  alias GI.Mailer
 
   # Delivers the email using the application mailer.
   defp deliver(recipient, subject, body) do
     email =
       new()
       |> to(recipient)
-      |> from({"FF", "contact@example.com"})
+      |> from({"GI", "contact@example.com"})
       |> subject(subject)
       |> text_body(body)
 

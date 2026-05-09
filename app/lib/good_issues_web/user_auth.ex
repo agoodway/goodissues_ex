@@ -1,16 +1,16 @@
-defmodule FFWeb.UserAuth do
+defmodule GIWeb.UserAuth do
   @moduledoc """
   Authentication helpers for web requests and LiveViews.
 
   Handles session management, user login/logout, and LiveView mounting.
   """
-  use FFWeb, :verified_routes
+  use GIWeb, :verified_routes
 
   import Plug.Conn
   import Phoenix.Controller
 
-  alias FF.Accounts
-  alias FF.Accounts.Scope
+  alias GI.Accounts
+  alias GI.Accounts.Scope
 
   # Make the remember me cookie valid for 14 days. This should match
   # the session validity setting in UserToken.
@@ -55,7 +55,7 @@ defmodule FFWeb.UserAuth do
     user_token && Accounts.delete_user_session_token(user_token)
 
     if live_socket_id = get_session(conn, :live_socket_id) do
-      FFWeb.Endpoint.broadcast(live_socket_id, "disconnect", %{})
+      GIWeb.Endpoint.broadcast(live_socket_id, "disconnect", %{})
     end
 
     conn

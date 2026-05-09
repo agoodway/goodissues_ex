@@ -1,4 +1,4 @@
-defmodule FF.Monitoring.HeartbeatScheduler do
+defmodule GI.Monitoring.HeartbeatScheduler do
   @moduledoc """
   Oban job scheduling for heartbeat deadline detection.
 
@@ -9,9 +9,9 @@ defmodule FF.Monitoring.HeartbeatScheduler do
 
   import Ecto.Query
 
-  alias FF.Monitoring.Heartbeat
-  alias FF.Monitoring.Workers.HeartbeatDeadline
-  alias FF.Repo
+  alias GI.Monitoring.Heartbeat
+  alias GI.Monitoring.Workers.HeartbeatDeadline
+  alias GI.Repo
 
   @doc """
   Schedules a deadline job for the heartbeat based on its `next_due_at`.

@@ -1,7 +1,7 @@
-defmodule FFWeb.UserRegistrationControllerTest do
-  use FFWeb.ConnCase, async: true
+defmodule GIWeb.UserRegistrationControllerTest do
+  use GIWeb.ConnCase, async: true
 
-  import FF.AccountsFixtures
+  import GI.AccountsFixtures
 
   describe "GET /users/register" do
     test "renders registration page", %{conn: conn} do

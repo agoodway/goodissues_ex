@@ -1,8 +1,8 @@
 ## Context
 
-The uptime checks backend is implemented: `FF.Monitoring` context with CRUD, `CheckRunner` Oban worker with self-rescheduling, `IncidentLifecycle` for auto-creating/reopening/archiving issues, and a REST API. There is no dashboard UI — checks are API-only.
+The uptime checks backend is implemented: `GI.Monitoring` context with CRUD, `CheckRunner` Oban worker with self-rescheduling, `IncidentLifecycle` for auto-creating/reopening/archiving issues, and a REST API. There is no dashboard UI — checks are API-only.
 
-The dashboard already has LiveView pages for issues, projects, API keys, and subscriptions. All follow a consistent pattern: `FFWeb.Dashboard.<Resource>Live.{Index,New,Show}` modules, nested under `/dashboard/:account_slug/`, using `FFWeb.Layouts.dashboard` with the industrial terminal aesthetic.
+The dashboard already has LiveView pages for issues, projects, API keys, and subscriptions. All follow a consistent pattern: `GIWeb.Dashboard.<Resource>Live.{Index,New,Show}` modules, nested under `/dashboard/:account_slug/`, using `GIWeb.Layouts.dashboard` with the industrial terminal aesthetic.
 
 Checks are scoped to projects. The issues list is account-wide, but checks should be accessed from the project context since users think about monitoring per-project.
 
@@ -26,7 +26,7 @@ Checks are scoped to projects. The issues list is account-wide, but checks shoul
 
 ### 1. Routing: Nested Under Projects
 
-**Decision**: Checks UI lives at `/dashboard/:account_slug/projects/:project_id/checks/*` with dedicated LiveView modules in `FFWeb.Dashboard.CheckLive`.
+**Decision**: Checks UI lives at `/dashboard/:account_slug/projects/:project_id/checks/*` with dedicated LiveView modules in `GIWeb.Dashboard.CheckLive`.
 
 **Routes**:
 ```
@@ -42,7 +42,7 @@ Checks are scoped to projects. The issues list is account-wide, but checks shoul
 
 ### 2. Realtime Updates via PubSub
 
-**Decision**: Add PubSub broadcasting to the `FF.Monitoring` context and `CheckRunner` worker. The checks index subscribes and updates rows in-place.
+**Decision**: Add PubSub broadcasting to the `GI.Monitoring` context and `CheckRunner` worker. The checks index subscribes and updates rows in-place.
 
 **Topic**: `"checks:project:<project_id>"`
 
@@ -54,7 +54,7 @@ Checks are scoped to projects. The issues list is account-wide, but checks shoul
 
 **Payload**: Flat map with id, name, url, method, status, paused, interval_seconds, last_checked_at, consecutive_failures, failure_threshold. Enough to update a row without re-querying.
 
-**Rationale**: The issues list already uses PubSub for realtime updates (`FF.Tracking` broadcasts on `issues:account:<account_id>`). Following the same pattern keeps consistency. Project-scoped topics keep broadcast traffic targeted.
+**Rationale**: The issues list already uses PubSub for realtime updates (`GI.Tracking` broadcasts on `issues:account:<account_id>`). Following the same pattern keeps consistency. Project-scoped topics keep broadcast traffic targeted.
 
 **Alternative considered**: Polling on a timer — rejected because PubSub is already the established pattern and gives instant updates.
 

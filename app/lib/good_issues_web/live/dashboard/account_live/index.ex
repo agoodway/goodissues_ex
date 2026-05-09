@@ -1,14 +1,14 @@
-defmodule FFWeb.Dashboard.AccountLive.Index do
+defmodule GIWeb.Dashboard.AccountLive.Index do
   @moduledoc """
   Dashboard view showing the current account settings.
 
   Unlike the admin view which showed all accounts, the dashboard shows
   only the currently selected account with management based on role.
   """
-  use FFWeb, :live_view
+  use GIWeb, :live_view
 
-  alias FF.Accounts
-  alias FF.Accounts.Scope
+  alias GI.Accounts
+  alias GI.Accounts.Scope
 
   @impl true
   def mount(_params, _session, socket) do
@@ -81,7 +81,7 @@ defmodule FFWeb.Dashboard.AccountLive.Index do
   end
 
   @impl true
-  def handle_info({FFWeb.Dashboard.AccountLive.FormComponent, {:saved, account}}, socket) do
+  def handle_info({GIWeb.Dashboard.AccountLive.FormComponent, {:saved, account}}, socket) do
     {:noreply,
      socket
      |> put_flash(:info, "Account updated successfully.")
@@ -92,7 +92,7 @@ defmodule FFWeb.Dashboard.AccountLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <FFWeb.Layouts.dashboard
+    <GIWeb.Layouts.dashboard
       flash={@flash}
       current_scope={@current_scope}
       page_title={@page_title}
@@ -231,14 +231,14 @@ defmodule FFWeb.Dashboard.AccountLive.Index do
         on_cancel={JS.patch(~p"/dashboard/#{@account.slug}")}
       >
         <.live_component
-          module={FFWeb.Dashboard.AccountLive.FormComponent}
+          module={GIWeb.Dashboard.AccountLive.FormComponent}
           id={@account.id}
           action={:edit}
           account={@account}
           patch={~p"/dashboard/#{@account.slug}"}
         />
       </.modal>
-    </FFWeb.Layouts.dashboard>
+    </GIWeb.Layouts.dashboard>
     """
   end
 end

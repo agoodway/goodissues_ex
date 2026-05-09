@@ -1,26 +1,26 @@
-defmodule FF.Monitoring.Workers.CheckRunnerTest do
-  use FF.DataCase, async: false
+defmodule GI.Monitoring.Workers.CheckRunnerTest do
+  use GI.DataCase, async: false
 
-  import FF.AccountsFixtures
-  import FF.MonitoringFixtures
-  import FF.TrackingFixtures
+  import GI.AccountsFixtures
+  import GI.MonitoringFixtures
+  import GI.TrackingFixtures
 
-  alias FF.Monitoring
-  alias FF.Monitoring.Check
-  alias FF.Monitoring.Scheduler
-  alias FF.Monitoring.Workers.CheckRunner
-  alias FF.MonitoringMockHTTP
-  alias FF.Repo
+  alias GI.Monitoring
+  alias GI.Monitoring.Check
+  alias GI.Monitoring.Scheduler
+  alias GI.Monitoring.Workers.CheckRunner
+  alias GI.MonitoringMockHTTP
+  alias GI.Repo
 
   setup do
     {user, account} = user_with_account_fixture()
     project = project_fixture(account)
 
-    prev = Application.get_env(:app, CheckRunner, [])
-    Application.put_env(:app, CheckRunner, http_client: MonitoringMockHTTP, timeout_ms: 1000)
+    prev = Application.get_env(:good_issues, CheckRunner, [])
+    Application.put_env(:good_issues, CheckRunner, http_client: MonitoringMockHTTP, timeout_ms: 1000)
 
     on_exit(fn ->
-      Application.put_env(:app, CheckRunner, prev)
+      Application.put_env(:good_issues, CheckRunner, prev)
       MonitoringMockHTTP.reset()
     end)
 

@@ -1,6 +1,6 @@
 ## Context
 
-The FruitFly REST API has three list endpoints with inconsistent response shapes:
+The GoodIssues REST API has three list endpoints with inconsistent response shapes:
 
 | Endpoint | Backend Pagination | Response Meta | OpenAPI Params |
 |---|---|---|---|
@@ -32,9 +32,9 @@ The Go CLI (`cli/`) consumes all these endpoints. No backwards compatibility con
 
 ### 1. Shared pagination schema module
 
-**Decision**: Create `FFWeb.Api.V1.Schemas.Pagination` with `PaginationMeta` and a `paginated_list/2` helper that generates list response schemas.
+**Decision**: Create `GIWeb.Api.V1.Schemas.Pagination` with `PaginationMeta` and a `paginated_list/2` helper that generates list response schemas.
 
-**Rationale**: The `PaginationMeta` schema currently lives inside `FFWeb.Api.V1.Schemas.Error`. Duplicating it per-resource creates drift risk. A shared module with a helper function keeps all list response schemas DRY:
+**Rationale**: The `PaginationMeta` schema currently lives inside `GIWeb.Api.V1.Schemas.Error`. Duplicating it per-resource creates drift risk. A shared module with a helper function keeps all list response schemas DRY:
 
 ```elixir
 # Usage in each resource's schema module:

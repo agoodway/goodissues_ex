@@ -7,34 +7,34 @@
 # General application configuration
 import Config
 
-config :app, :scopes,
+config :good_issues, :scopes,
   user: [
     default: true,
-    module: FF.Accounts.Scope,
+    module: GI.Accounts.Scope,
     assign_key: :current_scope,
     access_path: [:user, :id],
     schema_key: :user_id,
     schema_type: :binary_id,
     schema_table: :users,
-    test_data_fixture: FF.AccountsFixtures,
+    test_data_fixture: GI.AccountsFixtures,
     test_setup_helper: :register_and_log_in_user
   ]
 
-config :app,
+config :good_issues,
   env: config_env(),
-  namespace: FF,
-  ecto_repos: [FF.Repo],
+  namespace: GI,
+  ecto_repos: [GI.Repo],
   generators: [timestamp_type: :utc_datetime, binary_id: true]
 
 # Configure the endpoint
-config :app, FFWeb.Endpoint,
+config :good_issues, GIWeb.Endpoint,
   url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
-    formats: [html: FFWeb.ErrorHTML, json: FFWeb.ErrorJSON],
+    formats: [html: GIWeb.ErrorHTML, json: GIWeb.ErrorJSON],
     layout: false
   ],
-  pubsub_server: FF.PubSub,
+  pubsub_server: GI.PubSub,
   live_view: [signing_salt: "IZyyOJPs"]
 
 # Configure the mailer
@@ -44,7 +44,7 @@ config :app, FFWeb.Endpoint,
 #
 # For production it's recommended to configure a different adapter
 # at the `config/runtime.exs`.
-config :app, FF.Mailer, adapter: Swoosh.Adapters.Local
+config :good_issues, GI.Mailer, adapter: Swoosh.Adapters.Local
 
 # Configure esbuild (the version is required)
 config :esbuild,
@@ -78,11 +78,11 @@ config :phoenix, :json_library, Jason
 # Configure Anubis MCP session store
 config :anubis_mcp, :session_store,
   enabled: true,
-  adapter: FFWeb.MCP.SessionStore
+  adapter: GIWeb.MCP.SessionStore
 
 # Configure Oban
-config :app, Oban,
-  repo: FF.Repo,
+config :good_issues, Oban,
+  repo: GI.Repo,
   queues: [
     default: 10,
     notifications_email: 10,
@@ -95,12 +95,12 @@ config :app, Oban,
 # Oban cron plugin for periodic workers (reaper, etc.)
 # Excluded in test — see test.exs.
 if config_env() != :test do
-  config :app, Oban,
+  config :good_issues, Oban,
     plugins: [
       {Oban.Plugins.Cron,
        crontab: [
-         {"* * * * *", FF.Monitoring.Workers.Reaper},
-         {"* * * * *", FF.Monitoring.Workers.HeartbeatRecovery}
+         {"* * * * *", GI.Monitoring.Workers.Reaper},
+         {"* * * * *", GI.Monitoring.Workers.HeartbeatRecovery}
        ]}
     ]
 end

@@ -1,9 +1,9 @@
-defmodule FFWeb.MCP.Tools.Issues.IssuesList do
+defmodule GIWeb.MCP.Tools.Issues.IssuesList do
   @moduledoc "List issues with filtering and pagination"
   use Anubis.Server.Component, type: :tool
 
-  alias FF.Tracking
-  alias FFWeb.MCP.Tools.Base
+  alias GI.Tracking
+  alias GIWeb.MCP.Tools.Base
 
   @impl true
   def description, do: "List issues with optional filters and pagination"

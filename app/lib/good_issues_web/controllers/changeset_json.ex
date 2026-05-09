@@ -1,4 +1,4 @@
-defmodule FFWeb.ChangesetJSON do
+defmodule GIWeb.ChangesetJSON do
   @moduledoc """
   Renders changeset errors as JSON.
   """

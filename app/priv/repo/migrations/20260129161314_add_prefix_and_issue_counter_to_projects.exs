@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.AddPrefixAndIssueCounterToProjects do
+defmodule GI.Repo.Migrations.AddPrefixAndIssueCounterToProjects do
   use Ecto.Migration
 
   def change do

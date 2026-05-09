@@ -1,14 +1,14 @@
-defmodule FF.Monitoring.IncidentLifecycleTest do
-  use FF.DataCase, async: false
+defmodule GI.Monitoring.IncidentLifecycleTest do
+  use GI.DataCase, async: false
 
-  import FF.AccountsFixtures
-  import FF.MonitoringFixtures
-  import FF.TrackingFixtures
+  import GI.AccountsFixtures
+  import GI.MonitoringFixtures
+  import GI.TrackingFixtures
 
-  alias FF.Monitoring
-  alias FF.Monitoring.{Check, IncidentLifecycle}
-  alias FF.Repo
-  alias FF.Tracking.Issue
+  alias GI.Monitoring
+  alias GI.Monitoring.{Check, IncidentLifecycle}
+  alias GI.Repo
+  alias GI.Tracking.Issue
 
   setup do
     {user, account} = user_with_account_fixture()
@@ -50,10 +50,10 @@ defmodule FF.Monitoring.IncidentLifecycleTest do
       assert reloaded.current_issue_id == issue.id
       assert reloaded.status == :down
 
-      reloaded_result = Repo.get(FF.Monitoring.CheckResult, result.id)
+      reloaded_result = Repo.get(GI.Monitoring.CheckResult, result.id)
       assert reloaded_result.issue_id == issue.id
 
-      bot = FF.Accounts.get_or_create_bot_user!(account)
+      bot = GI.Accounts.get_or_create_bot_user!(account)
       assert issue.submitter_id == bot.id
     end
   end

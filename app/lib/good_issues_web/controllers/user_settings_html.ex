@@ -1,5 +1,5 @@
-defmodule FFWeb.UserSettingsHTML do
-  use FFWeb, :html
+defmodule GIWeb.UserSettingsHTML do
+  use GIWeb, :html
 
   embed_templates "user_settings_html/*"
 end

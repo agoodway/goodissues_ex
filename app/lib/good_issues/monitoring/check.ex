@@ -1,4 +1,4 @@
-defmodule FF.Monitoring.Check do
+defmodule GI.Monitoring.Check do
   @moduledoc """
   Schema for an HTTP uptime check scoped to a project.
 
@@ -34,11 +34,11 @@ defmodule FF.Monitoring.Check do
     field :last_checked_at, :utc_datetime
     field :current_job_id, :integer
 
-    belongs_to :project, FF.Tracking.Project
-    belongs_to :current_issue, FF.Tracking.Issue
-    belongs_to :created_by, FF.Accounts.User
+    belongs_to :project, GI.Tracking.Project
+    belongs_to :current_issue, GI.Tracking.Issue
+    belongs_to :created_by, GI.Accounts.User
 
-    has_many :results, FF.Monitoring.CheckResult
+    has_many :results, GI.Monitoring.CheckResult
 
     timestamps(type: :utc_datetime)
   end

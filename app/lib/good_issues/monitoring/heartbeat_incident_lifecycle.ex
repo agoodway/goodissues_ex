@@ -1,19 +1,19 @@
-defmodule FF.Monitoring.HeartbeatIncidentLifecycle do
+defmodule GI.Monitoring.HeartbeatIncidentLifecycle do
   @moduledoc """
   Heartbeat-specific incident lifecycle wrapper.
 
   Applies the same create/reopen/archive rules as
-  `FF.Monitoring.IncidentLifecycle` but with heartbeat and heartbeat-ping
-  inputs. Uses `FF.Accounts.get_or_create_bot_user!/1` so bot-authored
+  `GI.Monitoring.IncidentLifecycle` but with heartbeat and heartbeat-ping
+  inputs. Uses `GI.Accounts.get_or_create_bot_user!/1` so bot-authored
   issues never consume a real user seat.
   """
 
-  alias FF.Accounts
-  alias FF.Monitoring
-  alias FF.Monitoring.{Heartbeat, HeartbeatPing, SharedIncidentLifecycle}
-  alias FF.Repo
-  alias FF.Tracking
-  alias FF.Tracking.{Issue, Project}
+  alias GI.Accounts
+  alias GI.Monitoring
+  alias GI.Monitoring.{Heartbeat, HeartbeatPing, SharedIncidentLifecycle}
+  alias GI.Repo
+  alias GI.Tracking
+  alias GI.Tracking.{Issue, Project}
 
   @doc """
   Called when a heartbeat has crossed `failure_threshold`. Creates a new

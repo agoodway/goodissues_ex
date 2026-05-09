@@ -22,7 +22,7 @@ The uptime checks backend (context, schemas, Oban workers, REST API, incident li
 
 ## Impact
 
-- **LiveView**: New `CheckLive.Index`, `CheckLive.New`, `CheckLive.Show` modules under `FFWeb.Dashboard`
+- **LiveView**: New `CheckLive.Index`, `CheckLive.New`, `CheckLive.Show` modules under `GIWeb.Dashboard`
 - **Router**: New nested routes under `/dashboard/:account_slug/projects/:project_id/checks`
 - **Monitoring context**: Add PubSub broadcasts for check CRUD and runtime updates
 - **CheckRunner worker**: Broadcast after each check execution and persist `:down` status on failures

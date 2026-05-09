@@ -1,4 +1,4 @@
-defmodule FF.Monitoring.Workers.Reaper do
+defmodule GI.Monitoring.Workers.Reaper do
   @moduledoc """
   Periodic Oban worker that detects and recovers broken check chains.
 
@@ -45,8 +45,8 @@ defmodule FF.Monitoring.Workers.Reaper do
     max_attempts: 1,
     unique: [period: 55, states: [:available, :executing, :scheduled]]
 
-  alias FF.Monitoring
-  alias FF.Monitoring.Scheduler
+  alias GI.Monitoring
+  alias GI.Monitoring.Scheduler
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do

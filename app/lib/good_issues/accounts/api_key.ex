@@ -1,4 +1,4 @@
-defmodule FF.Accounts.ApiKey do
+defmodule GI.Accounts.ApiKey do
   @moduledoc """
   Schema for API keys used for programmatic authentication.
   Supports public (read-only) and private (read/write) keys.
@@ -30,7 +30,7 @@ defmodule FF.Accounts.ApiKey do
           last_used_at: DateTime.t() | nil,
           expires_at: DateTime.t() | nil,
           account_user_id: Ecto.UUID.t() | nil,
-          account_user: FF.Accounts.AccountUser.t() | Ecto.Association.NotLoaded.t(),
+          account_user: GI.Accounts.AccountUser.t() | Ecto.Association.NotLoaded.t(),
           inserted_at: DateTime.t() | nil,
           updated_at: DateTime.t() | nil
         }
@@ -47,7 +47,7 @@ defmodule FF.Accounts.ApiKey do
     field :last_used_at, :utc_datetime
     field :expires_at, :utc_datetime
 
-    belongs_to :account_user, FF.Accounts.AccountUser
+    belongs_to :account_user, GI.Accounts.AccountUser
 
     timestamps(type: :utc_datetime)
   end

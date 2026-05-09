@@ -1,6 +1,6 @@
 ## Why
 
-FruitFly tracks bugs and errors after they happen. Adding uptime checks lets users detect outages proactively — before users report them. When a check fails, FruitFly auto-creates an incident issue, connecting monitoring directly to the existing issue tracking workflow.
+GoodIssues tracks bugs and errors after they happen. Adding uptime checks lets users detect outages proactively — before users report them. When a check fails, GoodIssues auto-creates an incident issue, connecting monitoring directly to the existing issue tracking workflow.
 
 ## What Changes
 

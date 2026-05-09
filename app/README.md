@@ -1,4 +1,4 @@
-# FruitFly
+# GoodIssues
 
 A Phoenix application with REST API and MCP (Model Context Protocol) server support.
 
@@ -20,15 +20,15 @@ Run `mix run priv/repo/seeds.exs` to create seed users. The script is idempotent
 
 | Email | Password | Account | Project |
 |-------|----------|---------|---------|
-| `admin@fruitfly.dev` | `password123456` | FruitFly | FruitFly Core (FF) |
-| `dev@fruitfly.dev` | `password123456` | Dev Team | API Service (API) |
-| `demo@fruitfly.dev` | `password123456` | Demo Corp | — |
+| `admin@goodissues.dev` | `password123456` | GoodIssues | GoodIssues Core (FF) |
+| `dev@goodissues.dev` | `password123456` | Dev Team | API Service (API) |
+| `demo@goodissues.dev` | `password123456` | Demo Corp | — |
 
 Each user also gets a Personal account (created automatically on registration) and a private API key (`sk_*`) printed to the console on first run.
 
 ## API Authentication
 
-FruitFly uses API keys for programmatic access. There are two types:
+GoodIssues uses API keys for programmatic access. There are two types:
 
 | Type | Prefix | Permissions |
 |------|--------|-------------|
@@ -99,7 +99,7 @@ curl -X POST \
 
 ## MCP Server
 
-FruitFly includes an MCP server that allows AI assistants like Claude to interact with your data programmatically.
+GoodIssues includes an MCP server that allows AI assistants like Claude to interact with your data programmatically.
 
 ### What is MCP?
 
@@ -127,7 +127,7 @@ FruitFly includes an MCP server that allows AI assistants like Claude to interac
 
 3. **Add the MCP server to Claude CLI**:
    ```bash
-   claude mcp add --transport http fruitfly \
+   claude mcp add --transport http goodissues \
      "http://localhost:4000/mcp" \
      --header "Authorization: Bearer sk_your_token_here"
    ```
@@ -144,7 +144,7 @@ Add to `.mcp.json` in your project root:
 ```json
 {
   "mcpServers": {
-    "fruitfly": {
+    "goodissues": {
       "type": "http",
       "url": "http://localhost:4000/mcp",
       "headers": {
@@ -167,10 +167,10 @@ Add to `.mcp.json` in your project root:
 
 ### Using MCP with Claude
 
-Once configured, you can ask Claude to interact with your FruitFly instance:
+Once configured, you can ask Claude to interact with your GoodIssues instance:
 
 ```
-> Can you list the accounts in FruitFly?
+> Can you list the accounts in GoodIssues?
 
 > Get details for account abc123
 

@@ -1,14 +1,14 @@
 ## 0. Dependencies
 
-- [x] 0.1 Reconcile with or wait for `add-uptime-checks` so `FF.Monitoring`, the incident lifecycle, and bot-user support exist before heartbeat implementation begins
+- [x] 0.1 Reconcile with or wait for `add-uptime-checks` so `GI.Monitoring`, the incident lifecycle, and bot-user support exist before heartbeat implementation begins
 - [x] 0.2 Reconcile with or wait for `harden-check-scheduling` so heartbeat deadline workers inherit the hardened monitoring-job invariants (guaranteed reschedule, stale-job invalidation, and periodic orphan/stuck recovery)
 
 ## 1. Database & Schemas
 
 - [x] 1.1 Create migration for heartbeats table (id, name, ping_token varchar(42) unique, interval_seconds, grace_seconds, failure_threshold default 1, reopen_window_hours default 24, status default :unknown, consecutive_failures default 0, last_ping_at, next_due_at, started_at, current_issue_id FK, project_id FK, created_by_id FK, alert_rules jsonb default [], paused boolean default false, timestamps)
 - [x] 1.2 Create migration for heartbeat_pings table (id, kind enum(:ping, :start, :fail), exit_code integer nullable, payload jsonb nullable, duration_ms integer nullable, pinged_at utc_datetime_usec, heartbeat_id FK on_delete: :delete_all, issue_id FK nullable)
-- [x] 1.3 Create FF.Monitoring.Heartbeat Ecto schema with validations (name required, status enum aligned with monitoring conventions and defaulting to `:unknown`, interval_seconds 30..86400, grace_seconds 0..86400, failure_threshold default 1 with `>= 1`, reopen_window_hours default 24 with `>= 1`, consecutive_failures default 0, alert_rules validated structure, persisted `next_due_at` scheduling anchor)
-- [x] 1.4 Create FF.Monitoring.HeartbeatPing Ecto schema (read-only, no update changeset)
+- [x] 1.3 Create GI.Monitoring.Heartbeat Ecto schema with validations (name required, status enum aligned with monitoring conventions and defaulting to `:unknown`, interval_seconds 30..86400, grace_seconds 0..86400, failure_threshold default 1 with `>= 1`, reopen_window_hours default 24 with `>= 1`, consecutive_failures default 0, alert_rules validated structure, persisted `next_due_at` scheduling anchor)
+- [x] 1.4 Create GI.Monitoring.HeartbeatPing Ecto schema (read-only, no update changeset)
 - [x] 1.5 Add ping_token generation using :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false) |> binary_part(0, 42) with retry on unique constraint violation
 
 ## 2. Monitoring Context — Heartbeat CRUD
@@ -29,12 +29,12 @@
 - [x] 3.4 Implement fail ping logic: increment consecutive_failures, clear started_at, set `next_due_at = now + interval + grace`, cancel the current deadline, record ping with kind :fail including payload plus separately persisted reserved `exit_code`, reschedule the next deadline from `next_due_at`, and evaluate incident threshold immediately
 - [x] 3.5 Implement recovery logic: when success ping arrives and status is :down and alert rules pass, archive incident, clear current_issue_id, reset consecutive_failures, set status :up
 - [x] 3.6 Add list_heartbeat_pings/2 (heartbeat, pagination params) — paginated reverse chronological
-- [x] 3.7 Create `FF.Monitoring.HeartbeatIncidentLifecycle` (or equivalent generalized lifecycle path) that applies incident create/reopen/archive rules to heartbeat inputs and populates `HeartbeatPing.issue_id` when a recorded ping triggered the transition
+- [x] 3.7 Create `GI.Monitoring.HeartbeatIncidentLifecycle` (or equivalent generalized lifecycle path) that applies incident create/reopen/archive rules to heartbeat inputs and populates `HeartbeatPing.issue_id` when a recorded ping triggered the transition
 - [x] 3.8 Add tests for ping reception (all three kinds), duration computation, rule-triggered incident creation, `HeartbeatPing.issue_id` linkage for newly created/reopened incidents and already-open incidents, stale started_at cleanup, recovery, and ping-vs-deadline concurrency races
 
 ## 4. Alert Rule Evaluation
 
-- [x] 4.1 Create FF.Monitoring.AlertRuleEvaluator module with evaluate/2 (rules, payload_with_duration) → :pass | :fail
+- [x] 4.1 Create GI.Monitoring.AlertRuleEvaluator module with evaluate/2 (rules, payload_with_duration) → :pass | :fail
 - [x] 4.2 Implement operator evaluation for flat top-level payload fields and `duration_ms`: eq, neq, gt, gte, lt, lte with explicit JSON-scalar comparison semantics (skip rule on missing field, unsupported type, or type mismatch)
 - [x] 4.3 Implement ANY-match semantics: if any rule fires, return :fail
 - [x] 4.4 Implement duration_ms injection: merge computed duration_ms into payload fields before evaluation, with server-computed `duration_ms` overriding any client-supplied value
@@ -43,7 +43,7 @@
 
 ## 5. Deadline Worker and App Integration
 
-- [x] 5.1 Create `FF.Monitoring.Workers.HeartbeatDeadline` Oban worker in `:heartbeats` queue using the hardened scheduling model from `harden-check-scheduling` (guaranteed reschedule/recovery semantics, not best-effort chaining)
+- [x] 5.1 Create `GI.Monitoring.Workers.HeartbeatDeadline` Oban worker in `:heartbeats` queue using the hardened scheduling model from `harden-check-scheduling` (guaranteed reschedule/recovery semantics, not best-effort chaining)
 - [x] 5.2 Implement deadline logic as a locked transition: re-read heartbeat, validate the job's `scheduled_for` against `heartbeat.next_due_at`, and no-op without failure/incident mutation when the heartbeat is paused, stale, or already superseded by a newer due time; otherwise increment consecutive_failures, clear started_at, advance `next_due_at` from the previous due time, and evaluate threshold
 - [x] 5.3 Implement incident creation on threshold via the heartbeat lifecycle wrapper so missed deadlines and ping-driven failures share the same create/reopen/archive rules
 - [x] 5.4 Implement worker uniqueness on `heartbeat_id` with hardened states excluding `:executing` (use `[:available, :scheduled, :retryable]`) to prevent duplicate deadline chains
@@ -81,4 +81,4 @@
 - [x] 9.1 Add controller `operation(...)` metadata and OpenApiSpex schemas for heartbeat management endpoints, then regenerate `app/openapi.json` via `mix openapi.spec`
 - [x] 9.2 Add explicit `operation(...)` metadata plus request/response schemas for `/ping`, `/ping/start`, and `/ping/fail`, mark those ping endpoint operations with `security: []`, and regenerate `app/openapi.json` so public token-auth routes are documented correctly
 - [x] 9.3 Document the ping history endpoint in controller metadata and regenerate `app/openapi.json`
-- [x] 9.4 Update the top-level API description in `FFWeb.ApiSpec` so the generated docs no longer claim that every endpoint requires Bearer auth once public ping routes exist
+- [x] 9.4 Update the top-level API description in `GIWeb.ApiSpec` so the generated docs no longer claim that every endpoint requires Bearer auth once public ping routes exist

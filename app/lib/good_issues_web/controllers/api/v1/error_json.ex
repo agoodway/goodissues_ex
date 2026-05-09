@@ -1,9 +1,9 @@
-defmodule FFWeb.Api.V1.ErrorJSON do
+defmodule GIWeb.Api.V1.ErrorJSON do
   @moduledoc """
   JSON rendering for Error resources.
   """
 
-  alias FF.Tracking.{Error, Occurrence, StacktraceLine}
+  alias GI.Tracking.{Error, Occurrence, StacktraceLine}
 
   def index(%{
         errors: errors,

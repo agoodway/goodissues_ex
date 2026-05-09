@@ -4,7 +4,7 @@
 
 1. [x] **Add prefix and issue_counter to projects**
    - Create migration adding `prefix` (string, max 10) and `issue_counter` (integer, default 1) columns
-   - Update `FF.Tracking.Project` schema with new fields
+   - Update `GI.Tracking.Project` schema with new fields
    - Add validation: prefix required, uppercase alphanumeric, 1-10 chars
    - Add unique constraint on (account_id, prefix)
    - Validation: `mix test test/app/tracking_test.exs`
@@ -12,7 +12,7 @@
 2. [x] **Add number field to issues**
    - Create migration adding `number` (integer) column to issues
    - Add unique constraint on (project_id, number)
-   - Update `FF.Tracking.Issue` schema with number field
+   - Update `GI.Tracking.Issue` schema with number field
    - Validation: `mix test test/app/tracking_test.exs`
 
 3. [x] **Backfill existing data**

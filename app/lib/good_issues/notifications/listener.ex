@@ -1,4 +1,4 @@
-defmodule FF.Notifications.Listener do
+defmodule GI.Notifications.Listener do
   @moduledoc """
   GenServer that subscribes to the global notifications PubSub topic
   and orchestrates delivery by enqueuing Oban workers for each
@@ -9,9 +9,9 @@ defmodule FF.Notifications.Listener do
 
   require Logger
 
-  alias FF.Notifications
-  alias FF.Notifications.Event
-  alias FF.Notifications.Workers.{EmailWorker, WebhookWorker}
+  alias GI.Notifications
+  alias GI.Notifications.Event
+  alias GI.Notifications.Workers.{EmailWorker, WebhookWorker}
 
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
@@ -19,7 +19,7 @@ defmodule FF.Notifications.Listener do
 
   @impl GenServer
   def init(_opts) do
-    Phoenix.PubSub.subscribe(FF.PubSub, "notifications")
+    Phoenix.PubSub.subscribe(GI.PubSub, "notifications")
     {:ok, %{}}
   end
 

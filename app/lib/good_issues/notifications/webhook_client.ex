@@ -1,4 +1,4 @@
-defmodule FF.Notifications.WebhookClient do
+defmodule GI.Notifications.WebhookClient do
   @moduledoc """
   Behaviour for delivering webhook HTTP requests.
   """

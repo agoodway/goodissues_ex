@@ -9,12 +9,12 @@ interface Props {
 }
 
 const {
-  title = 'FruitFly - Bug & Issue Tracking',
-  description = 'FruitFly is a modern bug and feature request tracking system with a powerful REST API and CLI. Track bugs, ship faster.',
-  canonicalUrl = 'https://fruitfly.dev',
+  title = 'GoodIssues - Bug & Issue Tracking',
+  description = 'GoodIssues is a modern bug and feature request tracking system with a powerful REST API and CLI. Track bugs, ship faster.',
+  canonicalUrl = 'https://goodissues.dev',
 } = Astro.props;
 
-const fullTitle = title === 'FruitFly - Bug & Issue Tracking' ? title : `${title} | FruitFly`;
+const fullTitle = title === 'GoodIssues - Bug & Issue Tracking' ? title : `${title} | GoodIssues`;
 ---
 
 <!doctype html>
@@ -27,14 +27,14 @@ const fullTitle = title === 'FruitFly - Bug & Issue Tracking' ? title : `${title
       name="keywords"
       content="bug tracking, issue tracker, feature requests, REST API, CLI, developer tools, project management, error tracking"
     />
-    <meta name="author" content="FruitFly" />
+    <meta name="author" content="GoodIssues" />
     <meta name="robots" content="index, follow" />
 
     <!-- Open Graph / Social -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
-    <meta property="og:site_name" content="FruitFly" />
+    <meta property="og:site_name" content="GoodIssues" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />

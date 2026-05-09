@@ -1,12 +1,12 @@
-defmodule FFWeb.Dashboard.IssueLiveTest do
-  use FFWeb.ConnCase, async: true
+defmodule GIWeb.Dashboard.IssueLiveTest do
+  use GIWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
-  import FF.AccountsFixtures
-  import FF.TrackingFixtures
+  import GI.AccountsFixtures
+  import GI.TrackingFixtures
 
-  alias FF.Accounts
-  alias FF.Tracking
+  alias GI.Accounts
+  alias GI.Tracking
 
   describe "Index (unauthenticated)" do
     test "redirects to login when not authenticated", %{conn: conn} do
@@ -1046,7 +1046,7 @@ defmodule FFWeb.Dashboard.IssueLiveTest do
 
       # Create telemetry spans with matching request_id
       {:ok, _} =
-        FF.Telemetry.create_spans_batch(account, project.id, [
+        GI.Telemetry.create_spans_batch(account, project.id, [
           %{
             "request_id" => "req-with-spans",
             "event_type" => "phoenix_request",
@@ -1096,7 +1096,7 @@ defmodule FFWeb.Dashboard.IssueLiveTest do
         })
 
       {:ok, 1} =
-        FF.Telemetry.create_spans_batch(account, project.id, [
+        GI.Telemetry.create_spans_batch(account, project.id, [
           %{
             "request_id" => "req-expandable",
             "event_type" => "phoenix_request",
@@ -1115,7 +1115,7 @@ defmodule FFWeb.Dashboard.IssueLiveTest do
 
       # Get span ID from the page
       [span] =
-        FF.Telemetry.list_spans_by_request_id_for_project(account, project.id, "req-expandable")
+        GI.Telemetry.list_spans_by_request_id_for_project(account, project.id, "req-expandable")
 
       # Click to expand
       html = render_click(show_live, "toggle_span", %{"id" => span.id})
@@ -1142,7 +1142,7 @@ defmodule FFWeb.Dashboard.IssueLiveTest do
         })
 
       {:ok, 1} =
-        FF.Telemetry.create_spans_batch(account, project.id, [
+        GI.Telemetry.create_spans_batch(account, project.id, [
           %{
             "request_id" => "req-collapsible",
             "event_type" => "phoenix_request",
@@ -1155,7 +1155,7 @@ defmodule FFWeb.Dashboard.IssueLiveTest do
       {:ok, show_live, _html} = live(conn, ~p"/dashboard/#{account.slug}/issues/#{issue.id}")
 
       [span] =
-        FF.Telemetry.list_spans_by_request_id_for_project(account, project.id, "req-collapsible")
+        GI.Telemetry.list_spans_by_request_id_for_project(account, project.id, "req-collapsible")
 
       # Expand
       html = render_click(show_live, "toggle_span", %{"id" => span.id})
@@ -1182,7 +1182,7 @@ defmodule FFWeb.Dashboard.IssueLiveTest do
 
       # Create spans out of order
       {:ok, 3} =
-        FF.Telemetry.create_spans_batch(account, project.id, [
+        GI.Telemetry.create_spans_batch(account, project.id, [
           %{
             "request_id" => "req-ordered",
             "event_type" => "ecto_query",
@@ -1230,7 +1230,7 @@ defmodule FFWeb.Dashboard.IssueLiveTest do
 
       # Create span in correct project
       {:ok, 1} =
-        FF.Telemetry.create_spans_batch(account, project.id, [
+        GI.Telemetry.create_spans_batch(account, project.id, [
           %{
             "request_id" => "req-scoped",
             "event_type" => "phoenix_request",
@@ -1240,7 +1240,7 @@ defmodule FFWeb.Dashboard.IssueLiveTest do
 
       # Create span with same request_id in different project
       {:ok, 1} =
-        FF.Telemetry.create_spans_batch(account, other_project.id, [
+        GI.Telemetry.create_spans_batch(account, other_project.id, [
           %{
             "request_id" => "req-scoped",
             "event_type" => "phoenix_request",

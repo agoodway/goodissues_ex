@@ -1,9 +1,9 @@
-defmodule FF.MonitoringFixtures do
+defmodule GI.MonitoringFixtures do
   @moduledoc """
   Test helpers for creating monitoring entities (checks, check_results).
   """
 
-  alias FF.Monitoring
+  alias GI.Monitoring
 
   def unique_check_name, do: "check#{System.unique_integer([:positive])}"
 

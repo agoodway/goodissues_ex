@@ -1,12 +1,12 @@
-defmodule FF.Monitoring.HttpClient do
+defmodule GI.Monitoring.HttpClient do
   @moduledoc """
   Behaviour for executing the HTTP request that a check observes.
 
   Existing implementations:
 
-    * `FF.Monitoring.HttpClient.Req` — production-grade Req-backed client
-    * `FF.Monitoring.HttpClient.Mock` — overridable in tests via
-      `Application.put_env(:app, FF.Monitoring.Workers.CheckRunner, http_client: ...)`
+    * `GI.Monitoring.HttpClient.Req` — production-grade Req-backed client
+    * `GI.Monitoring.HttpClient.Mock` — overridable in tests via
+      `Application.put_env(:good_issues, GI.Monitoring.Workers.CheckRunner, http_client: ...)`
 
   The behaviour is intentionally narrow: it takes the same keyword list
   Req accepts and returns either `{:ok, %{status: integer, body: any}}`
@@ -17,12 +17,12 @@ defmodule FF.Monitoring.HttpClient do
               {:ok, %{status: integer(), body: any()}} | {:error, term()}
 end
 
-defmodule FF.Monitoring.HttpClient.Req do
+defmodule GI.Monitoring.HttpClient.Req do
   @moduledoc """
   Default Req-backed HTTP client used by the check worker.
   """
 
-  @behaviour FF.Monitoring.HttpClient
+  @behaviour GI.Monitoring.HttpClient
 
   @impl true
   def request(opts) do

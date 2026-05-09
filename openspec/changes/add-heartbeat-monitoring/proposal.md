@@ -1,6 +1,6 @@
 ## Why
 
-FruitFly's uptime checks monitor endpoints actively — FruitFly pings URLs on a schedule. But many production failures happen in background jobs, cron tasks, and data pipelines that can't be reached from outside. These jobs fail silently: no error, no log, just absence. Heartbeat monitoring inverts the pattern — jobs ping FruitFly to prove they're alive. If a ping doesn't arrive on time, FruitFly creates an incident. This completes the monitoring story alongside active checks.
+GoodIssues's uptime checks monitor endpoints actively — GoodIssues pings URLs on a schedule. But many production failures happen in background jobs, cron tasks, and data pipelines that can't be reached from outside. These jobs fail silently: no error, no log, just absence. Heartbeat monitoring inverts the pattern — jobs ping GoodIssues to prove they're alive. If a ping doesn't arrive on time, GoodIssues creates an incident. This completes the monitoring story alongside active checks.
 
 ## What Changes
 
@@ -28,11 +28,11 @@ FruitFly's uptime checks monitor endpoints actively — FruitFly pings URLs on a
 ## Impact
 
 - **Database**: New `heartbeats` and `heartbeat_pings` tables
-- **Schemas**: New `Heartbeat` and `HeartbeatPing` Ecto schemas in `FF.Monitoring`
-- **Contexts**: Extend `FF.Monitoring` with heartbeat CRUD, ping recording, deadline checking, alert rule evaluation, locked state transitions for ping/deadline races, and a heartbeat-specific incident lifecycle wrapper
+- **Schemas**: New `Heartbeat` and `HeartbeatPing` Ecto schemas in `GI.Monitoring`
+- **Contexts**: Extend `GI.Monitoring` with heartbeat CRUD, ping recording, deadline checking, alert rule evaluation, locked state transitions for ping/deadline races, and a heartbeat-specific incident lifecycle wrapper
 - **API**: New heartbeat management endpoints under `/api/v1/projects/:project_id/heartbeats`; new ping endpoints under `/api/v1/projects/:project_id/heartbeats/:heartbeat_token/ping[/start|/fail]`
 - **Auth**: Add `heartbeats:read` and `heartbeats:write` API key scopes; ping endpoints authenticate via token in URL (no Bearer); read-only heartbeat responses redact token-bearing fields
-- **Workers**: New `FF.Monitoring.Workers.HeartbeatDeadline` Oban worker in `:heartbeats` queue with the hardened scheduling invariants from `harden-check-scheduling`, plus a heartbeat-specific periodic recovery worker for orphaned/stuck deadline jobs
+- **Workers**: New `GI.Monitoring.Workers.HeartbeatDeadline` Oban worker in `:heartbeats` queue with the hardened scheduling invariants from `harden-check-scheduling`, plus a heartbeat-specific periodic recovery worker for orphaned/stuck deadline jobs
 - **Dependencies**: No new dependencies — Oban and Req already present
 - **OpenAPI**: Add OpenApiSpex controller/schema metadata for heartbeat endpoints, exempt public ping operations from Bearer auth in generated docs, then regenerate `app/openapi.json`
 - **Prerequisites**: `add-uptime-checks` and `harden-check-scheduling` (or equivalent reconciled changes) must land first so the monitoring context, incident lifecycle, and hardened monitoring-job invariants exist

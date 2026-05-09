@@ -1,4 +1,4 @@
-defmodule FFWeb.ConnCase do
+defmodule GIWeb.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
   tests that require setting up a connection.
@@ -11,31 +11,31 @@ defmodule FFWeb.ConnCase do
   we enable the SQL sandbox, so changes done to the database
   are reverted at the end of every test. If you are using
   PostgreSQL, you can even run database tests asynchronously
-  by setting `use FFWeb.ConnCase, async: true`, although
+  by setting `use GIWeb.ConnCase, async: true`, although
   this option is not recommended for other databases.
   """
 
   use ExUnit.CaseTemplate
 
-  alias FF.Accounts.Scope
-  alias FF.AccountsFixtures
+  alias GI.Accounts.Scope
+  alias GI.AccountsFixtures
 
   using do
     quote do
       # The default endpoint for testing
-      @endpoint FFWeb.Endpoint
+      @endpoint GIWeb.Endpoint
 
-      use FFWeb, :verified_routes
+      use GIWeb, :verified_routes
 
       # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
-      import FFWeb.ConnCase
+      import GIWeb.ConnCase
     end
   end
 
   setup tags do
-    FF.DataCase.setup_sandbox(tags)
+    GI.DataCase.setup_sandbox(tags)
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 
@@ -65,7 +65,7 @@ defmodule FFWeb.ConnCase do
   It returns an updated `conn`.
   """
   def log_in_user(conn, user, opts \\ []) do
-    token = FF.Accounts.generate_user_session_token(user)
+    token = GI.Accounts.generate_user_session_token(user)
 
     maybe_set_token_authenticated_at(token, opts[:token_authenticated_at])
 

@@ -1,4 +1,4 @@
-defmodule FF.Tracking.Occurrence do
+defmodule GI.Tracking.Occurrence do
   @moduledoc """
   Schema for error occurrences.
   Each occurrence represents a single instance of an error with context and stacktrace.
@@ -15,8 +15,8 @@ defmodule FF.Tracking.Occurrence do
     field :context, :map, default: %{}
     field :breadcrumbs, {:array, :string}, default: []
 
-    belongs_to :error, FF.Tracking.Error
-    has_many :stacktrace_lines, FF.Tracking.StacktraceLine
+    belongs_to :error, GI.Tracking.Error
+    has_many :stacktrace_lines, GI.Tracking.StacktraceLine
 
     timestamps(type: :utc_datetime, updated_at: false)
   end

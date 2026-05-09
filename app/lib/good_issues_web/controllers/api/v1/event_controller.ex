@@ -1,25 +1,25 @@
-defmodule FFWeb.Api.V1.EventController do
+defmodule GIWeb.Api.V1.EventController do
   @moduledoc """
   Controller for telemetry event batch operations.
 
-  Handles bulk creation of telemetry spans from FruitflyReporter clients.
+  Handles bulk creation of telemetry spans from GoodIssuesReporter clients.
   """
 
-  use FFWeb, :controller
+  use GIWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
-  alias FF.Telemetry
+  alias GI.Telemetry
 
-  plug FFWeb.Plugs.ApiAuth, {:require_scope, "events:write"} when action in [:create_batch]
+  plug GIWeb.Plugs.ApiAuth, {:require_scope, "events:write"} when action in [:create_batch]
 
-  action_fallback FFWeb.FallbackController
+  action_fallback GIWeb.FallbackController
 
   tags(["Events"])
 
   operation(:create_batch,
     summary: "Create events batch",
     description:
-      "Creates multiple telemetry spans in a single request. Used by FruitflyReporter to efficiently send batched telemetry data.",
+      "Creates multiple telemetry spans in a single request. Used by GoodIssuesReporter to efficiently send batched telemetry data.",
     request_body:
       {"Events batch", "application/json",
        %OpenApiSpex.Schema{
@@ -77,9 +77,9 @@ defmodule FFWeb.Api.V1.EventController do
              }
            }
          }},
-      bad_request: {"Bad request", "application/json", FFWeb.ErrorJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON},
-      forbidden: {"Forbidden", "application/json", FFWeb.ErrorJSON}
+      bad_request: {"Bad request", "application/json", GIWeb.ErrorJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON},
+      forbidden: {"Forbidden", "application/json", GIWeb.ErrorJSON}
     ]
   )
 

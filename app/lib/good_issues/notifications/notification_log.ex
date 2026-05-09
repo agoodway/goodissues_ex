@@ -1,4 +1,4 @@
-defmodule FF.Notifications.NotificationLog do
+defmodule GI.Notifications.NotificationLog do
   @moduledoc """
   Append-only audit log for notification delivery attempts.
 
@@ -9,8 +9,8 @@ defmodule FF.Notifications.NotificationLog do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias FF.Accounts.Account
-  alias FF.Notifications.EventSubscription
+  alias GI.Accounts.Account
+  alias GI.Notifications.EventSubscription
 
   @type t :: %__MODULE__{
           id: Ecto.UUID.t() | nil,

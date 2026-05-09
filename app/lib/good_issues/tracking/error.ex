@@ -1,4 +1,4 @@
-defmodule FF.Tracking.Error do
+defmodule GI.Tracking.Error do
   @moduledoc """
   Schema for errors linked to issues.
   Errors store metadata about application errors with fingerprint-based deduplication.
@@ -21,8 +21,8 @@ defmodule FF.Tracking.Error do
     field :last_occurrence_at, :utc_datetime
     field :muted, :boolean, default: false
 
-    belongs_to :issue, FF.Tracking.Issue
-    has_many :occurrences, FF.Tracking.Occurrence
+    belongs_to :issue, GI.Tracking.Issue
+    has_many :occurrences, GI.Tracking.Occurrence
 
     # Virtual field for occurrence count in queries
     field :occurrence_count, :integer, virtual: true

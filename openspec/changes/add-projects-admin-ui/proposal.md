@@ -44,6 +44,6 @@ Issue identifiers like "FF-123" are easier to reference in conversations, commit
 
 1. **Global sequence instead of per-project**: Would give IDs like "FF-1", "FF-2" across all projects. Rejected because per-project sequences (FF-1, BUG-1) are more intuitive.
 
-2. **Auto-generate prefix from project name**: E.g., "FruitFly" → "FF". Rejected because users should have control over the prefix, and auto-generation could produce awkward results.
+2. **Auto-generate prefix from project name**: E.g., "GoodIssues" → "FF". Rejected because users should have control over the prefix, and auto-generation could produce awkward results.
 
 3. **Store computed ID in database**: Store "FF-123" as a string field. Rejected because it's denormalized and makes prefix changes harder.

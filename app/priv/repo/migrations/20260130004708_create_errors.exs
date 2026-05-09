@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.CreateErrors do
+defmodule GI.Repo.Migrations.CreateErrors do
   use Ecto.Migration
 
   def change do

@@ -1,4 +1,4 @@
-defmodule FF.Notifications.Event do
+defmodule GI.Notifications.Event do
   @moduledoc """
   Standard struct for all business events broadcast via the event bus.
 

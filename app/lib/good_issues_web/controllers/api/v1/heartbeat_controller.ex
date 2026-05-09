@@ -1,18 +1,18 @@
-defmodule FFWeb.Api.V1.HeartbeatController do
-  use FFWeb, :controller
+defmodule GIWeb.Api.V1.HeartbeatController do
+  use GIWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
-  alias FF.Monitoring
-  alias FF.Monitoring.Heartbeat
-  alias FFWeb.Api.V1.Schemas.Heartbeat, as: HBSchemas
+  alias GI.Monitoring
+  alias GI.Monitoring.Heartbeat
+  alias GIWeb.Api.V1.Schemas.Heartbeat, as: HBSchemas
 
-  plug FFWeb.Plugs.ApiAuth,
+  plug GIWeb.Plugs.ApiAuth,
        {:require_scope, "heartbeats:read"} when action in [:index, :show]
 
-  plug FFWeb.Plugs.ApiAuth,
+  plug GIWeb.Plugs.ApiAuth,
        {:require_scope, "heartbeats:write"} when action in [:create, :update, :delete]
 
-  action_fallback FFWeb.FallbackController
+  action_fallback GIWeb.FallbackController
 
   tags(["Heartbeats"])
 
@@ -32,14 +32,14 @@ defmodule FFWeb.Api.V1.HeartbeatController do
     ],
     responses: [
       ok: {"Heartbeat list", "application/json", HBSchemas.HeartbeatListResponse},
-      bad_request: {"Bad request", "application/json", FFWeb.ErrorJSON},
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON}
+      bad_request: {"Bad request", "application/json", GIWeb.ErrorJSON},
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
   def index(conn, %{"project_id" => project_id} = params) do
-    with :ok <- FFWeb.Api.V1.PaginationHelpers.validate_pagination(params),
+    with :ok <- GIWeb.Api.V1.PaginationHelpers.validate_pagination(params),
          {:ok, _project} <- ensure_project(conn, project_id) do
       result = Monitoring.list_heartbeats(conn.assigns.current_account, project_id, params)
 
@@ -69,8 +69,8 @@ defmodule FFWeb.Api.V1.HeartbeatController do
     ],
     responses: [
       ok: {"Heartbeat", "application/json", HBSchemas.HeartbeatResponse},
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON}
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
@@ -93,10 +93,10 @@ defmodule FFWeb.Api.V1.HeartbeatController do
     request_body: {"Heartbeat params", "application/json", HBSchemas.HeartbeatRequest},
     responses: [
       created: {"Heartbeat created", "application/json", HBSchemas.HeartbeatCreateResponse},
-      unprocessable_entity: {"Validation error", "application/json", FFWeb.ChangesetJSON},
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON},
-      forbidden: {"Forbidden", "application/json", FFWeb.ErrorJSON}
+      unprocessable_entity: {"Validation error", "application/json", GIWeb.ChangesetJSON},
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON},
+      forbidden: {"Forbidden", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
@@ -133,10 +133,10 @@ defmodule FFWeb.Api.V1.HeartbeatController do
     request_body: {"Heartbeat params", "application/json", HBSchemas.HeartbeatUpdateRequest},
     responses: [
       ok: {"Heartbeat updated", "application/json", HBSchemas.HeartbeatResponse},
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
-      unprocessable_entity: {"Validation error", "application/json", FFWeb.ChangesetJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON},
-      forbidden: {"Forbidden", "application/json", FFWeb.ErrorJSON}
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON},
+      unprocessable_entity: {"Validation error", "application/json", GIWeb.ChangesetJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON},
+      forbidden: {"Forbidden", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
@@ -168,9 +168,9 @@ defmodule FFWeb.Api.V1.HeartbeatController do
     ],
     responses: [
       no_content: "Heartbeat deleted",
-      not_found: {"Not found", "application/json", FFWeb.ErrorJSON},
-      unauthorized: {"Unauthorized", "application/json", FFWeb.ErrorJSON},
-      forbidden: {"Forbidden", "application/json", FFWeb.ErrorJSON}
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON},
+      forbidden: {"Forbidden", "application/json", GIWeb.ErrorJSON}
     ]
   )
 
@@ -187,7 +187,7 @@ defmodule FFWeb.Api.V1.HeartbeatController do
   end
 
   defp ensure_project(conn, project_id) do
-    case FF.Tracking.get_project(conn.assigns.current_account, project_id) do
+    case GI.Tracking.get_project(conn.assigns.current_account, project_id) do
       nil -> {:error, :not_found}
       project -> {:ok, project}
     end

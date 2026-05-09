@@ -1,14 +1,14 @@
-defmodule FFWeb.DashboardControllerTest do
-  use FFWeb.ConnCase, async: true
+defmodule GIWeb.DashboardControllerTest do
+  use GIWeb.ConnCase, async: true
 
-  import FF.AccountsFixtures
+  import GI.AccountsFixtures
 
   setup :register_and_log_in_user
 
   describe "index/2" do
     test "redirects to user's first account dashboard", %{conn: conn, user: user} do
       # User already has an account from register_and_log_in_user
-      accounts = FF.Accounts.get_user_accounts(user)
+      accounts = GI.Accounts.get_user_accounts(user)
       {account, _role} = hd(accounts)
 
       conn = get(conn, ~p"/dashboard")
@@ -22,12 +22,12 @@ defmodule FFWeb.DashboardControllerTest do
       other_user = user_fixture()
 
       # Delete default account created during fixture
-      accounts = FF.Accounts.get_user_accounts(other_user)
+      accounts = GI.Accounts.get_user_accounts(other_user)
 
       for {account, _role} <- accounts do
-        account_user = FF.Accounts.get_account_user(other_user, account)
-        FF.Repo.delete!(account_user)
-        FF.Repo.delete!(account)
+        account_user = GI.Accounts.get_account_user(other_user, account)
+        GI.Repo.delete!(account_user)
+        GI.Repo.delete!(account)
       end
 
       conn =

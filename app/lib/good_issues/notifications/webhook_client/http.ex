@@ -1,9 +1,9 @@
-defmodule FF.Notifications.WebhookClient.HTTP do
+defmodule GI.Notifications.WebhookClient.HTTP do
   @moduledoc """
   Req-based webhook delivery implementation.
   """
 
-  @behaviour FF.Notifications.WebhookClient
+  @behaviour GI.Notifications.WebhookClient
 
   @request_timeout_ms 20_000
 

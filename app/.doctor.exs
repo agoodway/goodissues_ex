@@ -4,11 +4,11 @@
     ~r/.*Test$/,
     ~r/.*Fixtures$/,
     # Exclude generated Phoenix modules
-    ~r/^FFWeb.Telemetry$/,
-    ~r/^FFWeb.Endpoint$/,
-    ~r/^FF.DataCase$/,
-    ~r/^FF.ConnCase$/,
-    ~r/^FFWeb.ConnCase$/
+    ~r/^GIWeb.Telemetry$/,
+    ~r/^GIWeb.Endpoint$/,
+    ~r/^GI.DataCase$/,
+    ~r/^GI.ConnCase$/,
+    ~r/^GIWeb.ConnCase$/
   ],
   ignore_paths: [
     "test/",

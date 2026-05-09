@@ -1,9 +1,9 @@
-defmodule FFWeb.Api.V1.CheckControllerTest do
-  use FFWeb.ConnCase
+defmodule GIWeb.Api.V1.CheckControllerTest do
+  use GIWeb.ConnCase
 
-  import FF.AccountsFixtures
-  import FF.MonitoringFixtures
-  import FF.TrackingFixtures
+  import GI.AccountsFixtures
+  import GI.MonitoringFixtures
+  import GI.TrackingFixtures
 
   setup %{conn: conn} do
     {user, account} = user_with_account_fixture()
@@ -216,10 +216,10 @@ defmodule FFWeb.Api.V1.CheckControllerTest do
       account: account,
       project: project
     } do
-      account_user = FF.Accounts.get_account_user(user, account)
+      account_user = GI.Accounts.get_account_user(user, account)
 
       {:ok, {_api_key, token}} =
-        FF.Accounts.create_api_key(account_user, %{
+        GI.Accounts.create_api_key(account_user, %{
           name: "scoped",
           type: :private,
           scopes: ["projects:read"]

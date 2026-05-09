@@ -1,8 +1,8 @@
-defmodule FFWeb.Api.V1.ProjectControllerTest do
-  use FFWeb.ConnCase
+defmodule GIWeb.Api.V1.ProjectControllerTest do
+  use GIWeb.ConnCase
 
-  import FF.AccountsFixtures
-  import FF.TrackingFixtures
+  import GI.AccountsFixtures
+  import GI.TrackingFixtures
 
   setup %{conn: conn} do
     {user, account} = user_with_account_fixture()
@@ -90,7 +90,7 @@ defmodule FFWeb.Api.V1.ProjectControllerTest do
       conn = post(conn, ~p"/api/v1/projects", params)
       assert %{"data" => %{"id" => id}} = json_response(conn, 201)
 
-      project = FF.Tracking.get_project(account, id)
+      project = GI.Tracking.get_project(account, id)
       assert project.name == "New Project"
       assert project.description == "A new project"
       assert project.prefix == "NP"
@@ -178,7 +178,7 @@ defmodule FFWeb.Api.V1.ProjectControllerTest do
       conn = delete(conn, ~p"/api/v1/projects/#{project.id}")
       assert response(conn, 204)
 
-      assert FF.Tracking.get_project(account, project.id) == nil
+      assert GI.Tracking.get_project(account, project.id) == nil
     end
 
     test "returns 404 for non-existent project", %{conn: conn} do

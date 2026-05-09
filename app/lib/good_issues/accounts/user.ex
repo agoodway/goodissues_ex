@@ -1,4 +1,4 @@
-defmodule FF.Accounts.User do
+defmodule GI.Accounts.User do
   @moduledoc """
   Schema for user accounts.
 
@@ -17,8 +17,8 @@ defmodule FF.Accounts.User do
           hashed_password: String.t() | nil,
           confirmed_at: DateTime.t() | nil,
           authenticated_at: DateTime.t() | nil,
-          account_users: [FF.Accounts.AccountUser.t()] | Ecto.Association.NotLoaded.t(),
-          accounts: [FF.Accounts.Account.t()] | Ecto.Association.NotLoaded.t(),
+          account_users: [GI.Accounts.AccountUser.t()] | Ecto.Association.NotLoaded.t(),
+          accounts: [GI.Accounts.Account.t()] | Ecto.Association.NotLoaded.t(),
           inserted_at: DateTime.t() | nil,
           updated_at: DateTime.t() | nil
         }
@@ -30,7 +30,7 @@ defmodule FF.Accounts.User do
     field :confirmed_at, :utc_datetime
     field :authenticated_at, :utc_datetime, virtual: true
 
-    has_many :account_users, FF.Accounts.AccountUser
+    has_many :account_users, GI.Accounts.AccountUser
     has_many :accounts, through: [:account_users, :account]
 
     timestamps(type: :utc_datetime)
@@ -65,7 +65,7 @@ defmodule FF.Accounts.User do
 
     if Keyword.get(opts, :validate_unique, true) do
       changeset
-      |> unsafe_validate_unique(:email, FF.Repo)
+      |> unsafe_validate_unique(:email, GI.Repo)
       |> unique_constraint(:email)
       |> validate_email_changed()
     else
@@ -90,7 +90,7 @@ defmodule FF.Accounts.User do
   end
 
   defp reserved_internal_email_error(:email, email) do
-    if String.ends_with?(String.downcase(email), ".fruitfly.internal") do
+    if String.ends_with?(String.downcase(email), ".goodissues.internal") do
       [email: "is reserved for internal use"]
     else
       []
@@ -161,7 +161,7 @@ defmodule FF.Accounts.User do
   If there is no user or the user doesn't have a password, we call
   `Bcrypt.no_user_verify/0` to avoid timing attacks.
   """
-  def valid_password?(%FF.Accounts.User{hashed_password: hashed_password}, password)
+  def valid_password?(%GI.Accounts.User{hashed_password: hashed_password}, password)
       when is_binary(hashed_password) and byte_size(password) > 0 do
     Bcrypt.verify_pass(password, hashed_password)
   end

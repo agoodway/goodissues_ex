@@ -2,7 +2,7 @@
 
 ## Phase 1: Schema and Scope Changes ✅
 
-- [x] **1.1** Extend `FF.Accounts.Scope` struct to include `account`, `account_user`, and `accounts` fields
+- [x] **1.1** Extend `GI.Accounts.Scope` struct to include `account`, `account_user`, and `accounts` fields
 - [x] **1.2** Add scope helper functions: `can_manage_account?/1`, `can_view_account?/1`, `has_account?/1`, `is_owner?/1`, `with_account/4`
 - [x] **1.3** Add `Accounts.get_user_accounts/1` to fetch all accounts a user belongs to with roles
 - [x] **1.4** Add `Accounts.get_account_user_by_id/2` to fetch a user's membership for a specific account
@@ -11,7 +11,7 @@
 
 ## Phase 2: Authentication and Account Selection ✅
 
-- [x] **2.1** Create `FFWeb.UserAuth.on_mount(:ensure_account_selected)` callback
+- [x] **2.1** Create `GIWeb.UserAuth.on_mount(:ensure_account_selected)` callback
 - [x] **2.2** Implement account selection logic (session-based, with fallback to first account)
 - [x] **2.3** Add `DashboardController.switch_account/2` action for account switching
 - [x] **2.4** Write integration tests for account selection flow
@@ -21,8 +21,8 @@
 
 - [x] **3.1** Create `/dashboard` route scope in router (parallel to `/admin` temporarily)
 - [x] **3.2** Copy `lib/app_web/live/admin/` directory to `lib/app_web/live/dashboard/`
-- [x] **3.3** Update module namespaces from `FFWeb.Admin.*` to `FFWeb.Dashboard.*`
-- [x] **3.4** Create `FFWeb.Layouts.dashboard/1` layout function
+- [x] **3.3** Update module namespaces from `GIWeb.Admin.*` to `GIWeb.Dashboard.*`
+- [x] **3.4** Create `GIWeb.Layouts.dashboard/1` layout function
 - [x] **3.5** Update all route helpers from `~p"/admin/*"` to `~p"/dashboard/*"`
 - [x] **3.6** Update tests to use new route paths and module names
 
@@ -51,7 +51,7 @@
 - [x] **6.1** Remove `/admin` routes from router
 - [x] **6.2** Remove `Layouts.admin/1` function
 - [x] **6.3** Remove `ensure_admin` on_mount callback from `UserAuth`
-- [x] **6.4** Delete `FFWeb.Plugs.AdminAuth` plug
+- [x] **6.4** Delete `GIWeb.Plugs.AdminAuth` plug
 - [x] **6.5** Remove `is_admin` field from `User` schema
 - [x] **6.6** Create migration to drop `is_admin` column from users table
 - [x] **6.7** Remove `admin_user_fixture` from test fixtures

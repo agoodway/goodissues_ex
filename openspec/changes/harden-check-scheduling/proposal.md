@@ -11,7 +11,7 @@ The chain is currently recovered only at boot via `Scheduler.recover_orphaned_jo
 
 - Harden `CheckRunner.perform/1` so `Scheduler.schedule_next/1` always runs (`try/after`) — moving the reschedule out of `run/1` so it can no longer be skipped by an exception in the body.
 - Encode the `unique` constraint fix (drop `:executing` from the unique `states` list) as a requirement so future contributors do not regress it.
-- Add `FF.Monitoring.Workers.Reaper` Oban worker scheduled every 60s via `Oban.Plugins.Cron`. This is **additive** to the existing boot-time `Scheduler.recover_orphaned_jobs/0` recovery — boot recovery is preserved unchanged; the reaper provides defense between deploys.
+- Add `GI.Monitoring.Workers.Reaper` Oban worker scheduled every 60s via `Oban.Plugins.Cron`. This is **additive** to the existing boot-time `Scheduler.recover_orphaned_jobs/0` recovery — boot recovery is preserved unchanged; the reaper provides defense between deploys.
 - Reaper recovers two failure modes:
   - **Orphans** — active checks with no pending Oban job → `Scheduler.schedule_initial/1`
   - **Stuck** — jobs in `:executing` state with `attempted_at < now - (5 × interval_seconds)` → cancel and reschedule
@@ -26,9 +26,9 @@ The chain is currently recovered only at boot via `Scheduler.recover_orphaned_jo
 
 ## Impact
 
-- **`FF.Monitoring.Workers.CheckRunner`**: refactor `perform/1` into `try/after` shape; move `Scheduler.schedule_next` out of `run/1`.
-- **`FF.Monitoring.Scheduler`**: add helpers to list stuck-executing jobs and to cancel a specific job by id.
-- **New module `FF.Monitoring.Workers.Reaper`**: queries orphans + stuck, performs recovery, emits telemetry and PubSub.
+- **`GI.Monitoring.Workers.CheckRunner`**: refactor `perform/1` into `try/after` shape; move `Scheduler.schedule_next` out of `run/1`.
+- **`GI.Monitoring.Scheduler`**: add helpers to list stuck-executing jobs and to cancel a specific job by id.
+- **New module `GI.Monitoring.Workers.Reaper`**: queries orphans + stuck, performs recovery, emits telemetry and PubSub.
 - **Application config**: register `Oban.Plugins.Cron` with the reaper schedule.
 - **Telemetry**: two new event names under `[:ff, :monitoring, :reaper, …]`.
 - **PubSub**: new global topic `"monitoring:reaper"` with one event type.

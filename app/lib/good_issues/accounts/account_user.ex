@@ -1,4 +1,4 @@
-defmodule FF.Accounts.AccountUser do
+defmodule GI.Accounts.AccountUser do
   @moduledoc """
   Join schema for User <-> Account many-to-many relationship.
   Includes role for authorization within the account.
@@ -15,9 +15,9 @@ defmodule FF.Accounts.AccountUser do
           role: :owner | :admin | :member,
           user_id: Ecto.UUID.t() | nil,
           account_id: Ecto.UUID.t() | nil,
-          user: FF.Accounts.User.t() | Ecto.Association.NotLoaded.t(),
-          account: FF.Accounts.Account.t() | Ecto.Association.NotLoaded.t(),
-          api_keys: [FF.Accounts.ApiKey.t()] | Ecto.Association.NotLoaded.t(),
+          user: GI.Accounts.User.t() | Ecto.Association.NotLoaded.t(),
+          account: GI.Accounts.Account.t() | Ecto.Association.NotLoaded.t(),
+          api_keys: [GI.Accounts.ApiKey.t()] | Ecto.Association.NotLoaded.t(),
           inserted_at: DateTime.t() | nil,
           updated_at: DateTime.t() | nil
         }
@@ -25,9 +25,9 @@ defmodule FF.Accounts.AccountUser do
   schema "account_users" do
     field :role, Ecto.Enum, values: [:owner, :admin, :member], default: :member
 
-    belongs_to :user, FF.Accounts.User
-    belongs_to :account, FF.Accounts.Account
-    has_many :api_keys, FF.Accounts.ApiKey
+    belongs_to :user, GI.Accounts.User
+    belongs_to :account, GI.Accounts.Account
+    has_many :api_keys, GI.Accounts.ApiKey
 
     timestamps(type: :utc_datetime)
   end

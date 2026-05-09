@@ -1,9 +1,9 @@
-defmodule FFWeb.Api.V1.ProjectJSON do
+defmodule GIWeb.Api.V1.ProjectJSON do
   @moduledoc """
   JSON rendering for Project resources.
   """
 
-  alias FF.Tracking.Project
+  alias GI.Tracking.Project
 
   def index(%{
         projects: projects,

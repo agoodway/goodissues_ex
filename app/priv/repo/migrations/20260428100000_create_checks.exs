@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.CreateChecks do
+defmodule GI.Repo.Migrations.CreateChecks do
   use Ecto.Migration
 
   def change do

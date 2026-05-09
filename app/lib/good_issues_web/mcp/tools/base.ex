@@ -1,9 +1,9 @@
-defmodule FFWeb.MCP.Tools.Base do
+defmodule GIWeb.MCP.Tools.Base do
   @moduledoc """
   Shared utilities for all MCP tools.
   """
   alias Anubis.Server.Response
-  alias FF.Accounts
+  alias GI.Accounts
 
   @doc "Wraps tool execution with scope validation"
   def with_scope(frame, required_scope, fun) do

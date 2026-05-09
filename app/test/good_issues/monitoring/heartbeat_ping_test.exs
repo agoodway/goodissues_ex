@@ -1,13 +1,13 @@
-defmodule FF.Monitoring.HeartbeatPingTest do
-  use FF.DataCase, async: false
+defmodule GI.Monitoring.HeartbeatPingTest do
+  use GI.DataCase, async: false
 
-  import FF.AccountsFixtures
-  import FF.MonitoringFixtures
-  import FF.TrackingFixtures
+  import GI.AccountsFixtures
+  import GI.MonitoringFixtures
+  import GI.TrackingFixtures
 
-  alias FF.Monitoring
-  alias FF.Monitoring.{Heartbeat, HeartbeatPing}
-  alias FF.Repo
+  alias GI.Monitoring
+  alias GI.Monitoring.{Heartbeat, HeartbeatPing}
+  alias GI.Repo
 
   setup do
     {user, account} = user_with_account_fixture()

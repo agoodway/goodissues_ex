@@ -1,7 +1,7 @@
-defmodule FFWeb.Api.V1.HeartbeatPingJSON do
+defmodule GIWeb.Api.V1.HeartbeatPingJSON do
   @moduledoc "JSON rendering for HeartbeatPing resources."
 
-  alias FF.Monitoring.HeartbeatPing
+  alias GI.Monitoring.HeartbeatPing
 
   def index(%{
         pings: pings,

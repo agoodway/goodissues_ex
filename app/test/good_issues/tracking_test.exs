@@ -1,11 +1,11 @@
-defmodule FF.TrackingTest do
-  use FF.DataCase
+defmodule GI.TrackingTest do
+  use GI.DataCase
 
-  alias FF.Tracking
-  alias FF.Tracking.{Error, Issue, Occurrence, Project}
+  alias GI.Tracking
+  alias GI.Tracking.{Error, Issue, Occurrence, Project}
 
-  import FF.AccountsFixtures
-  import FF.TrackingFixtures
+  import GI.AccountsFixtures
+  import GI.TrackingFixtures
 
   describe "list_projects/1" do
     test "returns all projects for the account" do
@@ -639,7 +639,7 @@ defmodule FF.TrackingTest do
       project = project_fixture(account)
 
       # Subscribe to the account's issues topic
-      Phoenix.PubSub.subscribe(FF.PubSub, Tracking.issues_topic(account.id))
+      Phoenix.PubSub.subscribe(GI.PubSub, Tracking.issues_topic(account.id))
 
       {:ok, issue} =
         Tracking.create_issue(account, user, %{
@@ -661,7 +661,7 @@ defmodule FF.TrackingTest do
       {user, account} = user_with_account_fixture()
 
       # Subscribe to the account's issues topic
-      Phoenix.PubSub.subscribe(FF.PubSub, Tracking.issues_topic(account.id))
+      Phoenix.PubSub.subscribe(GI.PubSub, Tracking.issues_topic(account.id))
 
       # Try to create an issue with invalid project_id
       {:error, _changeset} =
@@ -682,7 +682,7 @@ defmodule FF.TrackingTest do
       issue = issue_fixture(account, user, project)
 
       # Subscribe to the account's issues topic
-      Phoenix.PubSub.subscribe(FF.PubSub, Tracking.issues_topic(account.id))
+      Phoenix.PubSub.subscribe(GI.PubSub, Tracking.issues_topic(account.id))
 
       {:ok, updated} =
         Tracking.update_issue(issue, %{title: "Updated Title", status: :in_progress})
@@ -700,7 +700,7 @@ defmodule FF.TrackingTest do
       issue = issue_fixture(account, user, project)
 
       # Subscribe to the account's issues topic
-      Phoenix.PubSub.subscribe(FF.PubSub, Tracking.issues_topic(account.id))
+      Phoenix.PubSub.subscribe(GI.PubSub, Tracking.issues_topic(account.id))
 
       # Try to update with invalid title (too long)
       {:error, _changeset} = Tracking.update_issue(issue, %{title: String.duplicate("a", 256)})

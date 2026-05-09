@@ -1,7 +1,7 @@
-defmodule FF.Monitoring.AlertRuleEvaluatorTest do
+defmodule GI.Monitoring.AlertRuleEvaluatorTest do
   use ExUnit.Case, async: true
 
-  alias FF.Monitoring.AlertRuleEvaluator
+  alias GI.Monitoring.AlertRuleEvaluator
 
   describe "evaluate/2" do
     test "returns :pass with empty rules" do

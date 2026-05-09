@@ -1,8 +1,8 @@
-defmodule FFWeb.UserRegistrationController do
-  use FFWeb, :controller
+defmodule GIWeb.UserRegistrationController do
+  use GIWeb, :controller
 
-  alias FF.Accounts
-  alias FF.Accounts.User
+  alias GI.Accounts
+  alias GI.Accounts.User
 
   def new(conn, _params) do
     changeset = Accounts.change_user_email(%User{})

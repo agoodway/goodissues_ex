@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.CreateAccountUsers do
+defmodule GI.Repo.Migrations.CreateAccountUsers do
   use Ecto.Migration
 
   def change do

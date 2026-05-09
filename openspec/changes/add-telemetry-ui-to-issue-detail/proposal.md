@@ -2,7 +2,7 @@
 
 ## Why
 
-FruitFly collects telemetry spans (request timing, database queries, LiveView events) alongside error reports. Both can be correlated by `request_id` - errors store it in `occurrence.context.request_id` while telemetry spans store it directly in `span.request_id`.
+GoodIssues collects telemetry spans (request timing, database queries, LiveView events) alongside error reports. Both can be correlated by `request_id` - errors store it in `occurrence.context.request_id` while telemetry spans store it directly in `span.request_id`.
 
 Currently, the issue detail page shows error data (kind, reason, stacktrace) but doesn't show the associated telemetry data. Displaying telemetry on the issue detail page helps users understand the full request lifecycle that led to an error - including timing, database queries, and other events.
 

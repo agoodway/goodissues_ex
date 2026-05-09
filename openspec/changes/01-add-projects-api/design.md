@@ -1,6 +1,6 @@
 ## Context
 
-This change adds project management to FruitFly as the foundation for issue tracking. The system already has:
+This change adds project management to GoodIssues as the foundation for issue tracking. The system already has:
 - Multi-tenant accounts with users and API key authentication
 - OpenAPI documentation via `open_api_spex`
 - Established patterns for contexts, schemas, and controllers
@@ -12,7 +12,7 @@ This change adds project management to FruitFly as the foundation for issue trac
 - Maintain multi-tenant isolation (account-scoped data)
 - Follow existing codebase conventions
 - Generate accurate OpenAPI documentation
-- Establish the `FF.Tracking` context for future issue tracking
+- Establish the `GI.Tracking` context for future issue tracking
 
 ### Non-Goals
 - Project archiving/soft delete
@@ -21,8 +21,8 @@ This change adds project management to FruitFly as the foundation for issue trac
 
 ## Decisions
 
-### Context Naming: `FF.Tracking`
-**Decision**: Use `FF.Tracking` as the context module name.
+### Context Naming: `GI.Tracking`
+**Decision**: Use `GI.Tracking` as the context module name.
 **Rationale**: "Tracking" is broad enough to encompass projects, issues, and future related features (milestones, labels, etc.) without being too generic.
 
 ### Hard Delete

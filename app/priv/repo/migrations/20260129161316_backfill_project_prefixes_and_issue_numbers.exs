@@ -1,4 +1,4 @@
-defmodule FF.Repo.Migrations.BackfillProjectPrefixesAndIssueNumbers do
+defmodule GI.Repo.Migrations.BackfillProjectPrefixesAndIssueNumbers do
   use Ecto.Migration
 
   def up do

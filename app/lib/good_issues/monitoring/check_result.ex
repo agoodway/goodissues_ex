@@ -1,4 +1,4 @@
-defmodule FF.Monitoring.CheckResult do
+defmodule GI.Monitoring.CheckResult do
   @moduledoc """
   Schema for an immutable check execution record.
 
@@ -21,8 +21,8 @@ defmodule FF.Monitoring.CheckResult do
     field :error, :string
     field :checked_at, :utc_datetime
 
-    belongs_to :check, FF.Monitoring.Check
-    belongs_to :issue, FF.Tracking.Issue
+    belongs_to :check, GI.Monitoring.Check
+    belongs_to :issue, GI.Tracking.Issue
 
     timestamps(type: :utc_datetime, updated_at: false)
   end

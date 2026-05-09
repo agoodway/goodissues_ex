@@ -6,15 +6,15 @@ import (
 	"os"
 	"strings"
 
-	"fruitfly/internal/config"
+	"goodissues/internal/config"
 
 	"github.com/spf13/cobra"
 )
 
 var configureCmd = &cobra.Command{
 	Use:   "configure",
-	Short: "Configure Fruitfly CLI settings",
-	Long:  `Configure the Fruitfly CLI with your API base URL and API key.`,
+	Short: "Configure GoodIssues CLI settings",
+	Long:  `Configure the GoodIssues CLI with your API base URL and API key.`,
 	Run:   runConfigure,
 }
 

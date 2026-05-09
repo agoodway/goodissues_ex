@@ -22,7 +22,7 @@ import Layout from '../layouts/Layout.astro';
           <span class="font-mono text-primary font-bold text-sm">FF</span>
         </div>
         <div class="flex flex-col">
-          <span class="font-semibold text-sm text-base-content">FruitFly</span>
+          <span class="font-semibold text-sm text-base-content">GoodIssues</span>
           <span class="font-mono text-[10px] text-muted uppercase tracking-wider">v1.0.0</span>
         </div>
       </div>
@@ -47,15 +47,15 @@ import Layout from '../layouts/Layout.astro';
           Docs
         </a>
         <a
-          href="https://hub.docker.com/r/goodway/fruitfly"
+          href="https://hub.docker.com/r/goodway/goodissues"
           target="_blank"
           rel="noopener"
           class="hidden sm:block font-mono text-xs text-muted hover:text-base-content transition-colors"
-          aria-label="FruitFly on Docker Hub"
+          aria-label="GoodIssues on Docker Hub"
         >
           Docker Hub
         </a>
-        <a href="https://app.fruitfly.dev/users/log-in" class="btn-action text-xs">
+        <a href="https://app.goodissues.dev/users/log-in" class="btn-action text-xs">
           Sign In
         </a>
       </nav>
@@ -89,11 +89,11 @@ import Layout from '../layouts/Layout.astro';
 
           <!-- CTA buttons -->
           <div class="flex flex-wrap items-center gap-3 pt-2">
-            <a href="https://app.fruitfly.dev/users/register" class="btn-action px-5 py-2.5 text-xs">
+            <a href="https://app.goodissues.dev/users/register" class="btn-action px-5 py-2.5 text-xs">
               Get Started Free
             </a>
             <a
-              href="https://hub.docker.com/r/goodway/fruitfly"
+              href="https://hub.docker.com/r/goodway/goodissues"
               target="_blank"
               rel="noopener"
               class="btn-subtle px-5 py-2.5 flex items-center gap-2 text-xs"
@@ -140,7 +140,7 @@ import Layout from '../layouts/Layout.astro';
                 <div class="size-2.5 rounded-full bg-warning/50"></div>
                 <div class="size-2.5 rounded-full bg-success/50"></div>
               </div>
-              <span class="ml-2 font-mono text-[10px] text-muted">fruitfly-cli — bash</span>
+              <span class="ml-2 font-mono text-[10px] text-muted">goodissues-cli — bash</span>
             </div>
 
             <!-- Terminal content -->
@@ -148,7 +148,7 @@ import Layout from '../layouts/Layout.astro';
               <!-- Command 1: Create issue -->
               <div>
                 <span class="text-primary">$</span>
-                <span class="text-base-content ml-2">fruitfly issues create \</span>
+                <span class="text-base-content ml-2">goodissues issues create \</span>
               </div>
               <div class="text-base-content pl-4">
                 --project acme --type bug --title "Fix login bug"
@@ -160,7 +160,7 @@ import Layout from '../layouts/Layout.astro';
               <!-- Command 2: List issues -->
               <div class="pt-2">
                 <span class="text-primary">$</span>
-                <span class="text-base-content ml-2">fruitfly issues list --status new</span>
+                <span class="text-base-content ml-2">goodissues issues list --status new</span>
               </div>
               <div class="text-muted pl-4 pt-1 text-[10px] lg:text-xs">
                 <div class="text-base-content/70">
@@ -219,7 +219,7 @@ import Layout from '../layouts/Layout.astro';
             </div>
             <div class="p-4 font-mono text-xs lg:text-sm">
               <span class="text-primary">$</span>
-              <span class="text-base-content ml-2" id="pull-command">docker pull goodway/fruitfly:latest</span>
+              <span class="text-base-content ml-2" id="pull-command">docker pull goodway/goodissues:latest</span>
             </div>
           </div>
 
@@ -236,13 +236,13 @@ import Layout from '../layouts/Layout.astro';
             </div>
             <div class="p-4 font-mono text-xs lg:text-sm">
               <span class="text-primary">$</span>
-              <span class="text-base-content ml-2" id="run-command">docker run -d -p 4000:4000 goodway/fruitfly</span>
+              <span class="text-base-content ml-2" id="run-command">docker run -d -p 4000:4000 goodway/goodissues</span>
             </div>
           </div>
 
           <div class="mt-6 text-center">
             <a
-              href="https://hub.docker.com/r/goodway/fruitfly"
+              href="https://hub.docker.com/r/goodway/goodissues"
               target="_blank"
               rel="noopener"
               class="inline-flex items-center gap-2 font-mono text-xs text-primary hover:text-primary/80 transition-colors"
@@ -335,7 +335,7 @@ import Layout from '../layouts/Layout.astro';
             <p class="text-xs text-muted leading-relaxed">
               Powerful command-line interface for managing issues without leaving your terminal. Perfect for developers.
             </p>
-            <div class="mt-3 font-mono text-[10px] text-primary">$ fruitfly issues list →</div>
+            <div class="mt-3 font-mono text-[10px] text-primary">$ goodissues issues list →</div>
           </article>
 
           <!-- Feature 4: Multi-tenant -->
@@ -387,7 +387,7 @@ import Layout from '../layouts/Layout.astro';
             <p class="text-xs text-muted leading-relaxed">
               Official Docker image on Docker Hub. Deploy anywhere with a single command. Production-ready out of the box.
             </p>
-            <div class="mt-3 font-mono text-[10px] text-primary">docker pull goodway/fruitfly →</div>
+            <div class="mt-3 font-mono text-[10px] text-primary">docker pull goodway/goodissues →</div>
           </article>
         </div>
       </div>
@@ -419,7 +419,7 @@ import Layout from '../layouts/Layout.astro';
               <span class="font-mono text-[10px] text-success">POST /api/v1/issues</span>
             </div>
             <div class="p-4 font-mono text-xs space-y-1">
-              <div class="text-muted">curl -X POST https://api.fruitfly.dev/api/v1/issues \</div>
+              <div class="text-muted">curl -X POST https://api.goodissues.dev/api/v1/issues \</div>
               <div class="text-muted pl-2">-H "Authorization: Bearer sk_live_..." \</div>
               <div class="text-muted pl-2">-H "Content-Type: application/json" \</div>
               <div class="text-muted pl-2">-d '&#123;"title": "Fix bug", "type": "bug"&#125;'</div>
@@ -433,7 +433,7 @@ import Layout from '../layouts/Layout.astro';
               <span class="font-mono text-[10px] text-primary">GET /api/v1/issues</span>
             </div>
             <div class="p-4 font-mono text-xs space-y-1">
-              <div class="text-muted">curl https://api.fruitfly.dev/api/v1/issues \</div>
+              <div class="text-muted">curl https://api.goodissues.dev/api/v1/issues \</div>
               <div class="text-muted pl-2">-H "Authorization: Bearer pk_live_..." \</div>
               <div class="text-muted pl-2">-H "Accept: application/json"</div>
             </div>
@@ -452,11 +452,11 @@ import Layout from '../layouts/Layout.astro';
           Get started for free. No credit card required.
         </p>
         <div class="flex flex-wrap items-center justify-center gap-3">
-          <a href="https://app.fruitfly.dev/users/register" class="btn-action px-6 py-2.5 text-xs">
+          <a href="https://app.goodissues.dev/users/register" class="btn-action px-6 py-2.5 text-xs">
             Get Started Free
           </a>
           <a
-            href="https://hub.docker.com/r/goodway/fruitfly"
+            href="https://hub.docker.com/r/goodway/goodissues"
             target="_blank"
             rel="noopener"
             class="btn-subtle px-6 py-2.5 text-xs"
@@ -474,7 +474,7 @@ import Layout from '../layouts/Layout.astro';
           <div class="size-5 rounded-sm bg-primary/10 border border-primary/20 flex items-center justify-center">
             <span class="font-mono text-primary text-[10px] font-bold">FF</span>
           </div>
-          <span class="font-mono text-[10px] text-muted">&copy; 2025 FruitFly. Built by <a href="https://goodway.dev" target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors">Goodway</a>.</span>
+          <span class="font-mono text-[10px] text-muted">&copy; 2025 GoodIssues. Built by <a href="https://goodway.dev" target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors">Goodway</a>.</span>
         </div>
         <nav class="flex items-center gap-5" aria-label="Footer navigation">
           <a
@@ -496,7 +496,7 @@ import Layout from '../layouts/Layout.astro';
             API Docs
           </a>
           <a
-            href="https://hub.docker.com/r/goodway/fruitfly"
+            href="https://hub.docker.com/r/goodway/goodissues"
             target="_blank"
             rel="noopener"
             class="font-mono text-[10px] text-muted hover:text-base-content transition-colors"
@@ -511,7 +511,7 @@ import Layout from '../layouts/Layout.astro';
   <script>
     // Copy to clipboard functionality
     document.getElementById('copy-pull')?.addEventListener('click', () => {
-      navigator.clipboard.writeText('docker pull goodway/fruitfly:latest');
+      navigator.clipboard.writeText('docker pull goodway/goodissues:latest');
       const btn = document.getElementById('copy-pull');
       if (btn) {
         btn.textContent = 'Copied!';
@@ -520,7 +520,7 @@ import Layout from '../layouts/Layout.astro';
     });
 
     document.getElementById('copy-run')?.addEventListener('click', () => {
-      navigator.clipboard.writeText('docker run -d -p 4000:4000 goodway/fruitfly');
+      navigator.clipboard.writeText('docker run -d -p 4000:4000 goodway/goodissues');
       const btn = document.getElementById('copy-run');
       if (btn) {
         btn.textContent = 'Copied!';
