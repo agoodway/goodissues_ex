@@ -11,10 +11,12 @@ defmodule GI.Accounts.UserNotifier do
 
   # Delivers the email using the application mailer.
   defp deliver(recipient, subject, body) do
+    {from_name, from_email} = Application.get_env(:good_issues, :mailer_from)
+
     email =
       new()
       |> to(recipient)
-      |> from({"GI", "contact@example.com"})
+      |> from({from_name, from_email})
       |> subject(subject)
       |> text_body(body)
 
