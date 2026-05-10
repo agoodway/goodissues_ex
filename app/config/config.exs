@@ -45,6 +45,7 @@ config :good_issues, GIWeb.Endpoint,
 # For production it's recommended to configure a different adapter
 # at the `config/runtime.exs`.
 config :good_issues, GI.Mailer, adapter: Swoosh.Adapters.Local
+config :good_issues, :mailer_from, {"GoodIssues", "contact@example.com"}
 
 # Configure esbuild (the version is required)
 config :esbuild,
