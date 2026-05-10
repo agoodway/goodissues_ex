@@ -6,8 +6,7 @@ up:
 
 # Deploy to production
 deploy:
-    # TODO: Configure deployment (fly deploy, docker, etc.)
-    @echo "Deployment not configured. Add fly.toml or configure deploy recipe."
+    fly deploy
 
 # Run tests
 test:
@@ -57,3 +56,7 @@ fmt:
 # Install dependencies
 deps:
     mix deps.get
+
+# Sync .env.prod to Fly secrets (dry-run by default, pass --execute to apply)
+fly-secrets *args:
+    ./scripts/env-to-fly-secrets.sh -f .env.prod {{args}}
