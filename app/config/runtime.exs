@@ -60,9 +60,10 @@ if config_env() == :prod do
       """
 
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
+  db_ssl? = System.get_env("ECTO_SSL", "true") in ~w(true 1)
 
   config :good_issues, GI.Repo,
-    # ssl: true,
+    ssl: db_ssl?,
     url: database_url,
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
     # For machines with several cores, consider starting multiple pools of `pool_size`
