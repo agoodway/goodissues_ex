@@ -11,7 +11,7 @@ defmodule GoodissuesEx do
   """
 
   use CanOpener,
-    spec: "../app/openapi.json",
+    spec: "openapi.json",
     otp_app: :goodissues_ex,
     base_url: "http://localhost:4000",
     auth: :bearer,
