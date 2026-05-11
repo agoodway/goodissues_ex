@@ -21,7 +21,7 @@ Configure defaults in your application config:
 ```elixir
 # config/config.exs
 config :goodissues_ex,
-  base_url: "https://issues.example.com",
+  base_url: "https://goodissues.dev",
   api_key: "sk_..."
 ```
 
@@ -29,7 +29,7 @@ Or pass options when creating a client:
 
 ```elixir
 client = GoodissuesEx.client(
-  base_url: "https://issues.example.com",
+  base_url: "https://goodissues.dev",
   api_key: "sk_..."
 )
 ```
@@ -174,7 +174,7 @@ Heartbeats monitor cron jobs and scheduled tasks. If a heartbeat doesn't receive
 Ping endpoints authenticate via the heartbeat token in the URL and do not require a Bearer token.
 
 ```elixir
-ping_client = GoodissuesEx.client(base_url: "https://issues.example.com")
+ping_client = GoodissuesEx.client(base_url: "https://goodissues.dev")
 
 # Signal job started
 GoodissuesEx.start_heartbeat_ping(ping_client, project_id, heartbeat_token, %{})
@@ -292,7 +292,7 @@ defmodule GoodissuesEx do
   use CanOpener,
     spec: "openapi.json",
     otp_app: :goodissues_ex,
-    base_url: "http://localhost:4000",
+    base_url: "https://goodissues.dev",
     auth: :bearer,
     path_prefix: "/api/v1/"
 end

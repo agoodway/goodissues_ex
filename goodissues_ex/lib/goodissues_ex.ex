@@ -5,7 +5,7 @@ defmodule GoodissuesEx do
   Create a client with `client/1`, then call the generated functions for the
   GoodIssues OpenAPI operations.
 
-      client = GoodissuesEx.client(base_url: "http://localhost:4000", api_key: "sk_...")
+      client = GoodissuesEx.client(base_url: "https://goodissues.dev", api_key: "sk_...")
 
       {:ok, projects} = GoodissuesEx.projects(client)
   """
@@ -13,7 +13,7 @@ defmodule GoodissuesEx do
   use CanOpener,
     spec: "openapi.json",
     otp_app: :goodissues_ex,
-    base_url: "http://localhost:4000",
+    base_url: "https://goodissues.dev",
     auth: :bearer,
     path_prefix: "/api/v1/"
 end

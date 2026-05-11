@@ -4,7 +4,7 @@ defmodule GoodissuesExTest do
   alias CanOpener.Client
 
   test "creates a GoodIssues API client" do
-    assert %Client{base_url: "http://localhost:4000", auth: nil} = GoodissuesEx.client()
+    assert %Client{base_url: "https://goodissues.dev", auth: nil} = GoodissuesEx.client()
   end
 
   test "accepts explicit client options" do
@@ -20,9 +20,9 @@ defmodule GoodissuesExTest do
   end
 
   test "generates operations from the OpenAPI spec" do
-    assert function_exported?(GoodissuesEx, :projects, 1)
-    assert function_exported?(GoodissuesEx, :projects, 2)
-    assert function_exported?(GoodissuesEx, :issues, 1)
-    assert function_exported?(GoodissuesEx, :issues, 2)
+    assert function_exported?(GoodissuesEx, :list_projects, 1)
+    assert function_exported?(GoodissuesEx, :create_project, 2)
+    assert function_exported?(GoodissuesEx, :list_issues, 1)
+    assert function_exported?(GoodissuesEx, :create_issue, 2)
   end
 end
