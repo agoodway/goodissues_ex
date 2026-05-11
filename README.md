@@ -290,7 +290,7 @@ The library source is minimal -- a single `use CanOpener` macro call:
 ```elixir
 defmodule GoodissuesEx do
   use CanOpener,
-    spec: "../app/openapi.json",
+    spec: "openapi.json",
     otp_app: :goodissues_ex,
     base_url: "http://localhost:4000",
     auth: :bearer,
@@ -298,7 +298,7 @@ defmodule GoodissuesEx do
 end
 ```
 
-At compile time, CanOpener reads the OpenAPI spec and generates all client functions, schema structs, and type specifications. Function names are derived from `operationId` values in the spec (with Phoenix controller-style IDs automatically converted to idiomatic Elixir names). Path parameters become positional function arguments with compile-time interpolation. The HTTP stack uses [Req](https://github.com/wojtekmach/req) with [Finch](https://github.com/sneako/finch) for connection pooling.
+At compile time, CanOpener reads `openapi.json` and generates all client functions, schema structs, and type specifications. Function names are derived from `operationId` values in the spec (with Phoenix controller-style IDs automatically converted to idiomatic Elixir names). Path parameters become positional function arguments with compile-time interpolation. The HTTP stack uses [Req](https://github.com/wojtekmach/req) with [Finch](https://github.com/sneako/finch) for connection pooling.
 
 ## License
 
