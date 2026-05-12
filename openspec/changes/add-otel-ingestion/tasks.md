@@ -2,9 +2,9 @@
 
 - [ ] 1.1 Add `protobuf` hex dependency to mix.exs
 - [ ] 1.2 Vendor OTLP `.proto` files from `opentelemetry-proto` into `app/priv/protos/`
-- [ ] 1.3 Generate Elixir proto modules with `protoc --elixir_out` and commit under `app/lib/app/otel/proto/`
+- [ ] 1.3 Generate Elixir proto modules with `protoc --elixir_out` and commit under `app/lib/good_issues/otel/proto/`
 - [ ] 1.4 Verify decode/encode roundtrip works for `ExportTraceServiceRequest` and `ExportMetricsServiceRequest` with a basic test
-- [ ] 1.5 Add a `Makefile` target or shell script documenting the exact `protoc` invocation used to generate modules, so they can be regenerated when OTLP proto versions change
+- [ ] 1.5 Create `app/Makefile` with a `gen-proto` target documenting the exact `protoc` invocation used to generate modules, so they can be regenerated when OTLP proto versions change
 
 ## 2. Database & Schemas
 
@@ -18,9 +18,9 @@
 
 ## 3. Storage Behaviour & Postgres Backend
 
-- [ ] 3.1 Create `GI.Otel.Storage` behaviour with callbacks: `insert_spans/2`, `insert_metrics/2`, `query_spans/2`, `query_metrics/2`, `prune/2`
+- [ ] 3.1 Create `GI.Otel.Storage` behaviour with callbacks: `insert_spans/2`, `insert_metrics/2`, `query_spans/2`, `query_metrics/2`, `query_spans_by_trace_id/2`, `prune/2`
 - [ ] 3.2 Create `GI.Otel.Storage.Postgres` implementing the behaviour — bulk insert via `Repo.insert_all`, query with account scoping, batch delete for prune
-- [ ] 3.3 Add config entry `config :app, GI.Otel, storage: GI.Otel.Storage.Postgres`
+- [ ] 3.3 Add config entry `config :good_issues, GI.Otel, storage: GI.Otel.Storage.Postgres`
 - [ ] 3.4 Add tests for Postgres storage backend (insert, query, prune)
 
 ## 4. Otel Context
@@ -32,7 +32,7 @@
 
 ## 5. OTLP Controller & Routes
 
-- [ ] 5.1 Create `GIWeb.Api.V1.OtlpController` with `traces/2` and `metrics/2` actions — read raw body via `Plug.Conn.read_body/2`, decode protobuf, call context, respond with proto-encoded response; add max-spans-per-request guard after decoding
+- [ ] 5.1 Create `GIWeb.Api.V1.OtlpController` with `traces/2` and `metrics/2` actions — read raw body via `Plug.Conn.read_body(conn, length: 8_000_000)` with explicit size limit, decode protobuf, call context, respond with proto-encoded response; add max-spans-per-request guard after decoding
 - [ ] 5.2 Create `:api_otlp` pipeline in router that accepts `["json", "x-protobuf"]` content types (existing `:api` pipelines reject non-JSON); read body manually, do NOT modify global Plug.Parsers
 - [ ] 5.3 Add gzip decompression support for `Content-Encoding: gzip`
 - [ ] 5.4 Add routes: `POST /api/v1/otlp/traces` and `POST /api/v1/otlp/metrics`
@@ -50,9 +50,9 @@
 
 - [ ] 7.1 Remove `GI.Telemetry` context module and `GI.Telemetry.Span` schema (depends on 7.5 and 8.2 completing first — `IssueLive.Show` calls `GI.Telemetry` functions)
 - [ ] 7.2 Remove `GIWeb.Api.V1.EventController` and its route
-- [ ] 7.3 Remove `events:write` and `events:read` from valid API key scopes (replaced by `otel:write` and `otel:read` in task 5.5)
+- [ ] 7.3 ~~Consolidated into task 5.5~~ (no-op)
 - [ ] 7.4 Remove telemetry-related tests: `test/app/telemetry_test.exs` (20+ test cases), `test/app_web/controllers/api/v1/event_controller_test.exs` (10 test cases)
-- [ ] 7.5 Update `IssueLive.Show` to replace `GI.Telemetry` with `GI.Otel` — change correlation from `request_id` to `trace_id`, update `extract_request_id/1` to extract `trace_id` from occurrence context, replace `:telemetry_spans` assign with `:otel_spans`, update all template helpers (`event_type_class/1`, `event_type_icon/1`, etc.) to work with OTel span `kind` instead of legacy event types
+- [ ] 7.5 Update `IssueLive.Show` to replace `GI.Telemetry` with `GI.Otel` — change correlation from `request_id` to `trace_id`, update `extract_request_id/1` to extract `trace_id` from occurrence context, replace `:telemetry_spans` assign with `:otel_spans`, rewrite all template field accesses (`span.event_type` → `span.kind`, `span.timestamp` → `span.start_time`, `span.duration_ms` → computed from `start_time`/`end_time`, `span.context`/`span.measurements` → `span.attributes`), update helpers (`event_type_class/1`, `event_type_icon/1`, `event_type_label/1`) to pattern-match on OTel span `kind` atoms (`:server`, `:client`, `:internal`, `:producer`, `:consumer`) instead of legacy event types. **Must complete before 7.1.**
 
 ## 8. Error Correlation
 

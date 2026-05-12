@@ -41,7 +41,7 @@ The existing `telemetry_spans` table and `/api/v1/events` endpoint will be repla
 
 - **Database**: New `otel_spans` and `otel_metrics` tables; add `otel_service_name` and `retention_days` columns to `projects`; drop `telemetry_spans` table
 - **Schemas**: New `GI.Otel.Span`, `GI.Otel.Metric` Ecto schemas; updated `GI.Tracking.Project` with new fields
-- **Contexts**: New `GI.Otel` context with storage behaviour; remove `GI.Telemetry` context
+- **Contexts**: New `GI.Otel` context module and `GI.Otel.Storage` behaviour with `GI.Otel.Storage.Postgres` implementation; remove `GI.Telemetry` context
 - **API**: New OTLP endpoints at `/api/v1/otlp/traces` and `/api/v1/otlp/metrics`; remove `/api/v1/events`
 - **Auth**: Add `otel:write` and `otel:read` API key scopes; remove `events:write` and `events:read` scopes
 - **Dependencies**: Add `protobuf` hex package; vendor and compile OTLP `.proto` files from `opentelemetry-proto`

@@ -41,7 +41,7 @@ Client App (any language)
 
 ### Protobuf Strategy
 
-Vendor `.proto` files from `opentelemetry-proto` repository into `app/priv/protos/`. Generate Elixir modules using `protoc --elixir_out` with the `protobuf` hex package. Commit generated modules under `app/lib/app/otel/proto/` — they are stable and tied to the OTLP spec version.
+Vendor `.proto` files from `opentelemetry-proto` repository into `app/priv/protos/`. Generate Elixir modules using `protoc --elixir_out` with the `protobuf` hex package. Commit generated modules under `app/lib/good_issues/otel/proto/` — they are stable and tied to the OTLP spec version.
 
 Required proto files:
 - `opentelemetry/proto/collector/trace/v1/trace_service.proto`
@@ -170,7 +170,7 @@ end
 
 Configuration:
 ```elixir
-config :app, GI.Otel, storage: GI.Otel.Storage.Postgres
+config :good_issues, GI.Otel, storage: GI.Otel.Storage.Postgres
 ```
 
 The context reads the adapter at runtime:
@@ -186,7 +186,7 @@ defp storage, do: Application.get_env(:app, GI.Otel)[:storage]
 
 **Body reading**: `Plug.Parsers` only handles `[:urlencoded, :multipart, :json]`. The OtlpController must read the raw body via `Plug.Conn.read_body(conn, length: <limit>)` and decode the protobuf manually. Do NOT add a custom parser to the global endpoint.
 
-**Oban cron config**: The current Oban config has no `cron` plugin. Add `plugins: [{Oban.Plugins.Cron, crontab: [{"0 3 * * *", GI.Otel.Workers.RetentionPruner}]}]` to the Oban config. The pruner uses the existing `:default` queue (or a new `:maintenance` queue).
+**Oban cron config**: The existing Oban config already has an `Oban.Plugins.Cron` plugin with `Reaper` and `HeartbeatRecovery` entries. Add `{"0 3 * * *", GI.Otel.Workers.RetentionPruner}` to the existing `crontab` list. The pruner uses the existing `:maintenance` queue.
 
 ### Trace ingestion
 
