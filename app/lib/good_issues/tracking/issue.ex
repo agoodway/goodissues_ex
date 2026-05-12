@@ -57,7 +57,15 @@ defmodule GI.Tracking.Issue do
   """
   def create_changeset(issue, attrs) do
     issue
-    |> cast(attrs, [:title, :description, :type, :status, :priority, :submitter_email, :heartbeat_id])
+    |> cast(attrs, [
+      :title,
+      :description,
+      :type,
+      :status,
+      :priority,
+      :submitter_email,
+      :heartbeat_id
+    ])
     |> validate_required([:title, :type, :project_id, :submitter_id])
     |> validate_length(:title, max: 255)
     |> validate_length(:description, max: 10_000)

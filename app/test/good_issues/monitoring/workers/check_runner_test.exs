@@ -17,7 +17,11 @@ defmodule GI.Monitoring.Workers.CheckRunnerTest do
     project = project_fixture(account)
 
     prev = Application.get_env(:good_issues, CheckRunner, [])
-    Application.put_env(:good_issues, CheckRunner, http_client: MonitoringMockHTTP, timeout_ms: 1000)
+
+    Application.put_env(:good_issues, CheckRunner,
+      http_client: MonitoringMockHTTP,
+      timeout_ms: 1000
+    )
 
     on_exit(fn ->
       Application.put_env(:good_issues, CheckRunner, prev)
