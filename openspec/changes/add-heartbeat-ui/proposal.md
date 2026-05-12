@@ -67,7 +67,7 @@ Heartbeat monitors can only be managed via the REST API today. Users need a web 
 
 - **PubSub broadcast additions**: Adding broadcasts to existing context functions could affect performance if many heartbeats are active. Mitigated by scoping topics per project (same pattern as checks).
 
-- **Copy-to-clipboard**: Requires a small JavaScript hook for the clipboard API. The existing codebase may or may not have a copy hook already — need to check and add if missing.
+- **Copy-to-clipboard**: Reuses the existing `CopyToClipboard` JavaScript hook, which copies from an input referenced by `data-copy-target`. The heartbeat UI should follow that convention so clipboard behavior and visual feedback stay consistent with the API key UI.
 
 ## Alternatives Considered
 

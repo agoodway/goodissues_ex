@@ -55,7 +55,7 @@ The system SHALL provide a heartbeat creation page at `/dashboard/:account_slug/
 - **THEN** the heartbeat is created with default values for advanced fields (grace_seconds=0, failure_threshold=1, reopen_window_hours=24, paused=false) and user is redirected to the heartbeat show page
 
 #### Scenario: User creates a heartbeat with advanced settings
-- **WHEN** user expands the advanced settings section and configures grace seconds, failure threshold, and start paused
+- **WHEN** user expands the advanced settings section and configures grace seconds, failure threshold, reopen window hours, and start paused
 - **THEN** the heartbeat is created with all specified values
 
 #### Scenario: Validation errors display inline
@@ -64,7 +64,7 @@ The system SHALL provide a heartbeat creation page at `/dashboard/:account_slug/
 
 #### Scenario: Redirect to show page after creation
 - **WHEN** a heartbeat is successfully created
-- **THEN** the user is redirected to the heartbeat show page where the ping URL is displayed
+- **THEN** the user is redirected to the heartbeat show page where a manager can explicitly reveal the ping URL
 
 ### Requirement: Heartbeat detail page with ping URL reveal and history
 The system SHALL provide a heartbeat detail page at `/dashboard/:account_slug/projects/:project_id/heartbeats/:id` showing the heartbeat's full configuration, a manager-only ping URL reveal action with click-to-copy, and a paginated, filterable list of ping history. The ping URL SHALL be fetched only through an explicit manager-only reveal capability and SHALL NOT change REST API read-response redaction semantics.
@@ -169,6 +169,14 @@ All heartbeat pages SHALL display breadcrumb navigation showing the path: Projec
 - **WHEN** user is on the heartbeats index page
 - **THEN** breadcrumb shows "Projects / [Project Prefix] / Heartbeats" with links to projects list and project detail
 
+#### Scenario: New heartbeat breadcrumb
+- **WHEN** user is on the new heartbeat page
+- **THEN** breadcrumb shows "Projects / [Project Prefix] / Heartbeats / New" with links to projects list, project detail, and heartbeats index
+
 #### Scenario: Heartbeat detail breadcrumb
 - **WHEN** user is on a heartbeat detail page
 - **THEN** breadcrumb shows "Projects / [Project Prefix] / Heartbeats / [Heartbeat Name]" with links to projects list, project detail, and heartbeats index
+
+#### Scenario: Edit heartbeat breadcrumb
+- **WHEN** user is editing a heartbeat from the heartbeat detail page
+- **THEN** breadcrumb shows "Projects / [Project Prefix] / Heartbeats / [Heartbeat Name] / Edit" with links to projects list, project detail, heartbeats index, and heartbeat detail

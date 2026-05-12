@@ -72,4 +72,4 @@ Add a `change_heartbeat/2` function to the Monitoring context, mirroring `change
 
 - **JS hook dependency for clipboard** → Clipboard API requires HTTPS in production (works on localhost for dev). If the hook fails, the URL is still visible and selectable for manual copy. Graceful degradation.
 
-- **PubSub broadcast volume** → Heartbeats with short intervals (30s) will broadcast ping events frequently. Scoping topics per-project limits the blast radius. The index page only handles `:heartbeat_updated` (status change), not every ping — the show page subscribes to ping events only for the viewed heartbeat.
+- **PubSub broadcast volume** → Heartbeats with short intervals (30s) will broadcast ping events frequently. Scoping topics per-project limits the blast radius. The index page handles `:heartbeat_ping_received` only when the payload changes display state such as status, last ping, next due, or paused state; the show page prepends matching ping events only for the viewed heartbeat.

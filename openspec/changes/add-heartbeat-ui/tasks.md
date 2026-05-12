@@ -4,6 +4,7 @@
 - [ ] 1.2 Add `heartbeats_topic/1` to `Monitoring` context returning `"heartbeats:project:#{project_id}"`
 - [ ] 1.3 Add PubSub broadcasts to `create_heartbeat`, `update_heartbeat`, `delete_heartbeat` (`:heartbeat_created`, `:heartbeat_updated`, `:heartbeat_deleted`)
 - [ ] 1.4 Add PubSub broadcast for ping receipt (`:heartbeat_ping_received`) with heartbeat status update payload
+- [ ] 1.4.1 Ensure ping receipt broadcasts have access to the updated heartbeat state by returning it from the ping transaction or reloading it before building `heartbeat_ping_payload/2`
 - [ ] 1.5 Add `count_heartbeats_by_status/2` to `Monitoring` context returning `%{up: n, down: n, unknown: n, paused: n}`
 - [ ] 1.6 Add `maybe_filter_ping_kind/2` support to `list_heartbeat_pings/2` for `kind=ping/start/fail/all` so LiveView filtering happens before pagination
 - [ ] 1.7 Broadcast runtime heartbeat status changes from missed-deadline and recovery paths (prefer centralizing in `update_heartbeat_runtime/2`) so deadline-driven `up`/`down` transitions update connected LiveViews
@@ -25,7 +26,7 @@
 
 - [ ] 4.1 Create `heartbeat_live/new.ex` with mount, permission guard, form setup using `change_heartbeat(%Heartbeat{})`
 - [ ] 4.2 Add render with progressive disclosure form (basic: name, interval; advanced: grace, failure threshold, reopen window, start paused)
-- [ ] 4.3 Add validate and save event handlers; redirect to show page on success
+- [ ] 4.3 Add validate and save event handlers; require a `can_manage` guard inside `handle_event("save")` before calling `Monitoring.create_heartbeat/3`; redirect to show page on success
 
 ## 5. HeartbeatLive.Show
 

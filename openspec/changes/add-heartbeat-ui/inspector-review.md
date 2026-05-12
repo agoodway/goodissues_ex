@@ -1,13 +1,13 @@
 # Inspector Review: add-heartbeat-ui
 
-Date: 2026-05-10
+Date: 2026-05-12
 Command: `/inspector review-update add-heartbeat-ui`
 
 ## Verdict
 
 Ready.
 
-All review findings were patched, including one user-guided design decision for heartbeat ping URL token reveal.
+All findings from this review-update pass were auto-patched. No user guidance was required.
 
 ## Findings
 
@@ -25,24 +25,21 @@ None remaining.
 
 ## Patches applied
 
-11 findings were patched. 10 findings were auto-patched. 1 finding was patched after user guidance. 0 findings were skipped.
+7 findings were auto-patched. 0 findings were patched after user guidance. 0 findings were skipped.
 
 ### Auto-patched
 
-1. **Heartbeat ping events missing from index tasks** — `tasks.md:18` -> Added `:heartbeat_ping_received` handling to `HeartbeatLive.Index` tasks and realtime test coverage.
-2. **Ping history filtering missing backend support** — `tasks.md:7` -> Added `list_heartbeat_pings/2` kind filtering task and context test coverage so filtering occurs before pagination.
-3. **Deadline/runtime status changes missing PubSub coverage** — `design.md:46` -> Added runtime status broadcast requirement, preferably centralized through `update_heartbeat_runtime/2`, with test coverage.
-4. **Heartbeat PubSub payload shape unspecified** — `tasks.md:5` -> Added payload helper task and design-level payload contracts for heartbeat and ping events.
-5. **Paused treated as persisted status** — `specs/heartbeat-ui/spec.md:4` -> Clarified effective display status uses `paused=true` before falling back to persisted `up/down/unknown` status.
-6. **Endpoint token naming and method copy ambiguity** — `specs/heartbeat-ui/spec.md:78` -> Replaced `:token` with `:heartbeat_token` and specified that `POST` is a separate method label while copy copies only the URL.
-7. **Existing clipboard hook convention mismatch** — `tasks.md:11` -> Updated design/tasks to reuse the existing `CopyToClipboard` `data-copy-target` input convention.
-8. **Event-level authorization underspecified** — `tasks.md:33` -> Added explicit `can_manage` guard tasks for edit params, save, delete, and pause/resume events.
-9. **Authorization tests missing** — `tasks.md:42` -> Added LiveView coverage for hidden manager-only controls, direct non-manager mutation attempts, non-manager access denial, and token reveal hiding.
-10. **Breadcrumb implementation/testing missing** — `specs/heartbeat-ui/spec.md:160` -> Added breadcrumb implementation task and LiveView assertions.
+1. **Index ping-event design inconsistency** — `design.md:75` -> Clarified that the index handles `:heartbeat_ping_received` only when the payload changes display state, while the show page prepends matching ping events for the viewed heartbeat.
+2. **Create redirect implied automatic token display** — `specs/heartbeat-ui/spec.md:67` -> Changed the redirect scenario to say managers can explicitly reveal the ping URL on the show page.
+3. **Advanced create scenario omitted reopen window** — `specs/heartbeat-ui/spec.md:58` -> Added reopen window hours to the advanced create scenario.
+4. **Breadcrumb scenarios incomplete** — `specs/heartbeat-ui/spec.md:165` -> Added scenarios for new and edit breadcrumb states.
+5. **Create save event guard underspecified** — `tasks.md:28` -> Required a `can_manage` guard inside `HeartbeatLive.New.handle_event("save")` before calling `Monitoring.create_heartbeat/3`.
+6. **Ping receipt broadcast needs updated heartbeat state** — `tasks.md:6` -> Added an implementation task to return or reload updated heartbeat state before building `heartbeat_ping_payload/2`.
+7. **Clipboard hook risk was stale** — `proposal.md:70` -> Updated the risk to state the existing `CopyToClipboard` hook must be reused with its `data-copy-target` convention.
 
 ### User-guided patches
 
-1. **Ping URL display conflicts with canonical token redaction** — `specs/heartbeat-ui/spec.md:77` -> Added an explicit manager-only ping URL reveal capability, updated UI requirements to reveal only on manager request, and added a `heartbeat-monitoring` delta preserving normal management read redaction. User chose: manager reveal endpoint.
+None.
 
 ### Skipped
 
