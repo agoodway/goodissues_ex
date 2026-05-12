@@ -93,6 +93,29 @@ client = GoodissuesEx.client(api_key: "sk_...")
 **Priorities:** `low`, `medium`, `high`, `critical`
 **Statuses:** `new`, `in_progress`, `archived`
 
+### Incidents
+
+```elixir
+# List incidents
+{:ok, %{data: incidents}} = GoodissuesEx.list_incidents(client)
+
+# Report an incident
+{:ok, %{data: incident}} = GoodissuesEx.create_incident(client, %{
+  project_id: project_id,
+  title: "Database connection pool exhausted",
+  severity: "critical"
+})
+
+# Get an incident
+{:ok, %{data: incident}} = GoodissuesEx.show_incident(client, incident_id)
+
+# Update an incident
+{:ok, %{data: incident}} = GoodissuesEx.update_incident(client, incident_id, %{severity: "major"})
+
+# Resolve an incident
+{:ok, %{data: incident}} = GoodissuesEx.resolve_incident(client, incident_id, %{})
+```
+
 ### Error Tracking
 
 ```elixir
@@ -261,6 +284,11 @@ All functions take a `%CanOpener.Client{}` as the first argument. Path parameter
 | `show_issue/2` | `(client, id)` | Get an issue |
 | `update_issue/3` | `(client, id, params)` | Update an issue |
 | `delete_issue/2` | `(client, id)` | Delete an issue |
+| `list_incidents/1` | `(client)` | List all incidents |
+| `create_incident/2` | `(client, params)` | Report an incident |
+| `show_incident/2` | `(client, id)` | Get an incident |
+| `update_incident/3` | `(client, id, params)` | Update an incident |
+| `resolve_incident/2` | `(client, id, params)` | Resolve an incident |
 | `list_errors/1` | `(client)` | List all errors |
 | `create_error/2` | `(client, params)` | Report an error |
 | `show_error/2` | `(client, id)` | Get an error with occurrences |
