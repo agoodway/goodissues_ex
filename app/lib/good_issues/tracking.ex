@@ -16,6 +16,8 @@ defmodule GI.Tracking do
   import Ecto.Query
 
   alias GI.Accounts.{Account, User}
+  alias GI.Notifications
+  alias GI.Notifications.Event, as: NotificationEvent
   alias GI.Repo
   alias GI.Tracking.{Error, Issue, Occurrence, Project, StacktraceLine}
 
@@ -445,6 +447,7 @@ defmodule GI.Tracking do
     case result do
       {:ok, issue} ->
         broadcast_issue_created(account.id, issue)
+        emit_notification_event(:issue_created, account.id, issue)
         {:ok, issue}
 
       {:error, _} = error ->
@@ -496,21 +499,35 @@ defmodule GI.Tracking do
 
   """
   def update_issue(%Issue{} = issue, attrs) do
-    result =
-      issue
-      |> Issue.update_changeset(attrs)
-      |> Repo.update()
+    changeset = Issue.update_changeset(issue, attrs)
+    field_changes = changeset_field_changes(changeset)
+    status_change = Map.get(field_changes, :status)
 
-    case result do
+    case Repo.update(changeset) do
       {:ok, updated_issue} ->
-        # Need to get account_id from the project
         updated_issue = Repo.preload(updated_issue, :project)
-        broadcast_issue_updated(updated_issue.project.account_id, updated_issue)
+        account_id = updated_issue.project.account_id
+
+        broadcast_issue_updated(account_id, updated_issue)
+        emit_notification_event(:issue_updated, account_id, updated_issue, %{changes: field_changes})
+
+        if status_change do
+          emit_notification_event(:issue_status_changed, account_id, updated_issue, %{
+            old_status: issue.status,
+            new_status: status_change
+          })
+        end
+
         {:ok, updated_issue}
 
       {:error, _} = error ->
         error
     end
+  end
+
+  defp changeset_field_changes(%Ecto.Changeset{changes: changes}) do
+    changes
+    |> Map.take([:title, :description, :type, :status, :priority, :submitter_email])
   end
 
   @doc """
@@ -600,6 +617,25 @@ defmodule GI.Tracking do
         id: issue.project.id,
         prefix: issue.project.prefix
       }
+    }
+  end
+
+  defp emit_notification_event(type, account_id, %Issue{} = issue, extra \\ %{}) do
+    data = issue |> notification_event_data() |> Map.merge(extra)
+    Notifications.emit(NotificationEvent.new(type, account_id, data))
+  end
+
+  defp notification_event_data(%Issue{project: %Project{} = project} = issue) do
+    %{
+      issue_id: issue.id,
+      project_id: issue.project_id,
+      number: issue.number,
+      title: issue.title,
+      type: issue.type,
+      status: issue.status,
+      priority: issue.priority,
+      project_name: project.name,
+      issue_key: "#{project.prefix}-#{issue.number}"
     }
   end
 

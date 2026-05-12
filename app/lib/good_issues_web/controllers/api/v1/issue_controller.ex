@@ -117,13 +117,13 @@ defmodule GIWeb.Api.V1.IssueController do
     ]
   )
 
-  def create(conn, params) do
+  def create(conn, %{"issue" => issue_params}) do
     with {:ok, %Issue{} = issue} <-
            Tracking.create_issue(
              conn.assigns.current_account,
              conn.assigns.current_user,
-             params
-           ) do
+              issue_params
+            ) do
       # Preload project for key computation
       issue = GI.Repo.preload(issue, :project)
 
@@ -131,6 +131,10 @@ defmodule GIWeb.Api.V1.IssueController do
       |> put_status(:created)
       |> render(:show, issue: issue)
     end
+  end
+
+  def create(conn, params) do
+    create(conn, %{"issue" => params})
   end
 
   operation(:update,
