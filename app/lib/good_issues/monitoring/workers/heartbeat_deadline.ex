@@ -117,6 +117,12 @@ defmodule GI.Monitoring.Workers.HeartbeatDeadline do
         status: if(new_failures >= heartbeat.failure_threshold, do: :down, else: heartbeat.status)
       })
 
+    Monitoring.broadcast_heartbeat_updated(updated)
+
+    if updated.status != heartbeat.status do
+      Monitoring.broadcast_heartbeat_status_changed(updated)
+    end
+
     if new_failures >= heartbeat.failure_threshold do
       HeartbeatIncidentLifecycle.create_or_reopen_incident(updated)
     end

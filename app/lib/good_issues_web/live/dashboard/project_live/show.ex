@@ -62,6 +62,7 @@ defmodule GIWeb.Dashboard.ProjectLive.Show do
         issue_count = Tracking.count_issues(project)
         recent_issues = get_recent_issues(account, project.id)
         check_status = Monitoring.count_checks_by_status(account, project.id)
+        heartbeat_status = Monitoring.count_heartbeats_by_status(account, project.id)
 
         socket
         |> assign(:page_title, project.name)
@@ -69,6 +70,7 @@ defmodule GIWeb.Dashboard.ProjectLive.Show do
         |> assign(:issue_count, issue_count)
         |> assign(:recent_issues, recent_issues)
         |> assign(:check_status, check_status)
+        |> assign(:heartbeat_status, heartbeat_status)
     end
   end
 
@@ -164,15 +166,15 @@ defmodule GIWeb.Dashboard.ProjectLive.Show do
   defp issue_status_class(:in_progress), do: "project-issue-status-progress"
   defp issue_status_class(:archived), do: "project-issue-status-archived"
 
-  defp check_status_summary(%{down: down} = status) when down > 0 do
+  defp status_summary(%{down: down} = status) when down > 0 do
     parts = ["#{down} down"]
     parts = if status.up > 0, do: parts ++ ["#{status.up} up"], else: parts
     Enum.join(parts, ", ")
   end
 
-  defp check_status_summary(%{up: up, paused: 0, unknown: 0}) when up > 0, do: "All clear"
+  defp status_summary(%{up: up, paused: 0, unknown: 0}) when up > 0, do: "All clear"
 
-  defp check_status_summary(status) do
+  defp status_summary(status) do
     []
     |> then(fn parts -> if status.up > 0, do: parts ++ ["#{status.up} up"], else: parts end)
     |> then(fn parts ->
@@ -404,7 +406,7 @@ defmodule GIWeb.Dashboard.ProjectLive.Show do
                     <div :if={total_checks > 0} class="project-detail-row">
                       <span class="project-detail-label">Status</span>
                       <span class="project-detail-value font-mono text-xs">
-                        {check_status_summary(@check_status)}
+                        {status_summary(@check_status)}
                       </span>
                     </div>
                     <div class="mt-3 flex flex-col gap-2">
@@ -425,6 +427,41 @@ defmodule GIWeb.Dashboard.ProjectLive.Show do
                       >
                         <.icon name="hero-plus" class="size-4" /> Create first check
                       </.link>
+                    </div>
+
+                    <div class="border-t border-base-300/30 mt-3 pt-3">
+                      <% total_heartbeats =
+                        @heartbeat_status.up + @heartbeat_status.down + @heartbeat_status.unknown +
+                          @heartbeat_status.paused %>
+                      <div class="project-detail-row">
+                        <span class="project-detail-label">Heartbeats</span>
+                        <span class="project-detail-value">{total_heartbeats}</span>
+                      </div>
+                      <div :if={total_heartbeats > 0} class="project-detail-row">
+                        <span class="project-detail-label">Status</span>
+                        <span class="project-detail-value font-mono text-xs">
+                          {status_summary(@heartbeat_status)}
+                        </span>
+                      </div>
+                      <div class="mt-3 flex flex-col gap-2">
+                        <.link
+                          navigate={
+                            ~p"/dashboard/#{@current_scope.account.slug}/projects/#{@project.id}/heartbeats"
+                          }
+                          class="project-view-all-link"
+                        >
+                          View heartbeats <.icon name="hero-arrow-right" class="size-3.5" />
+                        </.link>
+                        <.link
+                          :if={@can_manage && total_heartbeats == 0}
+                          navigate={
+                            ~p"/dashboard/#{@current_scope.account.slug}/projects/#{@project.id}/heartbeats/new"
+                          }
+                          class="project-create-issue-link"
+                        >
+                          <.icon name="hero-plus" class="size-4" /> Create first heartbeat
+                        </.link>
+                      </div>
                     </div>
                   </div>
                 </div>

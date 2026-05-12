@@ -89,6 +89,11 @@ defmodule GIWeb.Router do
       live "/projects/:project_id/checks/new", CheckLive.New, :new
       live "/projects/:project_id/checks/:id", CheckLive.Show, :show
       live "/projects/:project_id/checks/:id/edit", CheckLive.Show, :edit
+
+      live "/projects/:project_id/heartbeats", HeartbeatLive.Index, :index
+      live "/projects/:project_id/heartbeats/new", HeartbeatLive.New, :new
+      live "/projects/:project_id/heartbeats/:id", HeartbeatLive.Show, :show
+      live "/projects/:project_id/heartbeats/:id/edit", HeartbeatLive.Show, :edit
     end
   end
 

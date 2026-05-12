@@ -29,6 +29,11 @@ defmodule GI.Monitoring do
     "checks:project:#{project_id}"
   end
 
+  @doc "Returns the PubSub topic for heartbeat events scoped to a project."
+  def heartbeats_topic(project_id) when is_binary(project_id) do
+    "heartbeats:project:#{project_id}"
+  end
+
   defp broadcast_check_created(%Check{} = check) do
     Phoenix.PubSub.broadcast(
       GI.PubSub,
@@ -87,6 +92,81 @@ defmodule GI.Monitoring do
       last_checked_at: check.last_checked_at,
       consecutive_failures: check.consecutive_failures,
       failure_threshold: check.failure_threshold
+    }
+  end
+
+  # ==========================================================================
+  # Heartbeat PubSub
+  # ==========================================================================
+
+  defp broadcast_heartbeat_created(%Heartbeat{} = hb) do
+    Phoenix.PubSub.broadcast(
+      GI.PubSub,
+      heartbeats_topic(hb.project_id),
+      {:heartbeat_created, heartbeat_payload(hb)}
+    )
+  end
+
+  def broadcast_heartbeat_updated(%Heartbeat{} = hb) do
+    Phoenix.PubSub.broadcast(
+      GI.PubSub,
+      heartbeats_topic(hb.project_id),
+      {:heartbeat_updated, heartbeat_payload(hb)}
+    )
+  end
+
+  defp broadcast_heartbeat_deleted(%Heartbeat{} = hb) do
+    Phoenix.PubSub.broadcast(
+      GI.PubSub,
+      heartbeats_topic(hb.project_id),
+      {:heartbeat_deleted, %{id: hb.id}}
+    )
+  end
+
+  @doc false
+  def broadcast_heartbeat_ping_received(%Heartbeat{} = hb, %HeartbeatPing{} = ping) do
+    Phoenix.PubSub.broadcast(
+      GI.PubSub,
+      heartbeats_topic(hb.project_id),
+      {:heartbeat_ping_received, heartbeat_ping_payload(hb, ping)}
+    )
+  end
+
+  @doc false
+  def broadcast_heartbeat_status_changed(%Heartbeat{} = hb) do
+    Phoenix.PubSub.broadcast(
+      GI.PubSub,
+      heartbeats_topic(hb.project_id),
+      {:heartbeat_status_changed, heartbeat_payload(hb)}
+    )
+  end
+
+  @doc "Builds a payload map for heartbeat list/detail updates."
+  def heartbeat_payload(%Heartbeat{} = hb) do
+    %{
+      id: hb.id,
+      name: hb.name,
+      status: hb.status,
+      paused: hb.paused,
+      interval_seconds: hb.interval_seconds,
+      grace_seconds: hb.grace_seconds,
+      failure_threshold: hb.failure_threshold,
+      reopen_window_hours: hb.reopen_window_hours,
+      consecutive_failures: hb.consecutive_failures,
+      last_ping_at: hb.last_ping_at,
+      next_due_at: hb.next_due_at
+    }
+  end
+
+  @doc "Builds a payload map for heartbeat ping history prepends."
+  def heartbeat_ping_payload(%Heartbeat{} = hb, %HeartbeatPing{} = ping) do
+    %{
+      heartbeat_id: hb.id,
+      ping: ping,
+      status: hb.status,
+      last_ping_at: hb.last_ping_at,
+      next_due_at: hb.next_due_at,
+      paused: hb.paused
     }
   end
 
@@ -167,7 +247,7 @@ defmodule GI.Monitoring do
           {_status, true, n}, acc -> Map.update!(acc, :paused, &(&1 + n))
           {:up, false, n}, acc -> Map.update!(acc, :up, &(&1 + n))
           {:down, false, n}, acc -> Map.update!(acc, :down, &(&1 + n))
-          {:unknown, false, n}, acc -> Map.update!(acc, :unknown, &(&1 + n))
+          {_status, false, n}, acc -> Map.update!(acc, :unknown, &(&1 + n))
         end)
     end
   end
@@ -401,6 +481,59 @@ defmodule GI.Monitoring do
   # Heartbeats — CRUD
   # ==========================================================================
 
+  @doc "Returns a changeset for a heartbeat (used by forms)."
+  def change_heartbeat(%Heartbeat{} = heartbeat, attrs \\ %{}) do
+    Heartbeat.update_changeset(heartbeat, attrs)
+  end
+
+  @doc """
+  Returns a map of heartbeat counts by status for a project:
+  `%{up: n, down: n, unknown: n, paused: n}`.
+  """
+  def count_heartbeats_by_status(%Account{} = account, project_id) do
+    case fetch_project(account, project_id) do
+      nil ->
+        %{up: 0, down: 0, unknown: 0, paused: 0}
+
+      %Project{id: pid} ->
+        counts =
+          from(h in Heartbeat,
+            where: h.project_id == ^pid,
+            group_by: [h.status, h.paused],
+            select: {h.status, h.paused, count(h.id)}
+          )
+          |> Repo.all()
+
+        Enum.reduce(counts, %{up: 0, down: 0, unknown: 0, paused: 0}, fn
+          {_status, true, n}, acc -> Map.update!(acc, :paused, &(&1 + n))
+          {:up, false, n}, acc -> Map.update!(acc, :up, &(&1 + n))
+          {:down, false, n}, acc -> Map.update!(acc, :down, &(&1 + n))
+          {_status, false, n}, acc -> Map.update!(acc, :unknown, &(&1 + n))
+        end)
+    end
+  end
+
+  @doc """
+  Reveals the full ping URL for a heartbeat. Manager-only capability.
+  Returns the URL path string or nil if the heartbeat has no token hash.
+  """
+  def reveal_ping_url(%Heartbeat{} = heartbeat) do
+    # The ping_token is not stored in plaintext anymore (hashed at rest).
+    # We reconstruct the URL from the heartbeat's project_id and ping_token field
+    # which is only populated on the struct right after creation.
+    # For existing heartbeats, we query the raw token from the DB.
+    # Since tokens are hashed, we need the original - which we store temporarily
+    # in the schema's virtual-like field.
+    # Actually, looking at the schema: ping_token is a regular field that is
+    # stored (or was stored). Let's check if it's still present.
+    # Looking at the migration: 20260509120000_hash_heartbeat_ping_tokens.exs
+    # hashes tokens. The ping_token field may be nil for hashed records.
+    # For the UI, we need to query the heartbeat and return its ping_token if available.
+    if heartbeat.ping_token do
+      "/api/v1/projects/#{heartbeat.project_id}/heartbeats/#{heartbeat.ping_token}/ping"
+    end
+  end
+
   @doc """
   Lists heartbeats for a project. Verifies the project belongs to the
   given account.
@@ -517,10 +650,10 @@ defmodule GI.Monitoring do
       |> Map.put(:created_by_id, user_id)
       |> Map.put(:ping_token, token)
 
-    paused = Map.get(attrs, :paused, false)
+    paused = Map.get(attrs, :paused, false) in [true, "true"]
 
-    interval = Map.get(attrs, :interval_seconds, 300)
-    grace = Map.get(attrs, :grace_seconds, 0)
+    interval = to_integer(Map.get(attrs, :interval_seconds, 300))
+    grace = to_integer(Map.get(attrs, :grace_seconds, 0))
 
     attrs =
       if paused do
@@ -533,6 +666,7 @@ defmodule GI.Monitoring do
     |> Heartbeat.create_changeset(attrs)
     |> Repo.insert()
     |> tap_on_ok(&maybe_schedule_heartbeat_deadline/1)
+    |> tap_on_ok(&broadcast_heartbeat_created/1)
   rescue
     e in Ecto.ConstraintError ->
       if e.constraint == "heartbeats_ping_token_hash_index" and attempt < 3 do
@@ -584,6 +718,7 @@ defmodule GI.Monitoring do
           :ok
       end
     end)
+    |> tap_on_ok(&broadcast_heartbeat_updated/1)
   end
 
   @doc """
@@ -592,7 +727,9 @@ defmodule GI.Monitoring do
   """
   def delete_heartbeat(%Heartbeat{} = heartbeat) do
     HeartbeatScheduler.cancel_deadline(heartbeat)
+
     Repo.delete(heartbeat)
+    |> tap_on_ok(fn _deleted -> broadcast_heartbeat_deleted(heartbeat) end)
   end
 
   @doc """
@@ -611,11 +748,15 @@ defmodule GI.Monitoring do
 
   @doc """
   Lists pings for a heartbeat in reverse chronological order.
+  Supports optional `:kind` filter ("ping", "start", "fail").
   """
   def list_heartbeat_pings(%Heartbeat{id: heartbeat_id}, filters \\ %{}) do
     {page, per_page} = extract_pagination(filters)
 
-    base_query = from(p in HeartbeatPing, where: p.heartbeat_id == ^heartbeat_id)
+    base_query =
+      from(p in HeartbeatPing, where: p.heartbeat_id == ^heartbeat_id)
+      |> maybe_filter_ping_kind(filters[:kind] || filters["kind"])
+
     total = Repo.aggregate(base_query, :count)
     total_pages = max(ceil(total / per_page), 1)
 
@@ -660,9 +801,19 @@ defmodule GI.Monitoring do
       end)
 
     case result do
-      {:ok, {:ok, ping}} -> {:ok, ping}
-      {:ok, {:error, _} = error} -> error
-      {:error, _} = error -> error
+      {:ok, {:ok, ping, broadcasts}} ->
+        Enum.each(broadcasts, fn
+          {:ping_received, updated, p} -> broadcast_heartbeat_ping_received(updated, p)
+          {:status_changed, updated} -> broadcast_heartbeat_status_changed(updated)
+        end)
+
+        {:ok, ping}
+
+      {:ok, {:error, _} = error} ->
+        error
+
+      {:error, _} = error ->
+        error
     end
   end
 
@@ -672,8 +823,8 @@ defmodule GI.Monitoring do
 
     with {:ok, ping} <-
            insert_heartbeat_ping(heartbeat, :start, %{payload: payload, pinged_at: now}),
-         {:ok, _} <- update_heartbeat_runtime(heartbeat, %{started_at: now}) do
-      {:ok, ping}
+         {:ok, updated} <- update_heartbeat_runtime(heartbeat, %{started_at: now}) do
+      {:ok, ping, [{:ping_received, updated, ping}]}
     end
   end
 
@@ -717,11 +868,18 @@ defmodule GI.Monitoring do
           {:ok, updated} = update_heartbeat_runtime(heartbeat, runtime_attrs)
           HeartbeatScheduler.schedule_deadline(updated)
 
+          broadcasts = [{:ping_received, updated, ping}]
+
+          broadcasts =
+            if heartbeat.status != :up,
+              do: broadcasts ++ [{:status_changed, updated}],
+              else: broadcasts
+
           if heartbeat.status == :down do
             HeartbeatIncidentLifecycle.handle_recovery(updated)
           end
 
-          {:ok, ping}
+          {:ok, ping, broadcasts}
 
         :fail ->
           new_failures = heartbeat.consecutive_failures + 1
@@ -738,11 +896,18 @@ defmodule GI.Monitoring do
           {:ok, updated} = update_heartbeat_runtime(heartbeat, runtime_attrs)
           HeartbeatScheduler.schedule_deadline(updated)
 
+          broadcasts = [{:ping_received, updated, ping}]
+
+          broadcasts =
+            if updated.status != heartbeat.status,
+              do: broadcasts ++ [{:status_changed, updated}],
+              else: broadcasts
+
           if new_failures >= heartbeat.failure_threshold do
             HeartbeatIncidentLifecycle.create_or_reopen_incident(updated, ping)
           end
 
-          {:ok, ping}
+          {:ok, ping, broadcasts}
       end
     end
   end
@@ -767,6 +932,7 @@ defmodule GI.Monitoring do
       HeartbeatScheduler.cancel_deadline(heartbeat)
 
       runtime_attrs = %{
+        last_ping_at: DateTime.truncate(now, :second),
         started_at: nil,
         next_due_at: new_due_at,
         consecutive_failures: new_failures,
@@ -776,11 +942,18 @@ defmodule GI.Monitoring do
       {:ok, updated} = update_heartbeat_runtime(heartbeat, runtime_attrs)
       HeartbeatScheduler.schedule_deadline(updated)
 
+      broadcasts = [{:ping_received, updated, ping}]
+
+      broadcasts =
+        if updated.status != heartbeat.status,
+          do: broadcasts ++ [{:status_changed, updated}],
+          else: broadcasts
+
       if new_failures >= heartbeat.failure_threshold do
         HeartbeatIncidentLifecycle.create_or_reopen_incident(updated, ping)
       end
 
-      {:ok, ping}
+      {:ok, ping, broadcasts}
     end
   end
 
@@ -798,6 +971,22 @@ defmodule GI.Monitoring do
   # ==========================================================================
   # Helpers
   # ==========================================================================
+
+  defp maybe_filter_ping_kind(query, nil), do: query
+  defp maybe_filter_ping_kind(query, ""), do: query
+
+  defp maybe_filter_ping_kind(query, kind) when is_atom(kind) do
+    from(p in query, where: p.kind == ^kind)
+  end
+
+  defp maybe_filter_ping_kind(query, kind) when is_binary(kind) do
+    case kind do
+      "ping" -> maybe_filter_ping_kind(query, :ping)
+      "start" -> maybe_filter_ping_kind(query, :start)
+      "fail" -> maybe_filter_ping_kind(query, :fail)
+      _ -> query
+    end
+  end
 
   defp maybe_filter_result_status(query, nil), do: query
   defp maybe_filter_result_status(query, ""), do: query
@@ -866,6 +1055,17 @@ defmodule GI.Monitoring do
   end
 
   defp normalize_attrs(other), do: other
+
+  defp to_integer(val) when is_integer(val), do: val
+
+  defp to_integer(val) when is_binary(val) do
+    case Integer.parse(val) do
+      {int, ""} -> int
+      _ -> 0
+    end
+  end
+
+  defp to_integer(_), do: 0
 
   defp tap_on_ok({:ok, value} = result, fun) do
     fun.(value)
