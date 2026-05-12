@@ -1008,9 +1008,14 @@ defmodule GI.Tracking do
     end
   end
 
-  # Generate a consistent lock key from account_id and fingerprint
+  # Generate a consistent lock key from account_id and fingerprint.
+  # Uses :crypto.hash to produce a 64-bit key for advisory locks,
+  # avoiding the 27-bit collision space of :erlang.phash2.
   defp fingerprint_lock_key(account_id, fingerprint) do
-    :erlang.phash2({account_id, fingerprint})
+    <<key::signed-integer-64, _::binary>> =
+      :crypto.hash(:sha256, "#{account_id}:#{fingerprint}")
+
+    key
   end
 
   defp create_new_error(account, user, project_id, error_attrs, occurrence_attrs) do
@@ -1218,11 +1223,13 @@ defmodule GI.Tracking do
 
   defp create_new_incident(account, user, project_id, incident_attrs, occurrence_attrs) do
     title = incident_attrs[:title] || incident_attrs["title"]
+    severity = incident_attrs[:severity] || incident_attrs["severity"]
+    priority = severity_to_priority(severity)
 
     issue_attrs = %{
       title: title,
       type: :incident,
-      priority: :critical,
+      priority: priority,
       project_id: project_id
     }
 
@@ -1232,6 +1239,7 @@ defmodule GI.Tracking do
 
         attrs =
           incident_attrs
+          |> normalize_to_atom_keys()
           |> Map.put(:issue_id, issue.id)
           |> Map.put(:account_id, account.id)
           |> Map.put(:last_occurrence_at, now)
@@ -1266,7 +1274,7 @@ defmodule GI.Tracking do
          incident_attrs,
          occurrence_attrs
        ) do
-    issue = Repo.get!(Issue, incident.issue_id)
+    issue = Repo.get(Issue, incident.issue_id)
     reopen_window = extract_reopen_window(incident_attrs)
     now = DateTime.utc_now(:second)
 
@@ -1283,69 +1291,139 @@ defmodule GI.Tracking do
   end
 
   defp extract_reopen_window(attrs) do
-    attrs[:reopen_window_hours] || attrs["reopen_window_hours"] || @default_reopen_window_hours
-  end
+    raw =
+      attrs[:reopen_window_hours] || attrs["reopen_window_hours"] || @default_reopen_window_hours
 
-  defp add_incident_occurrence(%Incident{} = incident, occurrence_attrs) do
-    {:ok, _} = create_incident_occurrence(incident, occurrence_attrs)
-
-    {:ok, _} =
-      incident
-      |> Incident.update_changeset(%{last_occurrence_at: DateTime.utc_now(:second)})
-      |> Repo.update()
-
-    incident = Repo.preload(incident, [:issue, :incident_occurrences], force: true)
-    {:ok, incident, :occurrence_added}
-  end
-
-  defp reopen_incident(%Incident{} = incident, %Issue{} = issue, occurrence_attrs) do
-    {:ok, _} = update_issue(issue, %{status: :in_progress})
-
-    {:ok, updated} =
-      incident
-      |> Incident.update_changeset(%{
-        status: :unresolved,
-        last_occurrence_at: DateTime.utc_now(:second)
-      })
-      |> Repo.update()
-
-    {:ok, _} = create_incident_occurrence(updated, occurrence_attrs)
-
-    updated = Repo.preload(updated, [:issue, :incident_occurrences], force: true)
-    {:ok, updated, :reopened}
-  end
-
-  defp create_new_issue_for_incident(account, user, project_id, incident, occurrence_attrs) do
-    issue_attrs = %{
-      title: incident.title,
-      type: :incident,
-      priority: :critical,
-      project_id: project_id
-    }
-
-    case create_issue(account, user, issue_attrs) do
-      {:ok, new_issue} ->
-        {:ok, updated} =
-          incident
-          |> Incident.update_changeset(%{
-            issue_id: new_issue.id,
-            status: :unresolved,
-            last_occurrence_at: DateTime.utc_now(:second)
-          })
-          |> Repo.update()
-
-        {:ok, _} = create_incident_occurrence(updated, occurrence_attrs)
-
-        updated = Repo.preload(updated, [:issue, :incident_occurrences], force: true)
-        {:ok, updated, :created}
-
-      {:error, changeset} ->
-        {:error, changeset}
+    case raw do
+      val when is_integer(val) and val >= 1 and val <= 8760 -> val
+      val when is_integer(val) -> min(max(val, 1), 8760)
+      _ -> @default_reopen_window_hours
     end
   end
 
-  defp create_incident_occurrence(%Incident{id: incident_id}, attrs) do
-    %IncidentOccurrence{incident_id: incident_id}
+  @incident_attr_keys ~w(fingerprint title severity source metadata reopen_window_hours)a
+  defp normalize_to_atom_keys(map) when is_map(map) do
+    Map.new(@incident_attr_keys, fn key ->
+      {key, map[key] || map[Atom.to_string(key)]}
+    end)
+    |> Enum.reject(fn {_k, v} -> is_nil(v) end)
+    |> Map.new()
+  end
+
+  defp severity_to_priority(:critical), do: :critical
+  defp severity_to_priority("critical"), do: :critical
+  defp severity_to_priority(:warning), do: :high
+  defp severity_to_priority("warning"), do: :high
+  defp severity_to_priority(:info), do: :medium
+  defp severity_to_priority("info"), do: :medium
+  defp severity_to_priority(_), do: :medium
+
+  defp add_incident_occurrence(%Incident{} = incident, occurrence_attrs) do
+    Repo.transaction(fn ->
+      case create_incident_occurrence(incident, occurrence_attrs) do
+        {:ok, _} ->
+          case incident
+               |> Incident.update_changeset(%{last_occurrence_at: DateTime.utc_now(:second)})
+               |> Repo.update() do
+            {:ok, _} ->
+              incident = Repo.preload(incident, [:issue, :incident_occurrences], force: true)
+              {incident, :occurrence_added}
+
+            {:error, changeset} ->
+              Repo.rollback(changeset)
+          end
+
+        {:error, changeset} ->
+          Repo.rollback(changeset)
+      end
+    end)
+    |> case do
+      {:ok, {incident, status}} -> {:ok, incident, status}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  defp reopen_incident(%Incident{} = incident, %Issue{} = issue, occurrence_attrs) do
+    Repo.transaction(fn ->
+      case update_issue(issue, %{status: :in_progress}) do
+        {:ok, _} ->
+          case incident
+               |> Incident.update_changeset(%{
+                 status: :unresolved,
+                 last_occurrence_at: DateTime.utc_now(:second)
+               })
+               |> Repo.update() do
+            {:ok, updated} ->
+              case create_incident_occurrence(updated, occurrence_attrs) do
+                {:ok, _} ->
+                  updated = Repo.preload(updated, [:issue, :incident_occurrences], force: true)
+                  {updated, :reopened}
+
+                {:error, changeset} ->
+                  Repo.rollback(changeset)
+              end
+
+            {:error, changeset} ->
+              Repo.rollback(changeset)
+          end
+
+        {:error, changeset} ->
+          Repo.rollback(changeset)
+      end
+    end)
+    |> case do
+      {:ok, {incident, status}} -> {:ok, incident, status}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  defp create_new_issue_for_incident(account, user, project_id, incident, occurrence_attrs) do
+    severity = incident.severity
+    priority = severity_to_priority(severity)
+
+    issue_attrs = %{
+      title: incident.title,
+      type: :incident,
+      priority: priority,
+      project_id: project_id
+    }
+
+    Repo.transaction(fn ->
+      case create_issue(account, user, issue_attrs) do
+        {:ok, new_issue} ->
+          case incident
+               |> Incident.update_changeset(%{
+                 issue_id: new_issue.id,
+                 status: :unresolved,
+                 last_occurrence_at: DateTime.utc_now(:second)
+               })
+               |> Repo.update() do
+            {:ok, updated} ->
+              case create_incident_occurrence(updated, occurrence_attrs) do
+                {:ok, _} ->
+                  updated = Repo.preload(updated, [:issue, :incident_occurrences], force: true)
+                  {updated, :new_issue}
+
+                {:error, changeset} ->
+                  Repo.rollback(changeset)
+              end
+
+            {:error, changeset} ->
+              Repo.rollback(changeset)
+          end
+
+        {:error, changeset} ->
+          Repo.rollback(changeset)
+      end
+    end)
+    |> case do
+      {:ok, {incident, status}} -> {:ok, incident, status}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  defp create_incident_occurrence(%Incident{id: incident_id, account_id: account_id}, attrs) do
+    %IncidentOccurrence{incident_id: incident_id, account_id: account_id}
     |> IncidentOccurrence.create_changeset(attrs)
     |> Repo.insert()
   end
@@ -1358,12 +1436,17 @@ defmodule GI.Tracking do
   end
 
   def resolve_incident(%Incident{} = incident) do
-    issue = Repo.get!(Issue, incident.issue_id)
-    {:ok, _} = update_issue(issue, %{status: :archived})
+    case Repo.get(Issue, incident.issue_id) do
+      nil ->
+        {:error, :not_found}
 
-    incident
-    |> Incident.update_changeset(%{status: :resolved})
-    |> Repo.update()
+      issue ->
+        {:ok, _} = update_issue(issue, %{status: :archived})
+
+        incident
+        |> Incident.update_changeset(%{status: :resolved})
+        |> Repo.update()
+    end
   end
 
   @doc """

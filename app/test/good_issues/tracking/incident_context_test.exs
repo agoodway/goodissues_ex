@@ -135,7 +135,7 @@ defmodule GI.Tracking.IncidentContextTest do
       |> Repo.update!()
 
       # Report again — should create a new issue
-      {:ok, new_incident, :created} =
+      {:ok, new_incident, :new_issue} =
         Tracking.report_incident(account, user, project.id, attrs, occ_attrs)
 
       assert new_incident.id == incident.id

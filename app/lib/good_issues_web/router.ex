@@ -192,6 +192,7 @@ defmodule GIWeb.Router do
     # Incidents
     post "/incidents", IncidentController, :create
     patch "/incidents/:id", IncidentController, :update
+    post "/incidents/:id/resolve", IncidentController, :resolve
 
     # Events (telemetry)
     post "/events/batch", EventController, :create_batch

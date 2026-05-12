@@ -220,6 +220,30 @@ defmodule GI.Monitoring.IncidentLifecycleTest do
     end
   end
 
+  describe "handle_recovery/1 — resolve_and_cleanup nil-incident branch" do
+    test "clears check state when no incident exists for fingerprint", %{
+      user: user,
+      account: account,
+      project: project
+    } do
+      check = check_fixture(account, user, project)
+      issue = issue_fixture(account, user, project, %{type: :incident, status: :new})
+
+      # Set current_issue_id to an issue that has no corresponding incident
+      {:ok, check} =
+        Monitoring.update_runtime_fields(check, %{current_issue_id: issue.id, status: :down})
+
+      # No incident exists for this check's fingerprint
+      assert Tracking.get_incident_by_fingerprint(account, "check_#{check.id}") == nil
+
+      assert :ok = IncidentLifecycle.handle_recovery(check)
+
+      reloaded = Repo.get(Check, check.id)
+      assert reloaded.current_issue_id == nil
+      assert reloaded.status == :up
+    end
+  end
+
   defp list_incident_issues(project_id) do
     import Ecto.Query
 

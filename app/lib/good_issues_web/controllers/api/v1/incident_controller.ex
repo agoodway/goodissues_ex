@@ -11,7 +11,9 @@ defmodule GIWeb.Api.V1.IncidentController do
        {:require_scope, "incidents:read"} when action in [:index, :show]
 
   plug GIWeb.Plugs.ApiAuth,
-       {:require_scope, "incidents:write"} when action in [:create, :update]
+       {:require_scope, "incidents:write"} when action in [:create, :update, :resolve]
+
+  plug GIWeb.Plugs.ApiRateLimiter, [max_requests: 60, window_ms: 60_000] when action in [:create]
 
   action_fallback GIWeb.FallbackController
 
@@ -169,7 +171,6 @@ defmodule GIWeb.Api.V1.IncidentController do
            occurrence_attrs
          ) do
       {:ok, %Incident{} = incident, status} ->
-        incident = GI.Repo.preload(incident, [:issue, :incident_occurrences])
         http_status = if status == :created, do: :created, else: :ok
 
         conn
@@ -208,7 +209,8 @@ defmodule GIWeb.Api.V1.IncidentController do
 
   def update(conn, %{"id" => id} = params) do
     if params["status"] do
-      {:error, :bad_request, "Status cannot be updated directly. Use the resolve endpoint."}
+      {:error, :bad_request,
+       "Status cannot be updated directly. Use POST /api/v1/incidents/:id/resolve."}
     else
       case Tracking.get_incident(conn.assigns.current_account, id) do
         nil ->
@@ -223,10 +225,46 @@ defmodule GIWeb.Api.V1.IncidentController do
               else: attrs
 
           with {:ok, %Incident{} = incident} <- Tracking.update_incident(incident, attrs) do
-            incident = GI.Repo.preload(incident, [:issue, :incident_occurrences])
+            incident = GI.Repo.preload(incident, [:issue, :incident_occurrences], force: true)
             render(conn, :show, incident: incident)
           end
       end
+    end
+  end
+
+  operation(:resolve,
+    summary: "Resolve incident",
+    description: "Resolves an incident, archiving the linked issue.",
+    parameters: [
+      id: [
+        in: :path,
+        schema: %OpenApiSpex.Schema{type: :string, format: :uuid},
+        description: "Incident ID",
+        required: true
+      ]
+    ],
+    responses: [
+      ok: {"Incident resolved", "application/json", IncidentSchemas.IncidentResponse},
+      not_found: {"Not found", "application/json", GIWeb.ErrorJSON},
+      unauthorized: {"Unauthorized", "application/json", GIWeb.ErrorJSON},
+      forbidden: {"Forbidden", "application/json", GIWeb.ErrorJSON}
+    ]
+  )
+
+  def resolve(conn, %{"id" => id}) do
+    case Tracking.get_incident(conn.assigns.current_account, id, preload: [:issue]) do
+      nil ->
+        {:error, :not_found}
+
+      incident ->
+        case Tracking.resolve_incident(incident) do
+          {:ok, resolved} ->
+            resolved = GI.Repo.preload(resolved, [:issue, :incident_occurrences], force: true)
+            render(conn, :show, incident: resolved)
+
+          {:error, :not_found} ->
+            {:error, :not_found}
+        end
     end
   end
 end

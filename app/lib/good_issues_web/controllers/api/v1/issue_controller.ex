@@ -163,6 +163,10 @@ defmodule GIWeb.Api.V1.IssueController do
       nil ->
         {:error, :not_found}
 
+      %Issue{type: :incident} = _issue when is_map_key(params, "status") ->
+        {:error, :bad_request,
+         "Status of incident-backed issues cannot be changed directly. Use the incident API."}
+
       issue ->
         with {:ok, %Issue{} = issue} <- Tracking.update_issue(issue, params) do
           # Preload project for key computation

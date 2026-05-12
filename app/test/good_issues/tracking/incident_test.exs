@@ -110,7 +110,10 @@ defmodule GI.Tracking.IncidentTest do
 
   describe "IncidentOccurrence.create_changeset/2" do
     test "valid changeset with context" do
-      occurrence = %IncidentOccurrence{incident_id: Ecto.UUID.generate()}
+      occurrence = %IncidentOccurrence{
+        incident_id: Ecto.UUID.generate(),
+        account_id: Ecto.UUID.generate()
+      }
 
       changeset =
         IncidentOccurrence.create_changeset(occurrence, %{
@@ -120,14 +123,19 @@ defmodule GI.Tracking.IncidentTest do
       assert changeset.valid?
     end
 
-    test "invalid without incident_id" do
+    test "invalid without incident_id and account_id" do
       changeset = IncidentOccurrence.create_changeset(%IncidentOccurrence{}, %{})
       refute changeset.valid?
       assert errors_on(changeset).incident_id
+      assert errors_on(changeset).account_id
     end
 
     test "validates context max keys" do
-      occurrence = %IncidentOccurrence{incident_id: Ecto.UUID.generate()}
+      occurrence = %IncidentOccurrence{
+        incident_id: Ecto.UUID.generate(),
+        account_id: Ecto.UUID.generate()
+      }
+
       big_context = Map.new(1..51, fn i -> {"key_#{i}", "value"} end)
 
       changeset = IncidentOccurrence.create_changeset(occurrence, %{context: big_context})
@@ -135,7 +143,11 @@ defmodule GI.Tracking.IncidentTest do
     end
 
     test "defaults context to empty map" do
-      occurrence = %IncidentOccurrence{incident_id: Ecto.UUID.generate()}
+      occurrence = %IncidentOccurrence{
+        incident_id: Ecto.UUID.generate(),
+        account_id: Ecto.UUID.generate()
+      }
+
       changeset = IncidentOccurrence.create_changeset(occurrence, %{})
       assert Ecto.Changeset.get_field(changeset, :context) == %{}
     end

@@ -11,6 +11,9 @@ defmodule GI.Tracking.Incident do
 
   @severity_values [:info, :warning, :critical]
   @status_values [:resolved, :unresolved]
+  @max_metadata_keys 50
+  @max_json_bytes 65_536
+  @max_json_depth 5
 
   schema "incidents" do
     field :fingerprint, :string
@@ -61,6 +64,7 @@ defmodule GI.Tracking.Incident do
     |> validate_length(:title, max: 255)
     |> validate_length(:source, max: 255)
     |> validate_inclusion(:severity, @severity_values)
+    |> validate_metadata()
     |> unique_constraint([:account_id, :fingerprint])
     |> unique_constraint(:issue_id)
     |> foreign_key_constraint(:issue_id)
@@ -72,4 +76,45 @@ defmodule GI.Tracking.Incident do
     |> cast(attrs, [:status, :muted, :last_occurrence_at, :issue_id])
     |> validate_inclusion(:status, @status_values)
   end
+
+  defp validate_metadata(changeset) do
+    case get_field(changeset, :metadata) do
+      nil ->
+        changeset
+
+      metadata when is_map(metadata) ->
+        cond do
+          map_size(metadata) > @max_metadata_keys ->
+            add_error(changeset, :metadata, "cannot have more than #{@max_metadata_keys} keys")
+
+          json_byte_size(metadata) > @max_json_bytes ->
+            add_error(changeset, :metadata, "exceeds maximum size of #{@max_json_bytes} bytes")
+
+          json_depth(metadata) > @max_json_depth ->
+            add_error(changeset, :metadata, "exceeds maximum nesting depth of #{@max_json_depth}")
+
+          true ->
+            changeset
+        end
+
+      _ ->
+        add_error(changeset, :metadata, "must be a map")
+    end
+  end
+
+  defp json_byte_size(data), do: data |> Jason.encode!() |> byte_size()
+
+  defp json_depth(data) when is_map(data) and map_size(data) == 0, do: 0
+
+  defp json_depth(data) when is_map(data) do
+    1 + (data |> Map.values() |> Enum.map(&json_depth/1) |> Enum.max(fn -> 0 end))
+  end
+
+  defp json_depth(data) when is_list(data) and length(data) == 0, do: 0
+
+  defp json_depth(data) when is_list(data) do
+    1 + (data |> Enum.map(&json_depth/1) |> Enum.max(fn -> 0 end))
+  end
+
+  defp json_depth(_), do: 0
 end

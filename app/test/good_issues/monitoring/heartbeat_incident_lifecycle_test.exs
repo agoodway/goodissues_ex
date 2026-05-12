@@ -202,5 +202,29 @@ defmodule GI.Monitoring.HeartbeatIncidentLifecycleTest do
       updated = Repo.get!(Heartbeat, hb.id)
       assert updated.current_issue_id == nil
     end
+
+    test "clears heartbeat state when no incident exists for fingerprint", %{
+      user: user,
+      account: account,
+      project: project
+    } do
+      hb = heartbeat_fixture(account, user, project, %{paused: true, failure_threshold: 1})
+      {:ok, hb} = Monitoring.update_heartbeat(hb, %{paused: false})
+
+      issue = issue_fixture(account, user, project, %{type: :incident, status: :new})
+
+      # Set current_issue_id to an issue with no corresponding incident
+      {:ok, hb} =
+        Monitoring.update_heartbeat_runtime(hb, %{current_issue_id: issue.id, status: :down})
+
+      # No incident exists for this heartbeat's fingerprint
+      assert Tracking.get_incident_by_fingerprint(account, "heartbeat_#{hb.id}") == nil
+
+      assert :ok = HeartbeatIncidentLifecycle.handle_recovery(hb)
+
+      updated = Repo.get!(Heartbeat, hb.id)
+      assert updated.current_issue_id == nil
+      assert updated.status == :up
+    end
   end
 end

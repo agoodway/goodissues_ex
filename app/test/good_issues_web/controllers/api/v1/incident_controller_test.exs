@@ -110,6 +110,28 @@ defmodule GIWeb.Api.V1.IncidentControllerTest do
 
       assert json_response(conn, 401)
     end
+
+    test "returns 400 for invalid pagination params", %{conn: conn} do
+      conn = get(conn, ~p"/api/v1/incidents?page=abc")
+      assert json_response(conn, 400)
+    end
+
+    test "allows read-scoped key on GET", %{
+      conn: conn,
+      user: user,
+      account: account,
+      project: project
+    } do
+      _incident = incident_fixture(account, user, project)
+      {read_token, _api_key} = api_key_fixture(user, account, :public)
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{read_token}")
+        |> get(~p"/api/v1/incidents")
+
+      assert %{"data" => [_]} = json_response(conn, 200)
+    end
   end
 
   describe "show" do
@@ -317,6 +339,113 @@ defmodule GIWeb.Api.V1.IncidentControllerTest do
         |> patch(~p"/api/v1/incidents/#{incident.id}", %{muted: true})
 
       assert json_response(conn, 403)
+    end
+  end
+
+  describe "create - reopened status" do
+    test "returns 200 when reopening a resolved incident", %{
+      conn: conn,
+      account: account,
+      user: user,
+      project: project
+    } do
+      # Create and resolve an incident
+      existing = incident_fixture(account, user, project, %{fingerprint: "reopen_fp"})
+      {:ok, _} = Tracking.resolve_incident(existing)
+
+      # Report again — should reopen
+      params = %{
+        project_id: project.id,
+        fingerprint: "reopen_fp",
+        title: existing.title,
+        severity: "warning",
+        source: "test-service"
+      }
+
+      conn = post(conn, ~p"/api/v1/incidents", params)
+      assert %{"data" => json} = json_response(conn, 200)
+      assert json["id"] == existing.id
+      assert json["status"] == "unresolved"
+    end
+  end
+
+  describe "resolve" do
+    test "resolves an incident", %{
+      conn: conn,
+      account: account,
+      user: user,
+      project: project
+    } do
+      incident = incident_fixture(account, user, project)
+
+      conn = post(conn, ~p"/api/v1/incidents/#{incident.id}/resolve")
+      assert %{"data" => json} = json_response(conn, 200)
+      assert json["status"] == "resolved"
+    end
+
+    test "no-ops for already resolved incident", %{
+      conn: conn,
+      account: account,
+      user: user,
+      project: project
+    } do
+      incident = incident_fixture(account, user, project)
+      {:ok, _} = Tracking.resolve_incident(incident)
+
+      conn = post(conn, ~p"/api/v1/incidents/#{incident.id}/resolve")
+      assert %{"data" => json} = json_response(conn, 200)
+      assert json["status"] == "resolved"
+    end
+
+    test "returns 404 for non-existent incident", %{conn: conn} do
+      conn = post(conn, ~p"/api/v1/incidents/#{Ecto.UUID.generate()}/resolve")
+      assert json_response(conn, 404)
+    end
+
+    test "returns 403 with read-only API key", %{
+      conn: conn,
+      user: user,
+      account: account,
+      project: project
+    } do
+      incident = incident_fixture(account, user, project)
+      {read_only_token, _api_key} = api_key_fixture(user, account, :public)
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{read_only_token}")
+        |> post(~p"/api/v1/incidents/#{incident.id}/resolve")
+
+      assert json_response(conn, 403)
+    end
+  end
+
+  describe "show - occurrence pagination" do
+    test "paginates occurrences", %{
+      conn: conn,
+      account: account,
+      user: user,
+      project: project
+    } do
+      fingerprint = "paginate_occ_fp"
+      attrs = %{fingerprint: fingerprint}
+      incident = incident_fixture(account, user, project, attrs)
+
+      # Add more occurrences
+      for _ <- 1..3 do
+        Tracking.report_incident(
+          account,
+          user,
+          project.id,
+          GI.TrackingFixtures.valid_incident_attributes(attrs),
+          GI.TrackingFixtures.valid_incident_occurrence_attributes()
+        )
+      end
+
+      conn = get(conn, ~p"/api/v1/incidents/#{incident.id}?per_page=2&page=1")
+      assert %{"data" => json} = json_response(conn, 200)
+      assert length(json["occurrences"]) == 2
+      assert json["occurrence_count"] == 4
     end
   end
 end
