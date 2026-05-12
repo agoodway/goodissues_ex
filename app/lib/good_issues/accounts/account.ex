@@ -27,6 +27,7 @@ defmodule GI.Accounts.Account do
 
     has_many :account_users, GI.Accounts.AccountUser
     has_many :users, through: [:account_users, :user]
+    has_one :telegram_profile, GI.TelegramProfiles.TelegramProfile
 
     timestamps(type: :utc_datetime)
   end

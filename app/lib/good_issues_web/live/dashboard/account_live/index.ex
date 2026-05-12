@@ -9,6 +9,8 @@ defmodule GIWeb.Dashboard.AccountLive.Index do
 
   alias GI.Accounts
   alias GI.Accounts.Scope
+  alias GI.TelegramProfiles
+  alias GI.TelegramProfiles.TelegramProfile
 
   @impl true
   def mount(_params, _session, socket) do
@@ -27,6 +29,7 @@ defmodule GIWeb.Dashboard.AccountLive.Index do
     |> assign(:page_title, "Account Settings")
     |> assign(:account, Accounts.get_account!(account.id))
     |> assign(:can_manage, Scope.can_manage_account?(socket.assigns.current_scope))
+    |> assign_telegram_profile(account.id)
   end
 
   defp apply_action(socket, :edit, _params) do
@@ -37,11 +40,24 @@ defmodule GIWeb.Dashboard.AccountLive.Index do
       |> assign(:page_title, "Edit Account")
       |> assign(:account, Accounts.get_account!(account.id))
       |> assign(:can_manage, true)
+      |> assign_telegram_profile(account.id)
     else
       socket
       |> put_flash(:error, "You don't have permission to edit this account.")
       |> push_navigate(to: ~p"/dashboard/#{account.slug}")
     end
+  end
+
+  defp assign_telegram_profile(socket, account_id) do
+    profile = TelegramProfiles.get_by_account(account_id)
+
+    socket
+    |> assign(:telegram_profile, profile)
+    |> assign(
+      :telegram_changeset,
+      TelegramProfiles.change_telegram_profile(profile || %TelegramProfile{}, %{})
+    )
+    |> assign(:telegram_editing, false)
   end
 
   @impl true
@@ -77,6 +93,86 @@ defmodule GIWeb.Dashboard.AccountLive.Index do
       end
     else
       {:noreply, put_flash(socket, :error, "You don't have permission to activate this account.")}
+    end
+  end
+
+  @impl true
+  def handle_event("toggle_telegram_edit", _params, socket) do
+    if Scope.can_manage_account?(socket.assigns.current_scope) do
+      {:noreply, assign(socket, :telegram_editing, !socket.assigns.telegram_editing)}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  @impl true
+  def handle_event("save_telegram", %{"telegram_profile" => params}, socket) do
+    if Scope.can_manage_account?(socket.assigns.current_scope) do
+      account = socket.assigns.account
+
+      case socket.assigns.telegram_profile do
+        nil ->
+          params = Map.put(params, "account_id", account.id)
+
+          case TelegramProfiles.create_telegram_profile(params) do
+            {:ok, _profile} ->
+              {:noreply,
+               socket
+               |> put_flash(:info, "Telegram profile created.")
+               |> assign_telegram_profile(account.id)}
+
+            {:error, changeset} ->
+              {:noreply, assign(socket, :telegram_changeset, changeset)}
+          end
+
+        profile ->
+          # If bot_token is empty, don't update it
+          params =
+            case params["bot_token"] do
+              nil -> Map.delete(params, "bot_token")
+              "" -> Map.delete(params, "bot_token")
+              _token -> params
+            end
+
+          case TelegramProfiles.update_telegram_profile(profile, params) do
+            {:ok, _profile} ->
+              {:noreply,
+               socket
+               |> put_flash(:info, "Telegram profile updated.")
+               |> assign_telegram_profile(account.id)}
+
+            {:error, changeset} ->
+              {:noreply, assign(socket, :telegram_changeset, changeset)}
+          end
+      end
+    else
+      {:noreply,
+       put_flash(socket, :error, "You don't have permission to manage Telegram settings.")}
+    end
+  end
+
+  @impl true
+  def handle_event("delete_telegram", _params, socket) do
+    if Scope.can_manage_account?(socket.assigns.current_scope) do
+      case socket.assigns.telegram_profile do
+        nil ->
+          {:noreply, socket}
+
+        profile ->
+          case TelegramProfiles.delete_telegram_profile(profile) do
+            {:ok, _} ->
+              {:noreply,
+               socket
+               |> put_flash(:info, "Telegram profile removed.")
+               |> assign_telegram_profile(socket.assigns.account.id)}
+
+            {:error, _} ->
+              {:noreply, put_flash(socket, :error, "Failed to remove Telegram profile.")}
+          end
+      end
+    else
+      {:noreply,
+       put_flash(socket, :error, "You don't have permission to manage Telegram settings.")}
     end
   end
 
@@ -209,6 +305,113 @@ defmodule GIWeb.Dashboard.AccountLive.Index do
               <% end %>
             </div>
           </div>
+        </div>
+
+        <%!-- Telegram Settings Card --%>
+        <div class="mt-4 rounded-sm border border-base-300/50 bg-base-200/30">
+          <div class="px-4 py-3 border-b border-base-300/50 flex items-center justify-between">
+            <h2 class="font-mono text-xs text-muted uppercase tracking-wider">
+              // Telegram Integration
+            </h2>
+            <div :if={@can_manage && @telegram_profile && !@telegram_editing} class="flex gap-2">
+              <button
+                phx-click="toggle_telegram_edit"
+                class="btn-subtle flex items-center gap-1"
+              >
+                <.icon name="hero-pencil" class="size-3" />
+                <span class="text-xs">Edit</span>
+              </button>
+              <button
+                phx-click="delete_telegram"
+                data-confirm="Remove Telegram integration? Telegram subscriptions will stop delivering."
+                class="btn-subtle text-error/70 hover:text-error flex items-center gap-1"
+              >
+                <.icon name="hero-trash" class="size-3" />
+                <span class="text-xs">Remove</span>
+              </button>
+            </div>
+          </div>
+
+          <%= if @telegram_profile && !@telegram_editing do %>
+            <div class="p-4 space-y-3">
+              <div class="flex items-center justify-between py-2 border-b border-base-300/30">
+                <span class="text-xs text-muted">Bot Token</span>
+                <span class="font-mono text-sm">
+                  {GI.TelegramProfiles.TelegramProfile.mask_token(
+                    @telegram_profile.bot_token_encrypted
+                  )}
+                </span>
+              </div>
+              <div class="flex items-center justify-between py-2">
+                <span class="text-xs text-muted">Bot Username</span>
+                <span class="font-mono text-sm">
+                  {if @telegram_profile.bot_username,
+                    do: "@#{@telegram_profile.bot_username}",
+                    else: "—"}
+                </span>
+              </div>
+            </div>
+          <% else %>
+            <div :if={@can_manage} class="p-4">
+              <.form
+                for={@telegram_changeset}
+                phx-submit="save_telegram"
+                class="space-y-4"
+              >
+                <div>
+                  <label class="block text-xs text-muted mb-1">Bot Token *</label>
+                  <input
+                    type="password"
+                    name="telegram_profile[bot_token]"
+                    value=""
+                    placeholder={
+                      if @telegram_profile,
+                        do: "Leave blank to keep current token",
+                        else: "123456:ABC-DEF..."
+                    }
+                    autocomplete="off"
+                    class="input-primary w-full"
+                    required={!@telegram_profile}
+                  />
+                  <p class="font-mono text-[10px] text-muted mt-1">
+                    Get from @BotFather on Telegram. Encrypted at rest.
+                  </p>
+                </div>
+                <div>
+                  <label class="block text-xs text-muted mb-1">Bot Username (optional)</label>
+                  <input
+                    type="text"
+                    name="telegram_profile[bot_username]"
+                    value={if @telegram_profile, do: @telegram_profile.bot_username, else: ""}
+                    placeholder="@your_bot"
+                    class="input-primary w-full"
+                  />
+                </div>
+                <div class="flex items-center gap-2">
+                  <button type="submit" class="btn-action flex items-center gap-2">
+                    <.icon name="hero-check" class="size-4" />
+                    <span>{if @telegram_profile, do: "Update", else: "Connect"}</span>
+                  </button>
+                  <button
+                    :if={@telegram_editing}
+                    type="button"
+                    phx-click="toggle_telegram_edit"
+                    class="btn-subtle"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </.form>
+            </div>
+            <div
+              :if={!@can_manage && !@telegram_profile}
+              class="p-4 text-center"
+            >
+              <p class="font-mono text-xs text-muted">
+                No Telegram integration configured. Contact an admin to set up.
+              </p>
+            </div>
+          <% end %>
         </div>
 
         <%!-- Read-only info banner --%>

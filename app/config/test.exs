@@ -32,6 +32,9 @@ config :good_issues, GI.Mailer, adapter: Swoosh.Adapters.Test
 # Disable swoosh api client as it is only required for production adapters
 config :swoosh, :api_client, false
 
+# Use mock Telegram client in tests (set per-test via Mimic)
+config :good_issues, :telegram_client, GI.Notifications.TelegramClient.HTTP
+
 # In tests, jobs are inserted but not executed — call Oban.drain_queue/1
 # (or invoke a worker's perform/1 directly) when test logic needs them
 # to run. The isolated notifier avoids LISTEN/NOTIFY connection pressure.
@@ -39,6 +42,14 @@ config :swoosh, :api_client, false
 config :good_issues, Oban,
   testing: :manual,
   notifier: Oban.Notifiers.Isolated
+
+# Deterministic Cloak key for tests (32 bytes)
+config :good_issues, GI.Vault,
+  ciphers: [
+    default:
+      {Cloak.Ciphers.AES.GCM,
+       tag: "AES.GCM.V1", key: Base.decode64!("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")}
+  ]
 
 # Print only warnings and errors during test
 config :logger, level: :warning

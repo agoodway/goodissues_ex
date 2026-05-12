@@ -11,7 +11,7 @@ defmodule GI.Notifications.Listener do
 
   alias GI.Notifications
   alias GI.Notifications.Event
-  alias GI.Notifications.Workers.{EmailWorker, WebhookWorker}
+  alias GI.Notifications.Workers.{EmailWorker, TelegramWorker, WebhookWorker}
 
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
@@ -56,15 +56,22 @@ defmodule GI.Notifications.Listener do
       subscription_id: subscription.id,
       occurred_at: DateTime.to_iso8601(event.occurred_at),
       resource_type: resource_type,
-      resource_id: resource_id,
-      secret: subscription.secret
+      resource_id: resource_id
     }
 
     result =
       case subscription.channel do
-        "email" -> EmailWorker.new(job_args) |> Oban.insert()
-        "webhook" -> WebhookWorker.new(job_args) |> Oban.insert()
-        other -> {:error, "Unknown channel: #{other}"}
+        "email" ->
+          EmailWorker.new(job_args) |> Oban.insert()
+
+        "webhook" ->
+          WebhookWorker.new(Map.put(job_args, :secret, subscription.secret)) |> Oban.insert()
+
+        "telegram" ->
+          TelegramWorker.new(job_args) |> Oban.insert()
+
+        other ->
+          {:error, "Unknown channel: #{other}"}
       end
 
     case result do

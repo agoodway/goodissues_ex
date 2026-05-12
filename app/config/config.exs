@@ -88,6 +88,7 @@ config :good_issues, Oban,
     default: 10,
     notifications_email: 10,
     notifications_webhook: 5,
+    notifications_telegram: 5,
     checks: 10,
     heartbeats: 10,
     maintenance: 2

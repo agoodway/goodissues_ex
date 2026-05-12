@@ -2,7 +2,7 @@
 
 ## Capability
 
-REST API endpoints for managing event subscriptions (webhooks and email notifications).
+REST API endpoints for managing event subscriptions (webhooks, email, and Telegram notifications).
 
 ## Requirements
 
@@ -22,10 +22,11 @@ REST API endpoints for managing event subscriptions (webhooks and email notifica
 
 - **CREATE** `POST /api/v1/subscriptions`
   - Accepts: `name`, `channel`, `event_types`, `destination`, `user_id`, `criteria`, `active`
-  - `channel` must be `"email"` or `"webhook"`
+  - `channel` must be `"email"`, `"webhook"`, or `"telegram"`
   - `event_types` must contain at least one valid event type
   - Webhook: requires `destination` (https URL), must not have `user_id`, auto-generates `secret`
   - Email: requires either `destination` (email address) or `user_id` (not both)
+  - Telegram: requires `destination` (numeric chat ID matching `^-?\d+$`), must not have `user_id`, no `secret` generated
   - Returns 201 with the subscription including `secret` (webhook only, shown once)
   - Requires `subscriptions:write` scope
 
@@ -57,11 +58,12 @@ REST API endpoints for managing event subscriptions (webhooks and email notifica
 ### Validation
 
 - Inherits all validation from `EventSubscription.changeset/2`:
-  - Channel must be "email" or "webhook"
+  - Channel must be "email", "webhook", or "telegram"
   - At least one valid event type required
   - Webhook destination must be https (http://localhost allowed in dev/test)
   - Cannot set both `destination` and `user_id`
   - Webhook must have `destination`, must not have `user_id`
+  - Telegram must have `destination` (numeric chat ID), must not have `user_id`
 - Returns 422 with changeset errors on validation failure
 - Returns 404 for IDs not found within the account
 

@@ -76,6 +76,7 @@ defmodule GI.MixProject do
 
       # Security
       {:bcrypt_elixir, "~> 3.0"},
+      {:cloak_ecto, "~> 1.3"},
 
       # OpenAPI Documentation
       {:open_api_spex, "~> 3.21"},

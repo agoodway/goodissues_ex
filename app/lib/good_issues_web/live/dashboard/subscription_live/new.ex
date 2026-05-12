@@ -162,28 +162,40 @@ defmodule GIWeb.Dashboard.SubscriptionLive.New do
             field={@form[:channel]}
             type="select"
             label="Channel"
-            options={[{"Email", "email"}, {"Webhook", "webhook"}]}
+            options={[{"Email", "email"}, {"Webhook", "webhook"}, {"Telegram", "telegram"}]}
           />
 
-          <%= if @channel == "email" do %>
-            <.input
-              field={@form[:destination]}
-              type="email"
-              label="Email Address"
-              required
-              placeholder="alerts@example.com"
-            />
-          <% else %>
-            <.input
-              field={@form[:destination]}
-              type="url"
-              label="Webhook URL"
-              required
-              placeholder="https://example.com/webhooks/goodissues"
-            />
-            <p class="text-xs text-muted mt-1 font-mono">
-              // Webhooks are signed using the Standard Webhooks spec (HMAC-SHA256).
-            </p>
+          <%= case @channel do %>
+            <% "email" -> %>
+              <.input
+                field={@form[:destination]}
+                type="email"
+                label="Email Address"
+                required
+                placeholder="alerts@example.com"
+              />
+            <% "telegram" -> %>
+              <.input
+                field={@form[:destination]}
+                type="text"
+                label="Telegram Chat ID"
+                required
+                placeholder="-1001234567890"
+              />
+              <p class="text-xs text-muted mt-1 font-mono">
+                // Numeric chat ID. Send /start to your bot, then use the Telegram getUpdates API or @userinfobot to find it.
+              </p>
+            <% _webhook -> %>
+              <.input
+                field={@form[:destination]}
+                type="url"
+                label="Webhook URL"
+                required
+                placeholder="https://example.com/webhooks/goodissues"
+              />
+              <p class="text-xs text-muted mt-1 font-mono">
+                // Webhooks are signed using the Standard Webhooks spec (HMAC-SHA256).
+              </p>
           <% end %>
 
           <%!-- Event Types --%>

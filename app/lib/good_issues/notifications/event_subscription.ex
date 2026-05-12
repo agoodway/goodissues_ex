@@ -4,7 +4,7 @@ defmodule GI.Notifications.EventSubscription do
 
   Each subscription configures:
   - **event_types**: which events to receive
-  - **channel**: delivery channel — `"email"` or `"webhook"`
+  - **channel**: delivery channel — `"email"`, `"webhook"`, or `"telegram"`
   - **destination**: static address (mutually exclusive with `user_id`)
   - **user_id**: resolves to user's email at delivery time
   """
@@ -30,7 +30,7 @@ defmodule GI.Notifications.EventSubscription do
           updated_at: DateTime.t() | nil
         }
 
-  @channels ~w(email webhook)
+  @channels ~w(email webhook telegram)
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -68,6 +68,7 @@ defmodule GI.Notifications.EventSubscription do
     |> validate_event_types()
     |> validate_destination_or_user()
     |> validate_webhook_settings()
+    |> validate_telegram_settings()
     |> foreign_key_constraint(:account_id)
     |> foreign_key_constraint(:user_id)
     |> check_constraint(:channel, name: :event_subscriptions_channel_check)
@@ -87,6 +88,7 @@ defmodule GI.Notifications.EventSubscription do
     |> validate_event_types()
     |> validate_destination_or_user()
     |> validate_webhook_settings()
+    |> validate_telegram_settings()
     |> foreign_key_constraint(:user_id)
     |> unique_constraint([:account_id, :channel, :destination],
       name: :event_subscriptions_static_destination_index
@@ -181,5 +183,43 @@ defmodule GI.Notifications.EventSubscription do
     String.starts_with?(destination, "https://") or
       (Application.get_env(:good_issues, :env) in [:dev, :test] and
          String.starts_with?(destination, "http://localhost"))
+  end
+
+  defp validate_telegram_settings(changeset) do
+    if get_field(changeset, :channel) == "telegram" do
+      changeset
+      |> validate_telegram_destination()
+      |> validate_telegram_no_user()
+      |> clear_secret_for_telegram()
+    else
+      changeset
+    end
+  end
+
+  defp validate_telegram_destination(changeset) do
+    destination = get_field(changeset, :destination)
+
+    cond do
+      is_nil(destination) ->
+        add_error(changeset, :destination, "must be set for Telegram subscriptions")
+
+      Regex.match?(~r/^-?\d+$/, destination) ->
+        changeset
+
+      true ->
+        add_error(changeset, :destination, "must be a valid Telegram chat ID (numeric)")
+    end
+  end
+
+  defp validate_telegram_no_user(changeset) do
+    if is_nil(get_field(changeset, :user_id)) do
+      changeset
+    else
+      add_error(changeset, :user_id, "must be blank for Telegram subscriptions")
+    end
+  end
+
+  defp clear_secret_for_telegram(changeset) do
+    put_change(changeset, :secret, nil)
   end
 end

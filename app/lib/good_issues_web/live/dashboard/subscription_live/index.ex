@@ -57,6 +57,7 @@ defmodule GIWeb.Dashboard.SubscriptionLive.Index do
 
   defp channel_icon("email"), do: "hero-envelope"
   defp channel_icon("webhook"), do: "hero-globe-alt"
+  defp channel_icon("telegram"), do: "hero-paper-airplane"
   defp channel_icon(_), do: "hero-bell"
 
   defp truncate_destination(nil), do: "—"
@@ -152,7 +153,8 @@ defmodule GIWeb.Dashboard.SubscriptionLive.Index do
                   <span class={[
                     "status-badge",
                     sub.channel == "webhook" && "status-badge-pending",
-                    sub.channel == "email" && "status-badge-active"
+                    sub.channel == "email" && "status-badge-active",
+                    sub.channel == "telegram" && "status-badge-info"
                   ]}>
                     {String.upcase(sub.channel)}
                   </span>
@@ -196,7 +198,8 @@ defmodule GIWeb.Dashboard.SubscriptionLive.Index do
                   <span class={[
                     "status-badge",
                     sub.channel == "webhook" && "status-badge-pending",
-                    sub.channel == "email" && "status-badge-active"
+                    sub.channel == "email" && "status-badge-active",
+                    sub.channel == "telegram" && "status-badge-info"
                   ]}>
                     {String.upcase(sub.channel)}
                   </span>

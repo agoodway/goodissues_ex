@@ -53,6 +53,6 @@ defmodule GI.Notifications.NotificationLog do
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
     |> validate_inclusion(:status, ~w(pending delivered failed))
-    |> validate_inclusion(:channel, ~w(email webhook))
+    |> validate_inclusion(:channel, ~w(email webhook telegram))
   end
 end

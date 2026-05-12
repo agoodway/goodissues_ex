@@ -45,11 +45,43 @@ end
 #
 # Alternatively, you can use `mix phx.gen.release` to generate a `bin/server`
 # script that automatically sets the env var above.
+# Cloak encryption key for sensitive fields (e.g., Telegram bot tokens)
+# Generate with: 32 |> :crypto.strong_rand_bytes() |> Base.encode64()
+cloak_key =
+  case System.get_env("CLOAK_KEY") do
+    nil ->
+      if config_env() == :prod do
+        raise """
+        environment variable CLOAK_KEY is missing.
+        Generate one with: 32 |> :crypto.strong_rand_bytes() |> Base.encode64()
+        """
+      end
+
+      nil
+
+    key ->
+      decoded = Base.decode64!(key)
+
+      if byte_size(decoded) != 32 do
+        raise "CLOAK_KEY must decode to exactly 32 bytes (got #{byte_size(decoded)})"
+      end
+
+      decoded
+  end
+
+if cloak_key do
+  config :good_issues, GI.Vault,
+    ciphers: [
+      default: {Cloak.Ciphers.AES.GCM, tag: "AES.GCM.V1", key: cloak_key}
+    ]
+end
+
 if System.get_env("PHX_SERVER") do
   config :good_issues, GIWeb.Endpoint, server: true
 end
 
-config :good_issues, GIWeb.Endpoint, http: [port: String.to_integer(System.get_env("PORT", "4000"))]
+config :good_issues, GIWeb.Endpoint,
+  http: [port: String.to_integer(System.get_env("PORT", "4000"))]
 
 if config_env() == :prod do
   database_url =

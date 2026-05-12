@@ -66,6 +66,11 @@ defmodule GIWeb.Dashboard.SubscriptionLive.Show do
     end
   end
 
+  defp channel_icon("email"), do: "hero-envelope"
+  defp channel_icon("webhook"), do: "hero-globe-alt"
+  defp channel_icon("telegram"), do: "hero-paper-airplane"
+  defp channel_icon(_), do: "hero-bell"
+
   defp format_datetime(nil), do: "—"
 
   defp format_datetime(dt) do
@@ -177,9 +182,7 @@ defmodule GIWeb.Dashboard.SubscriptionLive.Show do
                 !@subscription.active && "bg-error/15 text-error"
               ]}>
                 <.icon
-                  name={
-                    if @subscription.channel == "webhook", do: "hero-globe-alt", else: "hero-envelope"
-                  }
+                  name={channel_icon(@subscription.channel)}
                   class="size-4 sm:size-5"
                 />
               </div>

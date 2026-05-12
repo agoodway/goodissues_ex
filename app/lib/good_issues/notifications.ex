@@ -61,6 +61,9 @@ defmodule GI.Notifications do
     if user.email, do: %{sub | destination: user.email}, else: nil
   end
 
+  # Telegram only uses static destinations, never user-linked
+  defp resolve_destination(%EventSubscription{channel: "telegram"} = sub), do: sub
+
   defp resolve_destination(_sub), do: nil
 
   # -- Delivery Logging -------------------------------------------------------

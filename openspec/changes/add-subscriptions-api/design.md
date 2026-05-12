@@ -36,6 +36,18 @@ For email with user linking:
 }
 ```
 
+For Telegram (static chat ID, no user_id, no secret):
+
+```json
+{
+  "name": "Telegram alerts",
+  "channel": "telegram",
+  "event_types": ["issue_created", "error_occurred"],
+  "destination": "-1001234567890",
+  "active": true
+}
+```
+
 ### Create Response (201)
 
 ```json

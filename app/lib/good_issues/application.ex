@@ -14,6 +14,7 @@ defmodule GI.Application do
       [
         GIWeb.Telemetry,
         GI.Repo,
+        GI.Vault,
         {DNSCluster, query: Application.get_env(:good_issues, :dns_cluster_query) || :ignore},
         {Phoenix.PubSub, name: GI.PubSub},
         {Oban, Application.fetch_env!(:good_issues, Oban)}
