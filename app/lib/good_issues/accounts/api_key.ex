@@ -17,6 +17,7 @@ defmodule GI.Accounts.ApiKey do
     issues:read issues:write
     errors:read errors:write
     events:read events:write
+    incidents:read incidents:write
   )
 
   @type t :: %__MODULE__{

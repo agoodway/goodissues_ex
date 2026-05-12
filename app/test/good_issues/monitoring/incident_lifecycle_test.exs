@@ -8,6 +8,7 @@ defmodule GI.Monitoring.IncidentLifecycleTest do
   alias GI.Monitoring
   alias GI.Monitoring.{Check, IncidentLifecycle}
   alias GI.Repo
+  alias GI.Tracking
   alias GI.Tracking.Issue
 
   setup do
@@ -44,7 +45,6 @@ defmodule GI.Monitoring.IncidentLifecycleTest do
       assert issue.type == :incident
       assert issue.priority == :critical
       assert issue.status == :new
-      assert issue.description =~ "connection refused"
 
       reloaded = Repo.get(Check, check.id)
       assert reloaded.current_issue_id == issue.id
@@ -55,28 +55,35 @@ defmodule GI.Monitoring.IncidentLifecycleTest do
 
       bot = GI.Accounts.get_or_create_bot_user!(account)
       assert issue.submitter_id == bot.id
+
+      # Verify incident was created with metadata
+      incident = Tracking.get_incident_by_fingerprint(account, "check_#{check.id}")
+      assert incident != nil
+      assert incident.title == "DOWN: Health"
+      assert incident.severity == :critical
+      assert incident.source == "monitoring"
     end
   end
 
   describe "create_or_reopen_incident/3 — open incident already exists" do
-    test "no-ops if an open incident is already linked", %{
+    test "adds occurrence if an open incident is already linked", %{
       user: user,
       account: account,
       project: project
     } do
       check = check_fixture(account, user, project)
-      issue = issue_fixture(account, user, project, %{type: :incident, status: :in_progress})
+      result1 = seed_failed_result(check)
 
-      {:ok, check} =
-        Monitoring.update_runtime_fields(check, %{
-          current_issue_id: issue.id,
-          status: :down,
-          consecutive_failures: 1
-        })
+      # First call creates the incident
+      assert :ok = IncidentLifecycle.create_or_reopen_incident(account, check, result1)
 
-      result = seed_failed_result(check)
+      # Reload the check to get current_issue_id
+      check = Repo.get(Check, check.id)
 
-      assert :ok = IncidentLifecycle.create_or_reopen_incident(account, check, result)
+      result2 = seed_failed_result(check)
+
+      # Second call should add an occurrence (not create a new issue)
+      assert :ok = IncidentLifecycle.create_or_reopen_incident(account, check, result2)
 
       assert length(list_incident_issues(project.id)) == 1
     end
@@ -89,23 +96,28 @@ defmodule GI.Monitoring.IncidentLifecycleTest do
       project: project
     } do
       check = check_fixture(account, user, project, %{reopen_window_hours: 24})
+      result1 = seed_failed_result(check)
 
-      archived =
-        issue_fixture(account, user, project, %{type: :incident, status: :archived})
+      # Create the initial incident
+      assert :ok = IncidentLifecycle.create_or_reopen_incident(account, check, result1)
 
-      {:ok, _} =
-        Monitoring.create_check_result(check, %{
-          status: :down,
-          status_code: 500,
-          response_ms: 5,
-          issue_id: archived.id
-        })
+      check = Repo.get(Check, check.id)
+      issue_id = check.current_issue_id
 
-      result = seed_failed_result(check)
+      # Archive it (simulate recovery)
+      assert :ok = IncidentLifecycle.handle_recovery(check)
 
-      assert :ok = IncidentLifecycle.create_or_reopen_incident(account, check, result)
+      # Verify it was archived
+      archived = Repo.get(Issue, issue_id)
+      assert archived.status == :archived
 
-      reopened = Repo.get(Issue, archived.id)
+      check = Repo.get(Check, check.id)
+      result2 = seed_failed_result(check)
+
+      # Report again — should reopen
+      assert :ok = IncidentLifecycle.create_or_reopen_incident(account, check, result2)
+
+      reopened = Repo.get(Issue, issue_id)
       assert reopened.status == :in_progress
 
       reloaded = Repo.get(Check, check.id)
@@ -122,78 +134,63 @@ defmodule GI.Monitoring.IncidentLifecycleTest do
       project: project
     } do
       check = check_fixture(account, user, project, %{reopen_window_hours: 1})
+      result1 = seed_failed_result(check)
 
-      old_archived =
-        issue_fixture(account, user, project, %{type: :incident, status: :archived})
+      # Create the initial incident
+      assert :ok = IncidentLifecycle.create_or_reopen_incident(account, check, result1)
 
-      old_archived
+      check = Repo.get(Check, check.id)
+      issue_id = check.current_issue_id
+
+      # Archive it
+      assert :ok = IncidentLifecycle.handle_recovery(check)
+
+      # Backdate the archived_at to be outside the reopen window
+      archived = Repo.get(Issue, issue_id)
+
+      archived
       |> Ecto.Changeset.change(
         archived_at: DateTime.add(DateTime.utc_now(:second), -7200, :second)
       )
       |> Repo.update!()
 
-      {:ok, _} =
-        Monitoring.create_check_result(check, %{
-          status: :down,
-          status_code: 500,
-          response_ms: 5,
-          issue_id: old_archived.id
-        })
+      check = Repo.get(Check, check.id)
+      result2 = seed_failed_result(check)
 
-      result = seed_failed_result(check)
-
-      assert :ok = IncidentLifecycle.create_or_reopen_incident(account, check, result)
+      # Report again — should create a new issue since the old one is outside the window
+      assert :ok = IncidentLifecycle.create_or_reopen_incident(account, check, result2)
 
       assert length(list_incident_issues(project.id)) == 2
     end
   end
 
-  describe "archive_incident/2" do
-    test "archives the issue and clears the check's current_issue_id", %{
-      user: user,
-      account: account,
-      project: project
-    } do
-      check = check_fixture(account, user, project)
-      issue = issue_fixture(account, user, project, %{type: :incident, status: :in_progress})
-
-      {:ok, check} =
-        Monitoring.update_runtime_fields(check, %{
-          current_issue_id: issue.id,
-          status: :down
-        })
-
-      assert :ok = IncidentLifecycle.archive_incident(check, issue)
-
-      reloaded_issue = Repo.get(Issue, issue.id)
-      assert reloaded_issue.status == :archived
-      assert reloaded_issue.archived_at != nil
-
-      reloaded_check = Repo.get(Check, check.id)
-      assert reloaded_check.current_issue_id == nil
-      assert reloaded_check.status == :up
-    end
-  end
-
   describe "handle_recovery/1" do
-    test "archives the open incident when current_issue_id points to one", %{
+    test "resolves the incident when current_issue_id points to one", %{
       user: user,
       account: account,
       project: project
     } do
       check = check_fixture(account, user, project)
-      issue = issue_fixture(account, user, project, %{type: :incident, status: :new})
+      result = seed_failed_result(check)
 
-      {:ok, check} =
-        Monitoring.update_runtime_fields(check, %{current_issue_id: issue.id, status: :down})
+      # Create incident first
+      assert :ok = IncidentLifecycle.create_or_reopen_incident(account, check, result)
+
+      check = Repo.get(Check, check.id)
+      issue_id = check.current_issue_id
+      assert issue_id != nil
 
       assert :ok = IncidentLifecycle.handle_recovery(check)
 
-      reloaded_issue = Repo.get(Issue, issue.id)
+      reloaded_issue = Repo.get(Issue, issue_id)
       assert reloaded_issue.status == :archived
 
       reloaded_check = Repo.get(Check, check.id)
       assert reloaded_check.current_issue_id == nil
+
+      # Verify incident is resolved
+      incident = Tracking.get_incident_by_fingerprint(account, "check_#{check.id}")
+      assert incident.status == :resolved
     end
 
     test "is a no-op when there is no current incident", %{

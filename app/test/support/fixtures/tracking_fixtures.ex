@@ -111,4 +111,40 @@ defmodule GI.TrackingFixtures do
 
     error
   end
+
+  def unique_incident_fingerprint, do: "incident_#{System.unique_integer([:positive])}"
+
+  def valid_incident_attributes(attrs \\ %{}) do
+    Enum.into(attrs, %{
+      fingerprint: unique_incident_fingerprint(),
+      title: "Test Incident #{System.unique_integer([:positive])}",
+      severity: :warning,
+      source: "test-service",
+      metadata: %{"region" => "us-east-1"}
+    })
+  end
+
+  def valid_incident_occurrence_attributes(attrs \\ %{}) do
+    Enum.into(attrs, %{
+      context: %{"request_id" => "req_#{System.unique_integer([:positive])}"}
+    })
+  end
+
+  @doc """
+  Creates an incident fixture via report_incident/5.
+
+  Requires account, user, and project.
+  """
+  def incident_fixture(account, user, project, incident_attrs \\ %{}, occurrence_attrs \\ %{}) do
+    {:ok, incident, _status} =
+      Tracking.report_incident(
+        account,
+        user,
+        project.id,
+        valid_incident_attributes(incident_attrs),
+        valid_incident_occurrence_attributes(occurrence_attrs)
+      )
+
+    incident
+  end
 end

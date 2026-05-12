@@ -16,10 +16,20 @@ defmodule GI.Tracking do
   import Ecto.Query
 
   alias GI.Accounts.{Account, User}
+  alias GI.Monitoring.SharedIncidentLifecycle
   alias GI.Notifications
   alias GI.Notifications.Event, as: NotificationEvent
   alias GI.Repo
-  alias GI.Tracking.{Error, Issue, Occurrence, Project, StacktraceLine}
+
+  alias GI.Tracking.{
+    Error,
+    Incident,
+    IncidentOccurrence,
+    Issue,
+    Occurrence,
+    Project,
+    StacktraceLine
+  }
 
   @doc """
   Lists all projects for the given account.
@@ -509,7 +519,10 @@ defmodule GI.Tracking do
         account_id = updated_issue.project.account_id
 
         broadcast_issue_updated(account_id, updated_issue)
-        emit_notification_event(:issue_updated, account_id, updated_issue, %{changes: field_changes})
+
+        emit_notification_event(:issue_updated, account_id, updated_issue, %{
+          changes: field_changes
+        })
 
         if status_change do
           emit_notification_event(:issue_status_changed, account_id, updated_issue, %{
@@ -961,67 +974,43 @@ defmodule GI.Tracking do
         {:error, :project_not_found}
 
       _project ->
-        report_error_with_lock(
-          account,
-          user,
-          project_id,
-          fingerprint,
-          error_attrs,
-          occurrence_attrs
-        )
+        dedup_with_lock(account, fingerprint, fn ->
+          case get_error_by_fingerprint(account, fingerprint) do
+            nil ->
+              create_new_error(account, user, project_id, error_attrs, occurrence_attrs)
+
+            existing_error ->
+              add_occurrence_to_existing(existing_error, occurrence_attrs)
+          end
+        end)
     end
   end
 
-  defp report_error_with_lock(
-         account,
-         user,
-         project_id,
-         fingerprint,
-         error_attrs,
-         occurrence_attrs
-       ) do
+  # Shared dedup helper: acquires advisory lock on {account_id, fingerprint}
+  # and executes the callback inside a transaction.
+  # The callback must return {:ok, resource, status} or {:error, changeset}.
+  defp dedup_with_lock(%Account{} = account, fingerprint, callback) do
     lock_key = fingerprint_lock_key(account.id, fingerprint)
 
     result =
       Repo.transaction(fn ->
         Repo.query!("SELECT pg_advisory_xact_lock($1)", [lock_key])
 
-        execute_report_error(
-          account,
-          user,
-          project_id,
-          fingerprint,
-          error_attrs,
-          occurrence_attrs
-        )
+        case callback.() do
+          {:ok, resource, status} -> {resource, status}
+          {:error, changeset} -> Repo.rollback(changeset)
+        end
       end)
 
     case result do
-      {:ok, {error, status}} -> {:ok, error, status}
+      {:ok, {resource, status}} -> {:ok, resource, status}
       {:error, changeset} -> {:error, changeset}
-    end
-  end
-
-  defp execute_report_error(account, user, project_id, fingerprint, error_attrs, occurrence_attrs) do
-    case do_report_error(account, user, project_id, fingerprint, error_attrs, occurrence_attrs) do
-      {:ok, error, status} -> {error, status}
-      {:error, changeset} -> Repo.rollback(changeset)
     end
   end
 
   # Generate a consistent lock key from account_id and fingerprint
   defp fingerprint_lock_key(account_id, fingerprint) do
     :erlang.phash2({account_id, fingerprint})
-  end
-
-  defp do_report_error(account, user, project_id, fingerprint, error_attrs, occurrence_attrs) do
-    case get_error_by_fingerprint(account, fingerprint) do
-      nil ->
-        create_new_error(account, user, project_id, error_attrs, occurrence_attrs)
-
-      existing_error ->
-        add_occurrence_to_existing(existing_error, occurrence_attrs)
-    end
   end
 
   defp create_new_error(account, user, project_id, error_attrs, occurrence_attrs) do
@@ -1172,5 +1161,356 @@ defmodule GI.Tracking do
       _, query ->
         query
     end)
+  end
+
+  # ==========================================================================
+  # Incidents
+  # ==========================================================================
+
+  @default_reopen_window_hours 24
+
+  @doc """
+  Reports an incident with fingerprint deduplication.
+
+  If an incident with the same fingerprint exists in the account:
+  - If the linked issue is open, adds a new occurrence
+  - If the linked issue was recently archived, reopens it
+  - If the linked issue was archived outside the reopen window, creates a new issue
+
+  Otherwise, creates a new issue and incident.
+
+  Uses advisory locking to prevent race conditions with concurrent requests.
+
+  Returns `{:ok, incident, :created | :reopened | :occurrence_added}`.
+  """
+  def report_incident(
+        %Account{} = account,
+        %User{} = user,
+        project_id,
+        incident_attrs,
+        occurrence_attrs
+      ) do
+    fingerprint = incident_attrs[:fingerprint] || incident_attrs["fingerprint"]
+
+    case get_project(account, project_id) do
+      nil ->
+        {:error, :project_not_found}
+
+      _project ->
+        dedup_with_lock(account, fingerprint, fn ->
+          case get_incident_by_fingerprint(account, fingerprint) do
+            nil ->
+              create_new_incident(account, user, project_id, incident_attrs, occurrence_attrs)
+
+            existing_incident ->
+              handle_existing_incident(
+                account,
+                user,
+                project_id,
+                existing_incident,
+                incident_attrs,
+                occurrence_attrs
+              )
+          end
+        end)
+    end
+  end
+
+  defp create_new_incident(account, user, project_id, incident_attrs, occurrence_attrs) do
+    title = incident_attrs[:title] || incident_attrs["title"]
+
+    issue_attrs = %{
+      title: title,
+      type: :incident,
+      priority: :critical,
+      project_id: project_id
+    }
+
+    case create_issue(account, user, issue_attrs) do
+      {:ok, issue} ->
+        now = DateTime.utc_now(:second)
+
+        attrs =
+          incident_attrs
+          |> Map.put(:issue_id, issue.id)
+          |> Map.put(:account_id, account.id)
+          |> Map.put(:last_occurrence_at, now)
+
+        case %Incident{}
+             |> Incident.create_changeset(attrs)
+             |> Repo.insert() do
+          {:ok, incident} ->
+            case create_incident_occurrence(incident, occurrence_attrs) do
+              {:ok, _} ->
+                incident = Repo.preload(incident, [:issue, :incident_occurrences])
+                {:ok, incident, :created}
+
+              {:error, changeset} ->
+                {:error, changeset}
+            end
+
+          {:error, changeset} ->
+            {:error, changeset}
+        end
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
+  end
+
+  defp handle_existing_incident(
+         account,
+         user,
+         project_id,
+         %Incident{} = incident,
+         incident_attrs,
+         occurrence_attrs
+       ) do
+    issue = Repo.get!(Issue, incident.issue_id)
+    reopen_window = extract_reopen_window(incident_attrs)
+    now = DateTime.utc_now(:second)
+
+    case SharedIncidentLifecycle.classify_incident(issue, reopen_window, now) do
+      {:open, _issue} ->
+        add_incident_occurrence(incident, occurrence_attrs)
+
+      {:reopen, issue} ->
+        reopen_incident(incident, issue, occurrence_attrs)
+
+      :none ->
+        create_new_issue_for_incident(account, user, project_id, incident, occurrence_attrs)
+    end
+  end
+
+  defp extract_reopen_window(attrs) do
+    attrs[:reopen_window_hours] || attrs["reopen_window_hours"] || @default_reopen_window_hours
+  end
+
+  defp add_incident_occurrence(%Incident{} = incident, occurrence_attrs) do
+    {:ok, _} = create_incident_occurrence(incident, occurrence_attrs)
+
+    {:ok, _} =
+      incident
+      |> Incident.update_changeset(%{last_occurrence_at: DateTime.utc_now(:second)})
+      |> Repo.update()
+
+    incident = Repo.preload(incident, [:issue, :incident_occurrences], force: true)
+    {:ok, incident, :occurrence_added}
+  end
+
+  defp reopen_incident(%Incident{} = incident, %Issue{} = issue, occurrence_attrs) do
+    {:ok, _} = update_issue(issue, %{status: :in_progress})
+
+    {:ok, updated} =
+      incident
+      |> Incident.update_changeset(%{
+        status: :unresolved,
+        last_occurrence_at: DateTime.utc_now(:second)
+      })
+      |> Repo.update()
+
+    {:ok, _} = create_incident_occurrence(updated, occurrence_attrs)
+
+    updated = Repo.preload(updated, [:issue, :incident_occurrences], force: true)
+    {:ok, updated, :reopened}
+  end
+
+  defp create_new_issue_for_incident(account, user, project_id, incident, occurrence_attrs) do
+    issue_attrs = %{
+      title: incident.title,
+      type: :incident,
+      priority: :critical,
+      project_id: project_id
+    }
+
+    case create_issue(account, user, issue_attrs) do
+      {:ok, new_issue} ->
+        {:ok, updated} =
+          incident
+          |> Incident.update_changeset(%{
+            issue_id: new_issue.id,
+            status: :unresolved,
+            last_occurrence_at: DateTime.utc_now(:second)
+          })
+          |> Repo.update()
+
+        {:ok, _} = create_incident_occurrence(updated, occurrence_attrs)
+
+        updated = Repo.preload(updated, [:issue, :incident_occurrences], force: true)
+        {:ok, updated, :created}
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
+  end
+
+  defp create_incident_occurrence(%Incident{id: incident_id}, attrs) do
+    %IncidentOccurrence{incident_id: incident_id}
+    |> IncidentOccurrence.create_changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Resolves an incident by marking it as resolved and archiving the linked issue.
+  """
+  def resolve_incident(%Incident{status: :resolved} = incident) do
+    {:ok, incident}
+  end
+
+  def resolve_incident(%Incident{} = incident) do
+    issue = Repo.get!(Issue, incident.issue_id)
+    {:ok, _} = update_issue(issue, %{status: :archived})
+
+    incident
+    |> Incident.update_changeset(%{status: :resolved})
+    |> Repo.update()
+  end
+
+  @doc """
+  Gets an incident by ID, scoped to the given account.
+  """
+  def get_incident(%Account{id: account_id}, id, opts \\ []) do
+    preloads = Keyword.get(opts, :preload, [])
+
+    if valid_uuid?(id) do
+      Incident
+      |> where([inc], inc.id == ^id and inc.account_id == ^account_id)
+      |> preload(^preloads)
+      |> Repo.one()
+    else
+      nil
+    end
+  end
+
+  @doc """
+  Gets an incident by fingerprint within an account.
+  """
+  def get_incident_by_fingerprint(%Account{id: account_id}, fingerprint) do
+    Incident
+    |> where([inc], inc.fingerprint == ^fingerprint and inc.account_id == ^account_id)
+    |> preload(:issue)
+    |> Repo.one()
+  end
+
+  @doc """
+  Lists incidents for the given account with optional filters and pagination.
+
+  ## Options
+
+    * `:status` - Filter by status (resolved, unresolved)
+    * `:severity` - Filter by severity (info, warning, critical)
+    * `:muted` - Filter by muted status (true, false)
+    * `:source` - Filter by source
+    * `:page` - Page number (default: 1)
+    * `:per_page` - Results per page (default: 20, max: 100)
+
+  """
+  def list_incidents_paginated(%Account{id: account_id}, filters \\ %{}) do
+    {page, per_page} = extract_pagination(filters)
+
+    base_query =
+      Incident
+      |> where([inc], inc.account_id == ^account_id)
+      |> apply_incident_filters(filters)
+
+    total = Repo.aggregate(base_query, :count)
+    total_pages = max(ceil(total / per_page), 1)
+
+    incidents =
+      base_query
+      |> order_by([inc], desc: inc.last_occurrence_at)
+      |> limit(^per_page)
+      |> offset(^((page - 1) * per_page))
+      |> preload(:issue)
+      |> Repo.all()
+
+    %{
+      incidents: incidents,
+      page: page,
+      per_page: per_page,
+      total: total,
+      total_pages: total_pages
+    }
+  end
+
+  @valid_incident_statuses ~w(resolved unresolved)
+  @valid_incident_severities ~w(info warning critical)
+
+  defp apply_incident_filters(query, filters) do
+    Enum.reduce(filters, query, fn
+      {:status, status}, query when status in [:resolved, :unresolved] ->
+        where(query, [inc], inc.status == ^status)
+
+      {:status, status}, query when is_binary(status) ->
+        if status in @valid_incident_statuses do
+          where(query, [inc], inc.status == ^status)
+        else
+          query
+        end
+
+      {:severity, severity}, query when severity in [:info, :warning, :critical] ->
+        where(query, [inc], inc.severity == ^severity)
+
+      {:severity, severity}, query when is_binary(severity) ->
+        if severity in @valid_incident_severities do
+          where(query, [inc], inc.severity == ^severity)
+        else
+          query
+        end
+
+      {:muted, muted}, query when is_boolean(muted) ->
+        where(query, [inc], inc.muted == ^muted)
+
+      {:source, source}, query when is_binary(source) and source != "" ->
+        where(query, [inc], inc.source == ^source)
+
+      _, query ->
+        query
+    end)
+  end
+
+  @doc """
+  Gets an incident with paginated occurrences.
+
+  ## Options
+
+    * `:page` - Page number for occurrences (default: 1)
+    * `:per_page` - Occurrences per page (default: 20, max: 100)
+
+  """
+  def get_incident_with_occurrences(%Account{} = account, incident_id, opts \\ []) do
+    opts_map = Enum.into(opts, %{})
+    {page, per_page} = extract_pagination(opts_map)
+
+    case get_incident(account, incident_id, preload: [:issue]) do
+      nil ->
+        nil
+
+      incident ->
+        occurrences =
+          IncidentOccurrence
+          |> where([o], o.incident_id == ^incident_id)
+          |> order_by([o], desc: o.inserted_at)
+          |> limit(^per_page)
+          |> offset(^((page - 1) * per_page))
+          |> Repo.all()
+
+        occurrence_count =
+          IncidentOccurrence
+          |> where([o], o.incident_id == ^incident_id)
+          |> Repo.aggregate(:count)
+
+        %{incident | incident_occurrences: occurrences}
+        |> Map.put(:occurrence_count, occurrence_count)
+    end
+  end
+
+  @doc """
+  Updates an incident. Only permits muted field changes.
+  """
+  def update_incident(%Incident{} = incident, attrs) do
+    incident
+    |> Incident.update_changeset(Map.take(attrs, [:muted, "muted"]))
+    |> Repo.update()
   end
 end

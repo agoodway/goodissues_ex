@@ -367,7 +367,9 @@ defmodule GIWeb.Dashboard.HeartbeatLive.Show do
               <span class="text-base-content/20 font-mono">/</span>
               <%= if @live_action == :edit do %>
                 <.link
-                  navigate={~p"/dashboard/#{@current_scope.account.slug}/projects/#{@project.id}/heartbeats/#{@heartbeat.id}"}
+                  navigate={
+                    ~p"/dashboard/#{@current_scope.account.slug}/projects/#{@project.id}/heartbeats/#{@heartbeat.id}"
+                  }
                   class="font-mono text-xs text-base-content/50 hover:text-base-content transition-colors"
                 >
                   {@heartbeat.name}

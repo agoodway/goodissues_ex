@@ -151,6 +151,10 @@ defmodule GIWeb.Router do
     get "/errors/search", ErrorController, :search
     get "/errors/:id", ErrorController, :show
 
+    # Incidents
+    get "/incidents", IncidentController, :index
+    get "/incidents/:id", IncidentController, :show
+
     # Checks (nested under projects)
     get "/projects/:project_id/checks", CheckController, :index
     get "/projects/:project_id/checks/:check_id", CheckController, :show
@@ -184,6 +188,10 @@ defmodule GIWeb.Router do
     # Errors
     post "/errors", ErrorController, :create
     patch "/errors/:id", ErrorController, :update
+
+    # Incidents
+    post "/incidents", IncidentController, :create
+    patch "/incidents/:id", IncidentController, :update
 
     # Events (telemetry)
     post "/events/batch", EventController, :create_batch

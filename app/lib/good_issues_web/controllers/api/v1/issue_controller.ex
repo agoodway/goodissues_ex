@@ -122,8 +122,8 @@ defmodule GIWeb.Api.V1.IssueController do
            Tracking.create_issue(
              conn.assigns.current_account,
              conn.assigns.current_user,
-              issue_params
-            ) do
+             issue_params
+           ) do
       # Preload project for key computation
       issue = GI.Repo.preload(issue, :project)
 
