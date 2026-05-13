@@ -209,6 +209,18 @@ GoodissuesEx.ping_heartbeat_ping(ping_client, project_id, heartbeat_token, %{})
 GoodissuesEx.fail_heartbeat_ping(ping_client, project_id, heartbeat_token, %{exit_code: 1})
 ```
 
+### Cloud IP Ranges
+
+Query cloud provider IP ranges used for uptime check classification.
+
+```elixir
+# Get the current sync snapshot metadata
+{:ok, sync_state} = GoodissuesEx.sync_state_cloud_ip_range(client)
+
+# List cloud IP ranges (paginated)
+{:ok, %{data: ranges}} = GoodissuesEx.list_cloud_ip_ranges(client)
+```
+
 ### Batch Events
 
 Submit telemetry events in bulk:
@@ -309,6 +321,8 @@ All functions take a `%CanOpener.Client{}` as the first argument. Path parameter
 | `ping_heartbeat_ping/4` | `(client, project_id, heartbeat_token, params)` | Send a success ping |
 | `start_heartbeat_ping/4` | `(client, project_id, heartbeat_token, params)` | Send a start ping |
 | `fail_heartbeat_ping/4` | `(client, project_id, heartbeat_token, params)` | Send a failure ping |
+| `list_cloud_ip_ranges/1` | `(client)` | List cloud IP ranges |
+| `sync_state_cloud_ip_range/1` | `(client)` | Get sync snapshot metadata |
 | `create_batch_event/2` | `(client, params)` | Submit batch telemetry events |
 
 ## How It Works
