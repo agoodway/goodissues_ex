@@ -31,4 +31,4 @@ update:
 
 # Publish subtree to goodissues_ex remote
 publish:
-    git subtree push --prefix=goodissues_ex goodissues_ex main
+    cd ../ && git subtree push --prefix=goodissues_ex goodissues_ex main
