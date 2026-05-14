@@ -221,27 +221,6 @@ Query cloud provider IP ranges used for uptime check classification.
 {:ok, %{data: ranges}} = GoodissuesEx.list_cloud_ip_ranges(client)
 ```
 
-### Batch Events
-
-Submit telemetry events in bulk:
-
-```elixir
-GoodissuesEx.create_batch_event(client, %{
-  events: [
-    %{
-      project_id: project_id,
-      event_type: "phoenix_request",
-      event_name: "GET /api/users",
-      duration_ms: 42.5,
-      timestamp: DateTime.utc_now() |> DateTime.to_iso8601(),
-      context: %{status: 200}
-    }
-  ]
-})
-```
-
-**Event types:** `phoenix_request`, `phoenix_router`, `phoenix_error`, `liveview_mount`, `liveview_event`, `ecto_query`
-
 ## Pagination
 
 List endpoints accept `page` and `per_page` as query parameters. Responses include a `meta` field with pagination metadata:
@@ -323,7 +302,6 @@ All functions take a `%CanOpener.Client{}` as the first argument. Path parameter
 | `fail_heartbeat_ping/4` | `(client, project_id, heartbeat_token, params)` | Send a failure ping |
 | `list_cloud_ip_ranges/1` | `(client)` | List cloud IP ranges |
 | `sync_state_cloud_ip_range/1` | `(client)` | Get sync snapshot metadata |
-| `create_batch_event/2` | `(client, params)` | Submit batch telemetry events |
 
 ## How It Works
 
